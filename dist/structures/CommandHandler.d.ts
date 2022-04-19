@@ -1,5 +1,6 @@
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
+import { Modal, ModalProps } from './Modal';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -11,9 +12,13 @@ export declare class CommandHandler {
      */
     client: Client;
     /**
-     * The command handler's commands
+     * The command handler's commands.
      */
     commands: ExtendedMap<Snowflake | `unknown${number}`, Command>;
+    /**
+     * The command handler's modals.
+     */
+    modals: ExtendedMap<string, Modal<ModalProps>>;
     /**
      * Called when a command encounters an error.
      * @param error The error encountered.
@@ -45,6 +50,11 @@ export declare class CommandHandler {
      * @param command The command to add.
      */
     add(command: ChatCommand<any, any> | ContextMenuCommand<any>): this;
+    /**
+     * Bind a modal to the command handler.
+     * @param modal The modal to bind.
+     */
+    bindModal(modal: Modal<any, any>): this;
     /**
      * Pushes added / changed / deleted slash commands to Discord.
      */

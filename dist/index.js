@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Embed = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = void 0;
+exports.ModalContext = exports.Modal = exports.Embed = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = void 0;
 var ChatCommand_1 = require("./structures/ChatCommand");
 Object.defineProperty(exports, "ChatCommand", { enumerable: true, get: function () { return ChatCommand_1.ChatCommand; } });
 Object.defineProperty(exports, "ChatCommandContext", { enumerable: true, get: function () { return ChatCommand_1.ChatCommandContext; } });
@@ -11,3 +11,6 @@ Object.defineProperty(exports, "ContextMenuCommand", { enumerable: true, get: fu
 Object.defineProperty(exports, "ContextMenuCommandContext", { enumerable: true, get: function () { return ContextMenuCommand_1.ContextMenuCommandContext; } });
 var Embed_1 = require("./structures/Embed");
 Object.defineProperty(exports, "Embed", { enumerable: true, get: function () { return Embed_1.Embed; } });
+var Modal_1 = require("./structures/Modal");
+Object.defineProperty(exports, "Modal", { enumerable: true, get: function () { return Modal_1.Modal; } });
+Object.defineProperty(exports, "ModalContext", { enumerable: true, get: function () { return Modal_1.ModalContext; } });

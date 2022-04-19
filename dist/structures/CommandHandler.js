@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandHandler = void 0;
 const ChatCommand_1 = require("./ChatCommand");
 const ContextMenuCommand_1 = require("./ContextMenuCommand");
+const Modal_1 = require("./Modal");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 class CommandHandler {
@@ -37,9 +38,13 @@ class CommandHandler {
      */
     constructor(client, logCallback = () => { }, logThisArg) {
         /**
-         * The command handler's commands
+         * The command handler's commands.
          */
         this.commands = new node_utils_1.ExtendedMap();
+        /**
+         * The command handler's modals.
+         */
+        this.modals = new node_utils_1.ExtendedMap();
         /**
          * Called when a command encounters an error.
          * @param error The error encountered.
@@ -80,6 +85,27 @@ class CommandHandler {
         this.commands.set(`unknown${this._unknownNonce}`, command);
         this._unknownNonce++;
         this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
+            level: `DEBUG`, system: this.system
+        });
+        return this;
+    }
+    /**
+     * Bind a modal to the command handler.
+     * @param modal The modal to bind.
+     */
+    bindModal(modal) {
+        if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id))
+            return this;
+        if (typeof modal.props.custom_id !== `string`)
+            throw new Error(`Cannot bind a modal will a missing "custom_id" parameter`);
+        if (typeof modal.props.title !== `string`)
+            throw new Error(`Cannot bind a modal will a missing "title" parameter`);
+        if (this.modals.find((_, customId) => customId === modal.props.custom_id))
+            this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
+                level: `DEBUG`, system: this.system
+            });
+        this.modals.set(modal.props.custom_id, modal);
+        this._log(`Bound modal with custom ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -136,7 +162,7 @@ class CommandHandler {
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
      */
-    _onInteraction(interaction) {
+    async _onInteraction(interaction) {
         let run;
         let ctx;
         switch (interaction.type) {
@@ -145,12 +171,20 @@ class CommandHandler {
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         run = command.run;
-                        ctx = new ChatCommand_1.ChatCommandContext(this.client, this, command, interaction);
+                        ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction);
                     }
                     else {
                         run = command.run;
-                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this.client, this, command, interaction);
+                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction);
                     }
+                }
+                break;
+            }
+            case DiscordTypes.InteractionType.ModalSubmit: {
+                const modal = this.modals.get(interaction.data.custom_id);
+                if (modal) {
+                    run = modal.run;
+                    ctx = new Modal_1.ModalContext(this, modal, interaction);
                 }
             }
         }
@@ -158,7 +192,7 @@ class CommandHandler {
             try {
                 const call = run(ctx);
                 if (call instanceof Promise) {
-                    const reject = call.then(() => false).catch((error) => error);
+                    const reject = await call.then(() => false).catch((error) => error);
                     if (reject)
                         throw reject;
                 }

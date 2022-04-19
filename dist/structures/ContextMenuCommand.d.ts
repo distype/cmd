@@ -1,7 +1,7 @@
+import { BaseCommandContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
-import { CommandMessage } from '../functions/messageFactory';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { Snowflake } from 'distype';
 /**
  * Adds a prop to a command.
  * @internal
@@ -60,25 +60,9 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
     setExecute(exec: (ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)): this;
 }
 /**
- * ContextMenu command context.
+ * Context menu command context.
  */
-export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> {
-    /**
-     * The client that received the interaction.
-     */
-    client: Client;
-    /**
-     * The command handler that invoked the context.
-     */
-    commandHandler: CommandHandler;
-    /**
-     * If the original response was a defer.
-     */
-    deferred: boolean | null;
-    /**
-     * Message IDs of sent responses.
-     */
-    responses: Array<Snowflake | `@original`>;
+export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseCommandContext {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -89,43 +73,6 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
     readonly command: ContextMenuCommand<PR>[`props`] & {
         id: Snowflake;
     };
-    /**
-     * The ID of the guild that the command was ran in.
-     */
-    readonly guildId?: Snowflake;
-    /**
-     * The guild's preferred locale, if the command was invoked in a guild.
-     */
-    readonly guildLocale?: DiscordTypes.LocaleString;
-    /**
-     * Interaction data.
-     */
-    readonly interaction: {
-        /**
-         * The ID of the application the interaction belongs to.
-         */
-        applicationId: Snowflake;
-        /**
-         * The interaction's ID.
-         */
-        id: Snowflake;
-        /**
-         * The interaction's token.
-         */
-        token: string;
-        /**
-         * The interaction's type.
-         */
-        type: DiscordTypes.InteractionType.ApplicationCommand;
-        /**
-         * The interaction's version.
-         */
-        version: 1;
-    };
-    /**
-     * The invoking user's member data.
-     */
-    readonly member?: DiscordTypes.APIInteractionGuildMember;
     /**
      * The executed command's target.
      */
@@ -138,42 +85,11 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
      */
     readonly targetId: Snowflake;
     /**
-     * The invoking user.
-     */
-    readonly user: DiscordTypes.APIUser;
-    /**
-     * Create a chat command's context.
-     * @param client The client that received the interaction.
+     * Create a context menu command's context.
      * @param commandHandler The command handler that invoked the context.
+     * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(client: Client, commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction);
-    /**
-     * Calls the command handler's error callback.
-     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
-     * @param error The error encountered.
-     */
-    error(error: Error): void;
-    /**
-     * Defers the interaction (displays a loading state to the user).
-     */
-    defer(flags?: DiscordTypes.MessageFlags): Promise<`@original`>;
-    /**
-     * Sends a message.
-     * @param message The message to send.
-     */
-    send(message: CommandMessage): Promise<Snowflake | `@original`>;
-    /**
-     * Edit a response.
-     * @param id The ID of the response to edit (`@original` if it is the original response).
-     * @param message The new response.
-     * @returns The new created response.
-     */
-    edit(id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
-    /**
-     * Delete a response.
-     * @param id The ID of the reponse to delete.
-     */
-    delete(id: Snowflake | `@original`): Promise<void>;
+    constructor(commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction);
 }
 export {};
