@@ -122,7 +122,7 @@ export class BaseContext {
         let id: Snowflake | `@original`;
 
         if (this.responses.length) {
-            id = (await this.client.rest.createFollowupMessage(this.interaction.id, this.interaction.token, messageFactory(message))).id;
+            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, messageFactory(message))).id;
         } else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
                 type: DiscordTypes.InteractionResponseType.ChannelMessageWithSource,
@@ -143,7 +143,7 @@ export class BaseContext {
      */
     public async edit (id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
         if (!this.responses.includes(id)) throw new Error(`No response found matching the ID "${id}"`);
-        return await this.client.rest.editFollowupMessage(this.interaction.id, this.interaction.token, id, messageFactory(message));
+        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, messageFactory(message));
     }
 
     /**
@@ -152,7 +152,7 @@ export class BaseContext {
      */
     public async delete (id: Snowflake | `@original`): Promise<void> {
         if (!this.responses.includes(id)) throw new Error(`No response found matching the ID "${id}"`);
-        await this.client.rest.deleteFollowupMessage(this.interaction.id, this.interaction.token, id);
+        await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
         this.responses = this.responses.filter((response) => response !== id);
     }
 }
