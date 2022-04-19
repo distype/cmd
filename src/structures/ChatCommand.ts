@@ -100,7 +100,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * The command's execute method.
      * @internal
      */
-    public run: ((ctx: ChatCommandContext<PR, PA>) => void | Promise<void>) | null = null;
+    public run: ((ctx: ChatCommandContext<PR, PA>) => (void | Promise<void>)) | null = null;
 
     /**
      * Set the command's name.
@@ -450,7 +450,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    public setExecute (exec: (ctx: ChatCommandContext<PR, PA>) => void | Promise<void>): this {
+    public setExecute (exec: (ctx: ChatCommandContext<PR, PA>) => (void | Promise<void>)): this {
         if (!this.props.name || !this.props.description) throw new Error(`A chat input command's name and description must be present to set its execute method`);
         this.run = exec;
         return this;
@@ -600,6 +600,15 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
             ...(interaction.member?.user ?? interaction.user!),
             locale: interaction.locale ?? interaction.locale
         };
+    }
+
+    /**
+     * Calls the command handler's error callback.
+     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
+     * @param error The error encountered.
+     */
+    public error (error: Error): void {
+        this.commandHandler.runError(error, this as any, false);
     }
 
     /**

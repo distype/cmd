@@ -18,6 +18,16 @@ export class CommandHandler {
      * The command handler's commands
      */
     public commands: ExtendedMap<Snowflake | `unknown${number}`, Command> = new ExtendedMap();
+    /**
+     * Called when a command encounters an error.
+     * @param error The error encountered.
+     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
+     * @internal
+     */
+    public runError: (error: Error, ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommandContext<ContextMenuCommandProps>, unexpected: boolean) => void
+        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``} ${error.name} when running ${ctx.command.name} (${ctx.command.id}): ${error.message}`, {
+            level: `ERROR`, system: this.system
+        });
 
     /**
      * The system string used for emitting errors and for the {@link LogCallback log callback}.
@@ -120,19 +130,50 @@ export class CommandHandler {
     }
 
     /**
+     * Set the error callback function to run when a command's execution fails
+     * @param erroCallback The callback to use.
+     */
+    public setError (erroCallback: CommandHandler[`runError`]): void {
+        this.runError = erroCallback;
+    }
+
+    /**
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
      */
     private _onInteraction (interaction: DiscordTypes.APIInteraction): void {
+        let run: any;
+        let ctx: any;
+
         switch (interaction.type) {
             case DiscordTypes.InteractionType.ApplicationCommand: {
                 const command = this.commands.get(interaction.data.id);
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
-                        (command as unknown as ChatCommand)?.run?.(new ChatCommandContext(this.client, this, command as any, interaction as any));
+                        run = command.run;
+                        ctx = new ChatCommandContext(this.client, this, command as any, interaction as any);
                     } else {
-                        (command as unknown as ContextMenuCommand)?.run?.(new ContextMenuCommandContext(this.client, this, command as any, interaction as any));
+                        run = command.run;
+                        ctx = new ContextMenuCommandContext(this.client, this, command as any, interaction as any);
                     }
+                }
+            }
+        }
+
+        if (typeof run === `function` && ctx) {
+            try {
+                const call = run(ctx);
+
+                let reject;
+                if (call instanceof Promise) reject = call.catch((error) => error);
+                if (reject) throw reject;
+            } catch (error: any) {
+                try {
+                    this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                } catch (eError: any) {
+                    this._log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                        level: `ERROR`, system: this.system
+                    });
                 }
             }
         }

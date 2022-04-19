@@ -34,7 +34,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * The command's execute method.
      * @internal
      */
-    public run: ((ctx: ContextMenuCommandContext<PR>) => void | Promise<void>) | null = null;
+    public run: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null = null;
 
     /**
      * Set the command's type.
@@ -80,7 +80,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    public setExecute (exec: (ctx: ContextMenuCommandContext<PR>) => void | Promise<void>): this {
+    public setExecute (exec: (ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)): this {
         if (!this.props.type || !this.props.name) throw new Error(`A context menu command's type and name must be present to set its execute method`);
         this.run = exec;
         return this;
@@ -205,6 +205,15 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
             ...(interaction.member?.user ?? interaction.user!),
             locale: interaction.locale ?? interaction.locale
         };
+    }
+
+    /**
+     * Calls the command handler's error callback.
+     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
+     * @param error The error encountered.
+     */
+    public error (error: Error): void {
+        this.commandHandler.runError(error, this as any, false);
     }
 
     /**
