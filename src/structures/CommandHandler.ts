@@ -1,5 +1,6 @@
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
+import { Modal, ModalContext, ModalProps } from './Modal';
 
 import { LogCallback } from '../types/Log';
 
@@ -15,9 +16,13 @@ export class CommandHandler {
      */
     public client: Client;
     /**
-     * The command handler's commands
+     * The command handler's commands.
      */
     public commands: ExtendedMap<Snowflake | `unknown${number}`, Command> = new ExtendedMap();
+    /**
+     * The command handler's modals.
+     */
+    public modals: ExtendedMap<string, Modal<ModalProps>> = new ExtendedMap();
     /**
      * Called when a command encounters an error.
      * @param error The error encountered.
@@ -64,7 +69,7 @@ export class CommandHandler {
      * Add a command to the command handler.
      * @param command The command to add.
      */
-    public add (command: Command): this {
+    public add (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
         if (typeof command.props.type !== `number`) throw new Error(`Cannot push a command with a missing "type" parameter`);
         if (typeof command.props.name !== `string`) throw new Error(`Cannot push a command with a missing "name" parameter`);
         if (command instanceof ChatCommand && typeof command.props.description !== `string`) throw new Error(`Cannot push a command with a missing "description" parameter`);
@@ -75,6 +80,28 @@ export class CommandHandler {
         this._unknownNonce++;
 
         this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
+            level: `DEBUG`, system: this.system
+        });
+        return this;
+    }
+
+    /**
+     * Bind a modal to the command handler.
+     * @param modal The modal to bind.
+     */
+    public bindModal (modal: Modal<any, any>): this {
+        if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
+
+        if (typeof modal.props.custom_id !== `string`) throw new Error(`Cannot bind a modal will a missing "custom_id" parameter`);
+        if (typeof modal.props.title !== `string`) throw new Error(`Cannot bind a modal will a missing "title" parameter`);
+
+        if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        this.modals.set(modal.props.custom_id, modal);
+
+        this._log(`Bound modal with custom ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -141,7 +168,7 @@ export class CommandHandler {
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
      */
-    private _onInteraction (interaction: DiscordTypes.APIInteraction): void {
+    private async _onInteraction (interaction: DiscordTypes.APIInteraction): Promise<void> {
         let run: any;
         let ctx: any;
 
@@ -151,11 +178,21 @@ export class CommandHandler {
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         run = command.run;
-                        ctx = new ChatCommandContext(this.client, this, command as any, interaction as any);
+                        ctx = new ChatCommandContext(this, command as any, interaction as any);
                     } else {
                         run = command.run;
-                        ctx = new ContextMenuCommandContext(this.client, this, command as any, interaction as any);
+                        ctx = new ContextMenuCommandContext(this, command as any, interaction as any);
                     }
+                }
+
+                break;
+            }
+
+            case DiscordTypes.InteractionType.ModalSubmit: {
+                const modal = this.modals.get(interaction.data.custom_id);
+                if (modal) {
+                    run = modal.run;
+                    ctx = new ModalContext(this, modal, interaction);
                 }
             }
         }
@@ -165,7 +202,7 @@ export class CommandHandler {
                 const call = run(ctx);
 
                 if (call instanceof Promise) {
-                    const reject = call.then(() => false).catch((error) => error);
+                    const reject = await call.then(() => false).catch((error) => error);
                     if (reject) throw reject;
                 }
             } catch (error: any) {

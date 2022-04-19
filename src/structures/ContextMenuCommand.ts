@@ -2,7 +2,7 @@ import { BaseCommandContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { Snowflake } from 'distype';
 
 /**
  * Adds a prop to a command.
@@ -112,13 +112,12 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
 
     /**
      * Create a context menu command's context.
-     * @param client The client that received the interaction.
      * @param commandHandler The command handler that invoked the context.
      * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (client: Client, commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction) {
-        super(client, commandHandler, interaction);
+    constructor (commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction) {
+        super(commandHandler, interaction);
 
         this.channelId = interaction.channel_id;
         this.command = {

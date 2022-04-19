@@ -1,5 +1,5 @@
 import { CommandHandler } from './CommandHandler';
-import { Modal, ModalProps } from './Modal';
+import { Modal } from './Modal';
 
 import { CommandMessage, messageFactory } from '../functions/messageFactory';
 
@@ -18,6 +18,10 @@ export class BaseContext {
      * The command handler that invoked the context.
      */
     public commandHandler: CommandHandler;
+    /**
+     * Message IDs of sent responses.
+     */
+    public responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
 
     /**
      * The ID of the guild that the interaction was ran in.
@@ -63,12 +67,11 @@ export class BaseContext {
 
     /**
      * Create interaction context.
-     * @param client The client that received the interaction.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (client: Client, commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIApplicationCommandAutocompleteInteraction | DiscordTypes.APIModalSubmitInteraction) {
-        this.client = client;
+    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIApplicationCommandAutocompleteInteraction | DiscordTypes.APIModalSubmitInteraction) {
+        this.client = commandHandler.client;
         this.commandHandler = commandHandler;
 
         this.guildId = interaction.guild_id ?? (interaction.data as any)?.guild_id;
@@ -86,20 +89,6 @@ export class BaseContext {
             locale: interaction.locale ?? interaction.locale
         };
     }
-}
-
-/**
- * Base command context.
- */
-export class BaseCommandContext extends BaseContext {
-    /**
-     * If the first response can be edited.
-     */
-    public canEditOriginal = false;
-    /**
-     * Message IDs of sent responses.
-     */
-    public responses: Array<Snowflake | `@original`> = [];
 
     /**
      * Calls the command handler's error callback.
@@ -113,7 +102,7 @@ export class BaseCommandContext extends BaseContext {
     /**
      * Defers the interaction (displays a loading state to the user).
      */
-    public async defer (flags?: DiscordTypes.MessageFlags): Promise<`@original`> {
+    public async defer (flags?: DiscordTypes.MessageFlags): Promise<`defer`> {
         if (this.responses.length) throw new Error(`Cannot defer, a response has already been created`);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
@@ -121,28 +110,8 @@ export class BaseCommandContext extends BaseContext {
             data: { flags }
         });
 
-        this.responses.push(`@original`);
-        return `@original`;
-    }
-
-    public async modal (modal: Modal<ModalProps, DiscordTypes.APIModalActionRowComponent[]>): Promise<`@original`> {
-        if (this.responses.length) throw new Error(`Cannot open a modal, a response has already been created`);
-
-        if (!modal.props.custom_id || !modal.props.title) throw new Error(`A modal's ID and title must be present to use it as a response`);
-
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.Modal,
-            data: {
-                ...modal.props,
-                components: modal.parameters.map((parameter) => ({
-                    type: DiscordTypes.ComponentType.ActionRow,
-                    components: [parameter]
-                }))
-            }
-        });
-
-        this.responses.push(`@original`);
-        return `@original`;
+        this.responses.push(`defer`);
+        return `defer`;
     }
 
     /**
@@ -160,7 +129,6 @@ export class BaseCommandContext extends BaseContext {
                 data: messageFactory(message)
             });
             id = `@original`;
-            this.canEditOriginal = true;
         }
 
         this.responses.push(id);
@@ -174,7 +142,7 @@ export class BaseCommandContext extends BaseContext {
      * @returns The new created response.
      */
     public async edit (id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        if (id === `@original` && !this.canEditOriginal) throw new Error(`Cannot edit the original response`);
+        if (!this.responses.includes(id)) throw new Error(`No response found matching the ID "${id}"`);
         return await this.client.rest.editFollowupMessage(this.interaction.id, this.interaction.token, id, messageFactory(message));
     }
 
@@ -183,8 +151,39 @@ export class BaseCommandContext extends BaseContext {
      * @param id The ID of the reponse to delete.
      */
     public async delete (id: Snowflake | `@original`): Promise<void> {
-        if (id === `@original` && !this.canEditOriginal) throw new Error(`Cannot delete the original response`);
+        if (!this.responses.includes(id)) throw new Error(`No response found matching the ID "${id}"`);
         await this.client.rest.deleteFollowupMessage(this.interaction.id, this.interaction.token, id);
         this.responses = this.responses.filter((response) => response !== id);
+    }
+}
+
+/**
+ * Base command context.
+ */
+export class BaseCommandContext extends BaseContext {
+    /**
+     * Respond with a modal.
+     * @param modal The modal to respond with.
+     */
+    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<`modal`> {
+        if (this.responses.length) throw new Error(`Cannot open a modal, a response has already been created`);
+
+        if (!modal.props.custom_id || !modal.props.title) throw new Error(`A modal's ID and title must be present to use it as a response`);
+
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.Modal,
+            data: {
+                ...modal.props,
+                components: modal.parameters.map((parameter) => ({
+                    type: DiscordTypes.ComponentType.ActionRow,
+                    components: [parameter]
+                }))
+            }
+        });
+
+        this.commandHandler.bindModal(modal);
+
+        this.responses.push(`modal`);
+        return `modal`;
     }
 }

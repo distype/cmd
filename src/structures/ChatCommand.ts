@@ -3,7 +3,7 @@ import { BaseCommandContext } from './BaseContext';
 import { LocalizedText } from '../types/LocalizedText';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { Snowflake } from 'distype';
 import { CommandHandler } from './CommandHandler';
 
 /**
@@ -494,13 +494,12 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
 
     /**
      * Create a chat command's context.
-     * @param client The client that received the interaction.
      * @param commandHandler The command handler that invoked the context.
      * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (client: Client, commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction) {
-        super(client, commandHandler, interaction);
+    constructor (commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction) {
+        super(commandHandler, interaction);
 
         this.channelId = interaction.channel_id;
         this.command = {
