@@ -99,6 +99,8 @@ class ChatCommand {
      * @returns The command.
      */
     addStringParameter(required, name, description, restraints) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.String,
             required,
@@ -119,6 +121,8 @@ class ChatCommand {
      * @returns The command.
      */
     addIntegerParameter(required, name, description, restraints) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Integer,
             required,
@@ -140,6 +144,8 @@ class ChatCommand {
      * @returns The command.
      */
     addBooleanParameter(required, name, description) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Boolean,
             required,
@@ -158,6 +164,8 @@ class ChatCommand {
      * @returns The command.
      */
     addUserParameter(required, name, description) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.User,
             required,
@@ -177,6 +185,8 @@ class ChatCommand {
      * @returns The command.
      */
     addChannelParameter(required, name, description, restraints) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Channel,
             required,
@@ -196,6 +206,8 @@ class ChatCommand {
      * @returns The command.
      */
     addRoleParameter(required, name, description) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Role,
             required,
@@ -214,6 +226,8 @@ class ChatCommand {
      * @returns The command.
      */
     addMentionableParameter(required, name, description) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Mentionable,
             required,
@@ -233,6 +247,8 @@ class ChatCommand {
      * @returns The command.
      */
     addNumberParameter(required, name, description, restraints) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Number,
             required,
@@ -254,6 +270,8 @@ class ChatCommand {
      * @returns The command.
      */
     addAttachmentParameter(required, name, description) {
+        if (this.parameters.find((parameter) => parameter.name === name))
+            throw new Error(`A parameter alreadt exists with the name "${name}"`);
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Attachment,
             required,
