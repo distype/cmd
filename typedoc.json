@@ -2,8 +2,8 @@
   "out": "./docs/",
   "entryPoints": ["src/index.ts"],
   "readme": "./README.md",
-  "name": "distype",
-  "cname": "distype.br88c.dev",
+  "name": "@distype/cmd",
+  "cname": "distypecmd.br88c.dev",
   "includeVersion": true,
   "excludePrivate": true,
   "theme": "default"
