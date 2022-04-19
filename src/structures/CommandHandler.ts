@@ -3,7 +3,7 @@ import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps 
 
 import { LogCallback } from '../types/Log';
 
-import { deepClone, deepEquals, traverseObject } from '@br88c/node-utils';
+import { deepClone, deepEquals, ExtendedMap, traverseObject } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 
@@ -17,7 +17,7 @@ export class CommandHandler {
     /**
      * The command handler's commands
      */
-    public commands: Command[] = [];
+    public commands: ExtendedMap<Snowflake | `unknown${number}`, Command> = new ExtendedMap();
 
     /**
      * The system string used for emitting errors and for the {@link LogCallback log callback}.
@@ -28,6 +28,10 @@ export class CommandHandler {
      * The {@link LogCallback log callback} used by the command handler..
      */
     private _log: LogCallback;
+    /**
+     * The nonce to use for indexing commands with an unknown ID.
+     */
+    private _unknownNonce = 0;
 
     /**
      * Create the command handler.
@@ -55,11 +59,12 @@ export class CommandHandler {
         if (typeof command.props.name !== `string`) throw new Error(`Cannot push a command with a missing "name" parameter`);
         if (command instanceof ChatCommand && typeof command.props.description !== `string`) throw new Error(`Cannot push a command with a missing "description" parameter`);
 
-        if (this.commands.find((c) => c.props.name === command.props.name)) throw new Error(`Commands cannot share names`);
+        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new Error(`Commands of the same type cannot share names`);
 
-        this.commands.push(command);
+        this.commands.set(`unknown${this._unknownNonce}`, command);
+        this._unknownNonce++;
 
-        this._log(`Added command "${command.props.name}"`, {
+        this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -69,14 +74,14 @@ export class CommandHandler {
      * Pushes added / changed / deleted slash commands to Discord.
      */
     public async push (applicationId: Snowflake | undefined = this.client.gateway.user?.id ?? undefined): Promise<void> {
-        if (!applicationId) throw new Error(`undefined`);
+        if (!applicationId) throw new Error(`Application ID is undefined`);
 
         const commands = this.commands.map((command) => this._commandToRaw(command));
         this._log(`Pushing ${commands.length} commands`, {
             level: `INFO`, system: this.system
         });
 
-        const applicationCommands = (await this.client.rest.getGlobalApplicationCommands(applicationId));
+        const applicationCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
         this._log(`Found ${applicationCommands.length} registered commands`, {
             level: `DEBUG`, system: this.system
         });
@@ -98,7 +103,18 @@ export class CommandHandler {
 
         await Promise.all(promises);
 
-        this._log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands`, {
+        const pushedCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
+        pushedCommands.forEach((pushedCommand) => {
+            const matchingCommandKey = this.commands.findKey((command) => deepEquals(this._commandToRaw(command), this._sanitizeRaw(pushedCommand)));
+            const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
+
+            if (matchingCommandKey && matchingCommand) {
+                this.commands.delete(matchingCommandKey);
+                this.commands.set(pushedCommand.id, matchingCommand);
+            }
+        });
+
+        this._log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands (Application now owns ${pushedCommands.length} commands)`, {
             level: `INFO`, system: this.system
         });
     }
@@ -110,11 +126,13 @@ export class CommandHandler {
     private _onInteraction (interaction: DiscordTypes.APIInteraction): void {
         switch (interaction.type) {
             case DiscordTypes.InteractionType.ApplicationCommand: {
-                const command = this.commands.find((command) => command.props.name === interaction.data.name);
-                if (interaction.data.type === DiscordTypes.ApplicationCommandType.ChatInput) {
-                    (command as ChatCommand | undefined)?.run?.(new ChatCommandContext(this.client, this, command as any, interaction as any));
-                } else {
-                    (command as ContextMenuCommand | undefined)?.run?.(new ContextMenuCommandContext(this.client, this, command as any, interaction as any));
+                const command = this.commands.get(interaction.data.id);
+                if (command) {
+                    if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
+                        (command as unknown as ChatCommand)?.run?.(new ChatCommandContext(this.client, this, command as any, interaction as any));
+                    } else {
+                        (command as unknown as ContextMenuCommand)?.run?.(new ContextMenuCommandContext(this.client, this, command as any, interaction as any));
+                    }
                 }
             }
         }
