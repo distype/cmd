@@ -174,6 +174,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         description: D
         choices: RS
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.String,
             required,
@@ -210,6 +212,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         min_value: RS extends ParameterLimits ? RS[`min`] extends number ? RS[`min`] : undefined : undefined
         max_value: RS extends ParameterLimits ? RS[`max`] extends number ? RS[`max`] : undefined : undefined
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Integer,
             required,
@@ -243,6 +247,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Boolean,
             required,
@@ -273,6 +279,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.User,
             required,
@@ -306,6 +314,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         description: D
         channel_types: RS
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Channel,
             required,
@@ -337,6 +347,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Role,
             required,
@@ -367,6 +379,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Mentionable,
             required,
@@ -402,6 +416,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         min_value: RS extends ParameterLimits ? RS[`min`] extends number ? RS[`min`] : undefined : undefined
         max_value: RS extends ParameterLimits ? RS[`max`] extends number ? RS[`max`] : undefined : undefined
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Number,
             required,
@@ -435,6 +451,8 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
+        if (this.parameters.find((parameter) => parameter.name === name)) throw new Error(`A parameter alreadt exists with the name "${name}"`);
+
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Attachment,
             required,
