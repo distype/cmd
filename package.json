@@ -1,0 +1,56 @@
+{
+  "name": "@distype/cmd",
+  "version": "1.0.0",
+  "description": " A command handler for Distype",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "build:install": "npm i --also=dev && npm run build",
+    "docs": "rm -rf ./docs && typedoc",
+    "docs:install": "npm i --also=dev && npm run docs",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "lint:install": "npm i --also=dev && npm run lint",
+    "prepublishOnly": "npm run build:install",
+    "test:build": "npm run build:install",
+    "test:docs": "npm run docs:install",
+    "test:lint": "npm run lint:install"
+  },
+  "keywords": [
+    "bot",
+    "commands",
+    "discord",
+    "discord-api",
+    "discord-bot",
+    "discordapp",
+    "distype"
+  ],
+  "homepage": "https://distypecmd.br88c.dev",
+  "bugs": {
+    "url": "https://github.com/distype/cmd/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "BR88C",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/distype/cmd.git"
+  },
+  "dependencies": {
+    "@br88c/node-utils": "^1.1.3",  
+    "discord-api-types": "^0.31.2",
+    "distype": "^0.9.5"
+  },
+  "devDependencies": {
+    "@br88c/eslint-config": "^1.4.0",
+    "@types/node": "^16.11.27",
+    "eslint": "^8.13.0",
+    "typedoc": "^0.22.15",
+    "typescript": "^4.6.3"
+  },
+  "engines": {
+    "node": ">=16.13.0",
+    "npm": ">=8.1.0"
+  },
+  "private": false
+}
