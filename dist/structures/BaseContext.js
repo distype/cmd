@@ -85,7 +85,7 @@ class BaseContext {
     async send(message) {
         let id;
         if (this.responses.length) {
-            id = (await this.client.rest.createFollowupMessage(this.interaction.id, this.interaction.token, (0, messageFactory_1.messageFactory)(message))).id;
+            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, (0, messageFactory_1.messageFactory)(message))).id;
         }
         else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
@@ -106,7 +106,7 @@ class BaseContext {
     async edit(id, message) {
         if (!this.responses.includes(id))
             throw new Error(`No response found matching the ID "${id}"`);
-        return await this.client.rest.editFollowupMessage(this.interaction.id, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message));
+        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message));
     }
     /**
      * Delete a response.
@@ -115,7 +115,7 @@ class BaseContext {
     async delete(id) {
         if (!this.responses.includes(id))
             throw new Error(`No response found matching the ID "${id}"`);
-        await this.client.rest.deleteFollowupMessage(this.interaction.id, this.interaction.token, id);
+        await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
         this.responses = this.responses.filter((response) => response !== id);
     }
 }
