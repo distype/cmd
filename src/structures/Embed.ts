@@ -8,14 +8,14 @@ import { APIEmbed, APIEmbedAuthor, APIEmbedField, APIEmbedFooter, APIEmbedImage,
  *
  * Methods of this class can be chained to make embed building cleaner.
  * ```ts
- * const embed = new MessageEmbed()
+ * const embed = new Embed()
  *     .setTitle(`A title`)
  *     .setDescription(`Some description`)
  *     .setColor(0x5865F2);
  * ```
  * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-object)
  */
-export class MessageEmbed {
+export class Embed {
     /**
      * The raw embed.
      */

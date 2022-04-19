@@ -1,11 +1,11 @@
-import { MessageEmbed } from '../structures/MessageEmbed';
+import { Embed } from '../structures/Embed';
 
 import { APIInteractionResponseCallbackData } from 'discord-api-types/v10';
 
 /**
  * A response to a command.
  */
-export type CommandMessage = string | MessageEmbed | APIInteractionResponseCallbackData;
+export type CommandMessage = string | Embed | APIInteractionResponseCallbackData;
 
 /**
  * Converts a message sent through a command to a Discord API compatible object.
@@ -15,6 +15,6 @@ export type CommandMessage = string | MessageEmbed | APIInteractionResponseCallb
  */
 export function messageFactory (message: CommandMessage): APIInteractionResponseCallbackData {
     if (typeof message === `string`) return { content: message };
-    else if (message instanceof MessageEmbed) return { embeds: [message.getRaw()] };
+    else if (message instanceof Embed) return { embeds: [message.getRaw()] };
     else return message;
 }

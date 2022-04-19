@@ -16,6 +16,6 @@ export {
     ContextMenuCommandContext,
     ContextMenuCommandProps
 } from './structures/ContextMenuCommand';
-export { MessageEmbed } from './structures/MessageEmbed';
+export { Embed } from './structures/Embed';
 
 export { LocalizedText } from './types/LocalizedText';
