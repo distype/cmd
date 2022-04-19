@@ -21,9 +21,27 @@ import { Client } from 'distype';
 import { CommandHandler } from '@distype/cmd';
 
 const client = new Client(YOUR_BOT_TOKEN);
+
+// Create the command handler.
 const commandHandler = new CommandHandler(client);
 
-commandHandler.addCommand({});
+// Create a command.
+const fooCommand = new ChatCommand()
+    .setName(`foo`)
+    .setDescription(`Foo command`)
+    .addStringParameter(true, `bar`, `Describe bar`)
+    .addUserParameter(true, `baz`, `Which user is baz?`)
+    .setExecute((ctx) => {
+        ctx.send(`You said bar is "${ctx.parameters.bar}", and that ${ctx.parameters.baz.user.username} is baz!`);
+    });
+
+// Save the foo command to the command handler.
+commandHandler.add(fooCommand);
+
+client.gateway.on(`SHARDS_READY`, () => {
+    // Pushes saved commands to your application.
+    commandHandler.push();
+});
 
 client.gateway.connect();
 ```
