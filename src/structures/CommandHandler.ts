@@ -81,12 +81,8 @@ export class CommandHandler {
             level: `DEBUG`, system: this.system
         });
 
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => command.name === applicationCommand.name));
-        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => applicationCommand.name === command.name));
-        const modifiedCommands = applicationCommands.filter((applicationCommand) => {
-            const sanitized = this._sanitizeRaw(applicationCommand);
-            return commands.find((command) => !deepEquals(command, sanitized));
-        });
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => deepEquals(command, this._sanitizeRaw(applicationCommand))));
+        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => deepEquals(command, this._sanitizeRaw(applicationCommand))));
 
         if (newCommands.length) this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
@@ -94,19 +90,15 @@ export class CommandHandler {
         if (deletedCommands.length) this._log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
         });
-        if (modifiedCommands.length) this._log(`Modify: ${modifiedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-            level: `DEBUG`, system: this.system
-        });
 
         const promises: Array<Promise<DiscordTypes.APIApplicationCommand | never>> = [];
 
         newCommands.forEach((command) => promises.push(this.client.rest.createGlobalApplicationCommand(applicationId, command)));
         deletedCommands.forEach((applicationCommand) => promises.push(this.client.rest.deleteGlobalApplicationCommand(applicationId, applicationCommand.id)));
-        modifiedCommands.forEach((applicationCommand) => promises.push(this.client.rest.editGlobalApplicationCommand(applicationId, applicationCommand.id, commands.find((command) => applicationCommand.name === command.name)!)));
 
         await Promise.all(promises);
 
-        this._log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands, and modified ${modifiedCommands.length} commands`, {
+        this._log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands`, {
             level: `INFO`, system: this.system
         });
     }
