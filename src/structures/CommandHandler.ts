@@ -25,7 +25,7 @@ export class CommandHandler {
      * @internal
      */
     public runError: (error: Error, ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommandContext<ContextMenuCommandProps>, unexpected: boolean) => void
-        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``} ${error.name} when running ${ctx.command.name} (${ctx.command.id}): ${error.message}`, {
+        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running "${ctx.command.name}" (${ctx.command.id}): ${error.message}`, {
             level: `ERROR`, system: this.system
         });
 
