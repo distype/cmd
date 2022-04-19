@@ -1,4 +1,5 @@
-import { CommandMessage, messageFactory } from '../functions/messageFactory';
+import { BaseCommandContext } from './BaseContext';
+
 import { LocalizedText } from '../types/LocalizedText';
 
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -16,7 +17,6 @@ type AddProp <K extends keyof Required<ChatCommandProps>, V extends ChatCommandP
  * @internal
  */
 type AddParameter <T extends DiscordTypes.APIApplicationCommandBasicOption, Props, Parameters extends DiscordTypes.APIApplicationCommandBasicOption[]> = ChatCommand<Props, [...Parameters, T]>
-
 
 /**
  * Translates a parameter's type to a tangible type.
@@ -478,24 +478,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 /**
  * Chat command context.
  */
-export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> {
-    /**
-     * The client that received the interaction.
-     */
-    public client: Client;
-    /**
-     * The command handler that invoked the context.
-     */
-    public commandHandler: CommandHandler;
-    /**
-     * If the original response was a defer.
-     */
-    public deferred: boolean | null = null;
-    /**
-     * Message IDs of sent responses.
-     */
-    public responses: Array<Snowflake | `@original`> = [];
-
+export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseCommandContext {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -505,76 +488,25 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
      */
     public readonly command: ChatCommand<PR, PA>[`props`] & { id: Snowflake };
     /**
-     * The ID of the guild that the command was ran in.
-     */
-    public readonly guildId?: Snowflake;
-    /**
-     * The guild's preferred locale, if the command was invoked in a guild.
-     */
-    public readonly guildLocale?: DiscordTypes.LocaleString;
-    /**
-     * Interaction data.
-     */
-    public readonly interaction: {
-        /**
-         * The ID of the application the interaction belongs to.
-         */
-        applicationId: Snowflake
-        /**
-         * The interaction's ID.
-         */
-        id: Snowflake
-        /**
-         * The interaction's token.
-         */
-        token: string
-        /**
-         * The interaction's type.
-         */
-        type: DiscordTypes.InteractionType.ApplicationCommand
-        /**
-         * The interaction's version.
-         */
-        version: 1
-    };
-    /**
-     * The invoking user's member data.
-     */
-    public readonly member?: DiscordTypes.APIInteractionGuildMember;
-    /**
      * Parameter values from the user.
      */
     public readonly parameters: { [K in PA[number][`name`]]: ParameterValue<Extract<PA[number], { name: K }>[`type`], Extract<PA[number], { name: K }>[`required`]> };
-    /**
-     * The invoking user.
-     */
-    public readonly user: DiscordTypes.APIUser;
 
     /**
      * Create a chat command's context.
      * @param client The client that received the interaction.
      * @param commandHandler The command handler that invoked the context.
+     * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
     constructor (client: Client, commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction) {
-        this.client = client;
-        this.commandHandler = commandHandler;
+        super(client, commandHandler, interaction);
 
         this.channelId = interaction.channel_id;
         this.command = {
             ...command.props,
             id: interaction.data.id
         };
-        this.guildId = interaction.guild_id ?? interaction.data.guild_id;
-        this.guildLocale = interaction.guild_locale;
-        this.interaction = {
-            applicationId: interaction.application_id,
-            id: interaction.id,
-            token: interaction.token,
-            type: interaction.type,
-            version: interaction.version
-        };
-        this.member = interaction.member;
         this.parameters = interaction.data?.options?.reduce((p, c) => {
             let newParam;
 
@@ -614,78 +546,5 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
             newParam ??= (c as any).value;
             return Object.assign(p, { [c.name]: newParam });
         }, {}) as any ?? {};
-        this.user = {
-            ...(interaction.member?.user ?? interaction.user!),
-            locale: interaction.locale ?? interaction.locale
-        };
-    }
-
-    /**
-     * Calls the command handler's error callback.
-     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
-     * @param error The error encountered.
-     */
-    public error (error: Error): void {
-        this.commandHandler.runError(error, this as any, false);
-    }
-
-    /**
-     * Defers the interaction (displays a loading state to the user).
-     */
-    public async defer (flags?: DiscordTypes.MessageFlags): Promise<`@original`> {
-        if (this.responses.length) throw new Error(`Cannot defer, a response has already been created`);
-
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
-            data: { flags }
-        });
-
-        this.deferred = true;
-
-        this.responses.push(`@original`);
-        return `@original`;
-    }
-
-    /**
-     * Sends a message.
-     * @param message The message to send.
-     */
-    public async send (message: CommandMessage): Promise<Snowflake | `@original`> {
-        let id: Snowflake | `@original`;
-
-        if (this.responses.length) {
-            id = (await this.client.rest.createFollowupMessage(this.interaction.id, this.interaction.token, messageFactory(message))).id;
-        } else {
-            await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-                type: DiscordTypes.InteractionResponseType.ChannelMessageWithSource,
-                data: messageFactory(message)
-            });
-            id = `@original`;
-            this.deferred = false;
-        }
-
-        this.responses.push(id);
-        return id;
-    }
-
-    /**
-     * Edit a response.
-     * @param id The ID of the response to edit (`@original` if it is the original response).
-     * @param message The new response.
-     * @returns The new created response.
-     */
-    public async edit (id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        if (id === `@original` && this.deferred) throw new Error(`Cannot edit original response (defer)`);
-        return await this.client.rest.editFollowupMessage(this.interaction.id, this.interaction.token, id, messageFactory(message));
-    }
-
-    /**
-     * Delete a response.
-     * @param id The ID of the reponse to delete.
-     */
-    public async delete (id: Snowflake | `@original`): Promise<void> {
-        if (id === `@original` && this.deferred) throw new Error(`Cannot delete original response (defer)`);
-        await this.client.rest.deleteFollowupMessage(this.interaction.id, this.interaction.token, id);
-        this.responses = this.responses.filter((response) => response !== id);
     }
 }

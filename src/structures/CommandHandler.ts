@@ -64,7 +64,7 @@ export class CommandHandler {
      * Add a command to the command handler.
      * @param command The command to add.
      */
-    public add (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
+    public add (command: Command): this {
         if (typeof command.props.type !== `number`) throw new Error(`Cannot push a command with a missing "type" parameter`);
         if (typeof command.props.name !== `string`) throw new Error(`Cannot push a command with a missing "name" parameter`);
         if (command instanceof ChatCommand && typeof command.props.description !== `string`) throw new Error(`Cannot push a command with a missing "description" parameter`);
