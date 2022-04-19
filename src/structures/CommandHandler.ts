@@ -164,9 +164,10 @@ export class CommandHandler {
             try {
                 const call = run(ctx);
 
-                let reject;
-                if (call instanceof Promise) reject = call.catch((error) => error);
-                if (reject) throw reject;
+                if (call instanceof Promise) {
+                    const reject = call.then(() => false).catch((error) => error);
+                    if (reject) throw reject;
+                }
             } catch (error: any) {
                 try {
                     this.runError(error instanceof Error ? error : new Error(error), ctx, true);
