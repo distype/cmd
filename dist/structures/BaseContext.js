@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseCommandContext = exports.BaseContext = void 0;
+exports.BaseComponentContext = exports.BaseContextWithModal = exports.BaseContext = void 0;
 const messageFactory_1 = require("../functions/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -67,6 +67,7 @@ class BaseContext {
     }
     /**
      * Defers the interaction (displays a loading state to the user).
+     * @param flags Message flags for the followup after the defer.
      */
     async defer(flags) {
         if (this.responses.length)
@@ -81,8 +82,10 @@ class BaseContext {
     /**
      * Sends a message.
      * @param message The message to send.
+     * @param components Components to add to the message.
+     * @returns The ID of the created message, or `@original`.
      */
-    async send(message) {
+    async send(message, components) {
         let id;
         if (this.responses.length) {
             id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, (0, messageFactory_1.messageFactory)(message))).id;
@@ -90,7 +93,7 @@ class BaseContext {
         else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
                 type: DiscordTypes.InteractionResponseType.ChannelMessageWithSource,
-                data: (0, messageFactory_1.messageFactory)(message)
+                data: (0, messageFactory_1.messageFactory)(message, components)
             });
             id = `@original`;
         }
@@ -101,12 +104,13 @@ class BaseContext {
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
      * @param message The new response.
+     * @param components Components to add to the message.
      * @returns The new created response.
      */
-    async edit(id, message) {
+    async edit(id, message, components) {
         if (!this.responses.includes(id))
             throw new Error(`No response found matching the ID "${id}"`);
-        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message));
+        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message, components));
     }
     /**
      * Delete a response.
@@ -121,9 +125,13 @@ class BaseContext {
 }
 exports.BaseContext = BaseContext;
 /**
- * Base command context.
+ * Base context with a modal.
  */
-class BaseCommandContext extends BaseContext {
+class BaseContextWithModal extends BaseContext {
+    constructor() {
+        super(...arguments);
+        this.responses = [];
+    }
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -143,4 +151,45 @@ class BaseCommandContext extends BaseContext {
         return `modal`;
     }
 }
-exports.BaseCommandContext = BaseCommandContext;
+exports.BaseContextWithModal = BaseContextWithModal;
+/**
+ * Base context for components.
+ */
+class BaseComponentContext extends BaseContextWithModal {
+    /**
+     * Create interaction context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param interaction Interaction data.
+     */
+    constructor(commandHandler, interaction) {
+        super(commandHandler, interaction);
+        this.responses = [];
+        this.component = {
+            customId: interaction.data.custom_id,
+            type: interaction.data.component_type
+        };
+    }
+    /**
+     * The same as defer, except the expected followup response is an edit to the parent message of the component.
+     */
+    async editParentDefer() {
+        if (this.responses.length)
+            throw new Error(`Cannot defer, a response has already been created`);
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
+        this.responses.push(`deferedit`);
+        return `deferedit`;
+    }
+    /**
+     * Edits the parent message of the component.
+     * @param message The new parent message.
+     * @param components Components to add to the message.
+     */
+    async editParent(message, components) {
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.UpdateMessage,
+            data: (0, messageFactory_1.messageFactory)(message, components)
+        });
+        return `editparent`;
+    }
+}
+exports.BaseComponentContext = BaseComponentContext;

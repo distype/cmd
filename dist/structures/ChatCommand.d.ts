@@ -1,4 +1,4 @@
-import { BaseCommandContext } from './BaseContext';
+import { BaseContextWithModal } from './BaseContext';
 import { LocalizedText } from '../types/LocalizedText';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
@@ -272,7 +272,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 /**
  * Chat command context.
  */
-export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseCommandContext {
+export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

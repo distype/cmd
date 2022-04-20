@@ -114,7 +114,7 @@ exports.ContextMenuCommand = ContextMenuCommand;
 /**
  * Context menu command context.
  */
-class ContextMenuCommandContext extends BaseContext_1.BaseCommandContext {
+class ContextMenuCommandContext extends BaseContext_1.BaseContextWithModal {
     /**
      * Create a context menu command's context.
      * @param commandHandler The command handler that invoked the context.

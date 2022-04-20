@@ -1,4 +1,4 @@
-import { BaseCommandContext } from './BaseContext';
+import { BaseContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
@@ -77,7 +77,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
 /**
  * Context menu command context.
  */
-export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseCommandContext {
+export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

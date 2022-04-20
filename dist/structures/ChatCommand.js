@@ -326,7 +326,7 @@ exports.ChatCommand = ChatCommand;
 /**
  * Chat command context.
  */
-class ChatCommandContext extends BaseContext_1.BaseCommandContext {
+class ChatCommandContext extends BaseContext_1.BaseContextWithModal {
     /**
      * Create a chat command's context.
      * @param commandHandler The command handler that invoked the context.

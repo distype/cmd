@@ -1,12 +1,18 @@
-import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
-import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
+import { Button } from './Button';
+import { ChatCommand, ChatCommandProps } from './ChatCommand';
+import { ContextMenuCommand, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalProps } from './Modal';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
+import { BaseContext } from './BaseContext';
 export declare type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
 export declare class CommandHandler {
+    /**
+     * The command handler's buttons.
+     */
+    buttons: ExtendedMap<string, Button>;
     /**
      * The client the command handler is bound to.
      */
@@ -25,7 +31,7 @@ export declare class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    runError: (error: Error, ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommandContext<ContextMenuCommandProps>, unexpected: boolean) => void;
+    runError: (error: Error, ctx: BaseContext, unexpected: boolean) => void;
     /**
      * The system string used for emitting errors and for the {@link LogCallback log callback}.
      */
@@ -46,15 +52,30 @@ export declare class CommandHandler {
      */
     constructor(client: Client, logCallback?: LogCallback, logThisArg?: any);
     /**
-     * Add a command to the command handler.
+     * Bind a command to the command handler.
      * @param command The command to add.
      */
-    add(command: ChatCommand<any, any> | ContextMenuCommand<any>): this;
+    bindCommand(command: ChatCommand<any, any> | ContextMenuCommand<any>): this;
+    /**
+     * Bind a button to the command handler.
+     * @param button The button to bind.
+     */
+    bindButton(button: Button): this;
+    /**
+     * Unbind a button from the command handler.
+     * @param id The button's custom ID.
+     */
+    unbindButton(id: string): this;
     /**
      * Bind a modal to the command handler.
      * @param modal The modal to bind.
      */
     bindModal(modal: Modal<any, any>): this;
+    /**
+     * Unbind a modal from the command handler.
+     * @param id The modal's custom ID.
+     */
+    unbindModal(id: string): this;
     /**
      * Pushes added / changed / deleted slash commands to Discord.
      */

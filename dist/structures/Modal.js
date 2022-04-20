@@ -140,7 +140,7 @@ class ModalContext extends BaseContext_1.BaseContext {
      * Use this method to prevent memory leaks from inactive modals.
      */
     unbind() {
-        this.commandHandler.modals.delete(this.modal.custom_id);
+        this.commandHandler.unbindModal(this.modal.custom_id);
     }
 }
 exports.ModalContext = ModalContext;
