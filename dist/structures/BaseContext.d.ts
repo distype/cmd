@@ -1,6 +1,6 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
-import { CommandMessage } from '../functions/messageFactory';
+import { Message } from '../functions/messageFactory';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 /**
@@ -80,14 +80,14 @@ export declare class BaseContext {
      * Sends a message.
      * @param message The message to send.
      */
-    send(message: CommandMessage): Promise<Snowflake | `@original`>;
+    send(message: Message): Promise<Snowflake | `@original`>;
     /**
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
      * @param message The new response.
      * @returns The new created response.
      */
-    edit(id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
+    edit(id: Snowflake | `@original`, message: Message): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
     /**
      * Delete a response.
      * @param id The ID of the reponse to delete.
