@@ -168,17 +168,9 @@ export class BaseCommandContext extends BaseContext {
     public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<`modal`> {
         if (this.responses.length) throw new Error(`Cannot open a modal, a response has already been created`);
 
-        if (!modal.props.custom_id || !modal.props.title) throw new Error(`A modal's ID and title must be present to use it as a response`);
-
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
-            data: {
-                ...modal.props,
-                components: modal.parameters.map((parameter) => ({
-                    type: DiscordTypes.ComponentType.ActionRow,
-                    components: [parameter]
-                }))
-            }
+            data: modal.getRaw()
         });
 
         this.commandHandler.bindModal(modal);

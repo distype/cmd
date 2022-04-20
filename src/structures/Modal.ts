@@ -130,6 +130,23 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
         this.run = exec;
         return this;
     }
+
+    /**
+     * Converts a modal to a Discord API compatible object.
+     * @returns The raw modal.
+     */
+    public getRaw (): DiscordTypes.APIModalInteractionResponseCallbackData {
+        if (typeof this.props.custom_id !== `string`) throw new Error(`Cannot convert a modal with a missing "custom_id" parameter to raw`);
+        if (typeof this.props.title !== `string`) throw new Error(`Cannot convert a modal with a missing "title" parameter to raw`);
+
+        return {
+            ...this.props as any,
+            components: this.parameters.map((parameter) => ({
+                type: DiscordTypes.ComponentType.ActionRow,
+                components: [parameter]
+            }))
+        };
+    }
 }
 
 /**

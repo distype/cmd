@@ -1,6 +1,8 @@
 import { BaseCommandContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
+import { sanitizeCommand } from '../functions/sanitizeCommand';
+
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 
@@ -93,6 +95,17 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
         if (!this.props.type || !this.props.name) throw new Error(`A context menu command's type and name must be present to set its execute method`);
         this.run = exec;
         return this;
+    }
+
+    /**
+     * Converts a command to a Discord API compatible object.
+     * @returns The converted command.
+     */
+    public getRaw (): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody> {
+        if (typeof this.props.type !== `number`) throw new Error(`Cannot convert a command with a missing "type" parameter to raw`);
+        if (typeof this.props.name !== `string`) throw new Error(`Cannot convert a command with a missing "name" parameter to raw`);
+
+        return sanitizeCommand(this.props as any);
     }
 }
 

@@ -1,5 +1,6 @@
 import { BaseCommandContext } from './BaseContext';
 
+import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LocalizedText } from '../types/LocalizedText';
 
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -484,6 +485,21 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         if (!this.props.name || !this.props.description) throw new Error(`A chat input command's name and description must be present to set its execute method`);
         this.run = exec;
         return this;
+    }
+
+    /**
+     * Converts a command to a Discord API compatible object.
+     * @returns The converted command.
+     */
+    public getRaw (): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody> {
+        if (typeof this.props.type !== `number`) throw new Error(`Cannot convert a command with a missing "type" parameter to raw`);
+        if (typeof this.props.name !== `string`) throw new Error(`Cannot convert a command with a missing "name" parameter to raw`);
+        if (typeof this.props.description !== `string`) throw new Error(`Cannot convert a command with a missing "description" parameter to raw`);
+
+        return sanitizeCommand({
+            ...this.props as any,
+            options: this.parameters ?? []
+        });
     }
 }
 
