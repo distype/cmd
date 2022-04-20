@@ -135,5 +135,12 @@ class ModalContext extends BaseContext_1.BaseContext {
         this.modal = modal.props;
         this.parameters = (interaction.data.components?.map((component) => component.components).flat() ?? []).reduce((p, c) => Object.assign(p, { [c.custom_id]: c.value?.length ? c.value : undefined }), {});
     }
+    /**
+     * Unbinds the modal's execution callback from the command handler.
+     * Use this method to prevent memory leaks from inactive modals.
+     */
+    unbind() {
+        this.commandHandler.modals.delete(this.modal.custom_id);
+    }
 }
 exports.ModalContext = ModalContext;

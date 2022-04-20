@@ -119,5 +119,10 @@ export declare class ModalContext<PR extends Partial<ModalProps>, PA extends Dis
      * @param interaction Interaction data.
      */
     constructor(commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction);
+    /**
+     * Unbinds the modal's execution callback from the command handler.
+     * Use this method to prevent memory leaks from inactive modals.
+     */
+    unbind(): void;
 }
 export {};
