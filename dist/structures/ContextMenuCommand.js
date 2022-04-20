@@ -28,6 +28,16 @@ const BaseContext_1 = require("./BaseContext");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * The context command command builder.
+ *
+ * @example
+ * ```ts
+ * new ContextMenuCommand()
+ *   .setType(`user`)
+ *   .setName(`User Command`)
+ *   .setExecute((ctx) => {
+ *     ctx.send(`You selected "${ctx.target.user.username}""`);
+ *   });
+ * ```
  */
 class ContextMenuCommand {
     constructor() {

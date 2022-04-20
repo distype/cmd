@@ -28,6 +28,18 @@ const BaseContext_1 = require("./BaseContext");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * A modal builder.
+ *
+ * @example
+ * ```ts
+ * new Modal()
+ *   .setId(`foo`)
+ *   .setTitle(`Bar`)
+ *   .addField(true, `field0`, `How are you?`, `paragraph`, { placeholder: `Doing great!` })
+ *   .addField(false, `field1`, `A non-required field`, `short`)
+ *   .setExecute(async (ctx) => {
+ *     await ctx.send(`This is how you said you were feeling:\n${ctx.parameters.field0}\n\nThis was what you put in the non-required field:\n${ctx.parameters.field1 ?? `\`nothing :(\``}`);
+ *   });
+ * ```
  */
 class Modal {
     constructor() {

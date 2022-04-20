@@ -70,6 +70,18 @@ export interface ParameterLimits {
 }
 /**
  * The chat input command builder.
+ *
+ * @example
+ * ```ts
+ * new ChatCommand()
+ *   .setName(`foo`)
+ *   .setDescription(`Foo command`)
+ *   .addStringParameter(true, `bar`, `Describe bar`)
+ *   .addUserParameter(true, `baz`, `Which user is baz?`)
+ *   .setExecute((ctx) => {
+ *     ctx.send(`You said bar is "${ctx.parameters.bar}", and that ${ctx.parameters.baz.user.username} is baz!`);
+ *   });
+ * ```
  */
 export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
     type: DiscordTypes.ApplicationCommandType.ChatInput;

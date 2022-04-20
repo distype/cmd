@@ -18,6 +18,16 @@ declare type ContextMenuCommandProp<K extends keyof Required<ContextMenuCommandP
 export declare type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody, `options` | `description_localizations`>;
 /**
  * The context command command builder.
+ *
+ * @example
+ * ```ts
+ * new ContextMenuCommand()
+ *   .setType(`user`)
+ *   .setName(`User Command`)
+ *   .setExecute((ctx) => {
+ *     ctx.send(`You selected "${ctx.target.user.username}""`);
+ *   });
+ * ```
  */
 export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Record<string, never>> {
     /**

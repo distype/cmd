@@ -3,9 +3,9 @@ import { APIEmbed, APIEmbedAuthor, APIEmbedField, APIEmbedFooter, APIEmbedImage,
  * A message embed; specifically, a rich embed.
  * When setting properties of the embed, this class automatically checks their length against [Discord's maximum lengths](https://discord.com/developers/docs/resources/channel#embed-limits) for embed properties.
  *
- * Methods of this class can be chained to make embed building cleaner.
+ * @example
  * ```ts
- * const embed = new Embed()
+ * new Embed()
  *     .setTitle(`A title`)
  *     .setDescription(`Some description`)
  *     .setColor(0x5865F2);

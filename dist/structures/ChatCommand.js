@@ -28,6 +28,18 @@ const BaseContext_1 = require("./BaseContext");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * The chat input command builder.
+ *
+ * @example
+ * ```ts
+ * new ChatCommand()
+ *   .setName(`foo`)
+ *   .setDescription(`Foo command`)
+ *   .addStringParameter(true, `bar`, `Describe bar`)
+ *   .addUserParameter(true, `baz`, `Which user is baz?`)
+ *   .setExecute((ctx) => {
+ *     ctx.send(`You said bar is "${ctx.parameters.bar}", and that ${ctx.parameters.baz.user.username} is baz!`);
+ *   });
+ * ```
  */
 class ChatCommand {
     constructor() {
