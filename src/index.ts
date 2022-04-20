@@ -1,4 +1,4 @@
-export { CommandMessage } from './functions/messageFactory';
+export { Message } from './functions/messageFactory';
 
 export {
     ChatCommand,

@@ -1,7 +1,7 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
-import { CommandMessage, messageFactory } from '../functions/messageFactory';
+import { Message, messageFactory } from '../functions/messageFactory';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
@@ -118,7 +118,7 @@ export class BaseContext {
      * Sends a message.
      * @param message The message to send.
      */
-    public async send (message: CommandMessage): Promise<Snowflake | `@original`> {
+    public async send (message: Message): Promise<Snowflake | `@original`> {
         let id: Snowflake | `@original`;
 
         if (this.responses.length) {
@@ -141,7 +141,7 @@ export class BaseContext {
      * @param message The new response.
      * @returns The new created response.
      */
-    public async edit (id: Snowflake | `@original`, message: CommandMessage): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+    public async edit (id: Snowflake | `@original`, message: Message): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
         if (!this.responses.includes(id)) throw new Error(`No response found matching the ID "${id}"`);
         return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, messageFactory(message));
     }
