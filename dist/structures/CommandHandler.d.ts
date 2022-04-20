@@ -69,16 +69,4 @@ export declare class CommandHandler {
      * @param interaction The received interaction.
      */
     private _onInteraction;
-    /**
-     * Converts a command to a Discord API compatible object.
-     * @param command The command to convert.
-     * @returns The converted command.
-     */
-    private _commandToRaw;
-    /**
-     * Sanitizes a raw command.
-     * @param command The command to sanitize.
-     * @returns The sanitized command.
-     */
-    private _sanitizeRaw;
 }

@@ -100,6 +100,23 @@ class Modal {
         this.run = exec;
         return this;
     }
+    /**
+     * Converts a modal to a Discord API compatible object.
+     * @returns The raw modal.
+     */
+    getRaw() {
+        if (typeof this.props.custom_id !== `string`)
+            throw new Error(`Cannot convert a modal with a missing "custom_id" parameter to raw`);
+        if (typeof this.props.title !== `string`)
+            throw new Error(`Cannot convert a modal with a missing "title" parameter to raw`);
+        return {
+            ...this.props,
+            components: this.parameters.map((parameter) => ({
+                type: DiscordTypes.ComponentType.ActionRow,
+                components: [parameter]
+            }))
+        };
+    }
 }
 exports.Modal = Modal;
 /**

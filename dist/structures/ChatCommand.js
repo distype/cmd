@@ -25,6 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatCommandContext = exports.ChatCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
+const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * The chat input command builder.
@@ -303,6 +304,22 @@ class ChatCommand {
             throw new Error(`A chat input command's name and description must be present to set its execute method`);
         this.run = exec;
         return this;
+    }
+    /**
+     * Converts a command to a Discord API compatible object.
+     * @returns The converted command.
+     */
+    getRaw() {
+        if (typeof this.props.type !== `number`)
+            throw new Error(`Cannot convert a command with a missing "type" parameter to raw`);
+        if (typeof this.props.name !== `string`)
+            throw new Error(`Cannot convert a command with a missing "name" parameter to raw`);
+        if (typeof this.props.description !== `string`)
+            throw new Error(`Cannot convert a command with a missing "description" parameter to raw`);
+        return (0, sanitizeCommand_1.sanitizeCommand)({
+            ...this.props,
+            options: this.parameters ?? []
+        });
     }
 }
 exports.ChatCommand = ChatCommand;

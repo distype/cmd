@@ -25,6 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContextMenuCommandContext = exports.ContextMenuCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
+const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * The context command command builder.
@@ -96,6 +97,17 @@ class ContextMenuCommand {
             throw new Error(`A context menu command's type and name must be present to set its execute method`);
         this.run = exec;
         return this;
+    }
+    /**
+     * Converts a command to a Discord API compatible object.
+     * @returns The converted command.
+     */
+    getRaw() {
+        if (typeof this.props.type !== `number`)
+            throw new Error(`Cannot convert a command with a missing "type" parameter to raw`);
+        if (typeof this.props.name !== `string`)
+            throw new Error(`Cannot convert a command with a missing "name" parameter to raw`);
+        return (0, sanitizeCommand_1.sanitizeCommand)(this.props);
     }
 }
 exports.ContextMenuCommand = ContextMenuCommand;

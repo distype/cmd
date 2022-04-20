@@ -86,6 +86,11 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
      * @param exec The callback to execute when an interaction is received.
      */
     setExecute(exec: (ctx: ModalContext<PR, PA>) => (void | Promise<void>)): this;
+    /**
+     * Converts a modal to a Discord API compatible object.
+     * @returns The raw modal.
+     */
+    getRaw(): DiscordTypes.APIModalInteractionResponseCallbackData;
 }
 /**
  * Modal context.

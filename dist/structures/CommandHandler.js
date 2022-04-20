@@ -27,6 +27,7 @@ exports.CommandHandler = void 0;
 const ChatCommand_1 = require("./ChatCommand");
 const ContextMenuCommand_1 = require("./ContextMenuCommand");
 const Modal_1 = require("./Modal");
+const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 class CommandHandler {
@@ -116,7 +117,7 @@ class CommandHandler {
     async push(applicationId = this.client.gateway.user?.id ?? undefined) {
         if (!applicationId)
             throw new Error(`Application ID is undefined`);
-        const commands = this.commands.map((command) => this._commandToRaw(command));
+        const commands = this.commands.map((command) => command.getRaw());
         this._log(`Pushing ${commands.length} commands`, {
             level: `INFO`, system: this.system
         });
@@ -124,8 +125,8 @@ class CommandHandler {
         this._log(`Found ${applicationCommands.length} registered commands`, {
             level: `DEBUG`, system: this.system
         });
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_utils_1.deepEquals)(command, this._sanitizeRaw(applicationCommand))));
-        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => (0, node_utils_1.deepEquals)(command, this._sanitizeRaw(applicationCommand))));
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_utils_1.deepEquals)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
+        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => (0, node_utils_1.deepEquals)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
         if (newCommands.length)
             this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
                 level: `DEBUG`, system: this.system
@@ -140,7 +141,7 @@ class CommandHandler {
         await Promise.all(promises);
         const pushedCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
         pushedCommands.forEach((pushedCommand) => {
-            const matchingCommandKey = this.commands.findKey((command) => (0, node_utils_1.deepEquals)(this._commandToRaw(command), this._sanitizeRaw(pushedCommand)));
+            const matchingCommandKey = this.commands.findKey((command) => (0, node_utils_1.deepEquals)(command.getRaw(), (0, sanitizeCommand_1.sanitizeCommand)(pushedCommand)));
             const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
             if (matchingCommandKey && matchingCommand) {
                 this.commands.delete(matchingCommandKey);
@@ -208,50 +209,6 @@ class CommandHandler {
                 }
             }
         }
-    }
-    /**
-     * Converts a command to a Discord API compatible object.
-     * @param command The command to convert.
-     * @returns The converted command.
-     */
-    _commandToRaw(command) {
-        if (typeof command.props.type !== `number`)
-            throw new Error(`Cannot push a command with a missing "type" parameter`);
-        if (typeof command.props.name !== `string`)
-            throw new Error(`Cannot push a command with a missing "name" parameter`);
-        if (command instanceof ChatCommand_1.ChatCommand && typeof command.props.description !== `string`)
-            throw new Error(`Cannot push a command with a missing "description" parameter`);
-        return this._sanitizeRaw({
-            ...command.props,
-            options: command instanceof ChatCommand_1.ChatCommand ? command.parameters : []
-        });
-    }
-    /**
-     * Sanitizes a raw command.
-     * @param command The command to sanitize.
-     * @returns The sanitized command.
-     */
-    _sanitizeRaw(command) {
-        const raw = (0, node_utils_1.deepClone)({
-            default_permission: command.default_permission ?? true,
-            description: command.description ?? ``,
-            description_localizations: command.description_localizations ?? {},
-            name: command.name,
-            name_localizations: command.name_localizations ?? {},
-            options: command.options ?? [],
-            type: command.type ?? DiscordTypes.ApplicationCommandType.ChatInput
-        });
-        (0, node_utils_1.traverseObject)(raw, (obj) => {
-            if (typeof obj.autocomplete === `boolean` && !obj.autocomplete)
-                delete obj.autocomplete;
-            if (typeof obj.required === `boolean` && !obj.required)
-                delete obj.required;
-            Object.keys(obj).forEach((key) => {
-                if (obj[key] === undefined)
-                    delete obj[key];
-            });
-        });
-        return raw;
     }
 }
 exports.CommandHandler = CommandHandler;

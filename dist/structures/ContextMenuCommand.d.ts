@@ -68,6 +68,11 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      * @param exec The callback to execute when an interaction is received.
      */
     setExecute(exec: (ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)): this;
+    /**
+     * Converts a command to a Discord API compatible object.
+     * @returns The converted command.
+     */
+    getRaw(): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
 }
 /**
  * Context menu command context.
