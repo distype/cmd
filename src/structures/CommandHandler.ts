@@ -141,7 +141,7 @@ export class CommandHandler {
 
         await Promise.all(promises);
 
-        const pushedCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
+        const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
             const matchingCommandKey = this.commands.findKey((command) => deepEquals(command.getRaw(), sanitizeCommand(pushedCommand)));
             const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
