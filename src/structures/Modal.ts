@@ -185,6 +185,6 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
      * Use this method to prevent memory leaks from inactive modals.
      */
     public unbind (): void {
-        this.commandHandler.modals.delete(this.modal.custom_id!);
+        this.commandHandler.unbindModal(this.modal.custom_id!);
     }
 }

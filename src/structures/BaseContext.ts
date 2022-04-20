@@ -21,7 +21,7 @@ export class BaseContext {
     /**
      * Message IDs of sent responses.
      */
-    public responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
+    public responses: Array<Snowflake | `@original` | `defer`> = [];
 
     /**
      * The ID of the guild that the interaction was ran in.
@@ -70,7 +70,7 @@ export class BaseContext {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIApplicationCommandAutocompleteInteraction | DiscordTypes.APIModalSubmitInteraction) {
+    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction) {
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
 
@@ -101,6 +101,7 @@ export class BaseContext {
 
     /**
      * Defers the interaction (displays a loading state to the user).
+     * @param flags Message flags for the followup after the defer.
      */
     public async defer (flags?: DiscordTypes.MessageFlags): Promise<`defer`> {
         if (this.responses.length) throw new Error(`Cannot defer, a response has already been created`);
@@ -117,6 +118,7 @@ export class BaseContext {
     /**
      * Sends a message.
      * @param message The message to send.
+     * @returns The ID of the created message, or `@original`.
      */
     public async send (message: Message): Promise<Snowflake | `@original`> {
         let id: Snowflake | `@original`;
@@ -158,9 +160,11 @@ export class BaseContext {
 }
 
 /**
- * Base command context.
+ * Base context with a modal.
  */
-export class BaseCommandContext extends BaseContext {
+export class BaseContextWithModal extends BaseContext {
+    public override responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
+
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -180,5 +184,65 @@ export class BaseCommandContext extends BaseContext {
 
         this.responses.push(`modal`);
         return `modal`;
+    }
+}
+
+/**
+ * Base context for components.
+ */
+export class BaseComponentContext extends BaseContextWithModal {
+    public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`> = [];
+
+    /**
+     * Component data.
+     */
+    public readonly component: {
+        /**
+         * The component's custom ID.
+         */
+        customId: string
+        /**
+         * The component's type.
+         */
+        type: DiscordTypes.ComponentType
+    };
+
+    /**
+     * Create interaction context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param interaction Interaction data.
+     */
+    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction) {
+        super(commandHandler, interaction);
+
+        this.component = {
+            customId: interaction.data.custom_id,
+            type: interaction.data.component_type
+        };
+    }
+
+    /**
+     * The same as defer, except the expected followup response is an edit to the parent message of the component.
+     */
+    public async editParentDefer (): Promise<`deferedit`> {
+        if (this.responses.length) throw new Error(`Cannot defer, a response has already been created`);
+
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
+
+        this.responses.push(`deferedit`);
+        return `deferedit`;
+    }
+
+    /**
+     * Edits the parent message of the component.
+     * @param message The new parent message.
+     */
+    public async editParent (message: Message): Promise<`editparent`> {
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.UpdateMessage,
+            data: messageFactory(message)
+        });
+
+        return `editparent`;
     }
 }

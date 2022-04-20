@@ -44,7 +44,7 @@ const fooCommand = new ChatCommand()
     });
 
 // Save the foo command to the command handler.
-commandHandler.add(fooCommand);
+commandHandler.bindCommand(fooCommand);
 
 client.gateway.on(`SHARDS_READY`, () => {
     // Pushes saved commands to your application.

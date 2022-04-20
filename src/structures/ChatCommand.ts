@@ -1,4 +1,4 @@
-import { BaseCommandContext } from './BaseContext';
+import { BaseContextWithModal } from './BaseContext';
 
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LocalizedText } from '../types/LocalizedText';
@@ -506,7 +506,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 /**
  * Chat command context.
  */
-export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseCommandContext {
+export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

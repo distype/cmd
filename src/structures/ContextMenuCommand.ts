@@ -1,4 +1,4 @@
-import { BaseCommandContext } from './BaseContext';
+import { BaseContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { sanitizeCommand } from '../functions/sanitizeCommand';
@@ -112,7 +112,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 /**
  * Context menu command context.
  */
-export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseCommandContext {
+export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

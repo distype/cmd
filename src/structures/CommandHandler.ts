@@ -1,3 +1,4 @@
+import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
@@ -8,10 +9,15 @@ import { LogCallback } from '../types/Log';
 import { deepEquals, ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
+import { BaseContext } from './BaseContext';
 
 export type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
 
 export class CommandHandler {
+    /**
+     * The command handler's buttons.
+     */
+    public buttons: ExtendedMap<string, Button> = new ExtendedMap();
     /**
      * The client the command handler is bound to.
      */
@@ -30,8 +36,8 @@ export class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    public runError: (error: Error, ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommandContext<ContextMenuCommandProps>, unexpected: boolean) => void
-        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running "${ctx.command.name}" (${ctx.command.id}): ${error.message}`, {
+    public runError: (error: Error, ctx: BaseContext, unexpected: boolean) => void
+        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
             level: `ERROR`, system: this.system
         });
 
@@ -67,10 +73,10 @@ export class CommandHandler {
     }
 
     /**
-     * Add a command to the command handler.
+     * Bind a command to the command handler.
      * @param command The command to add.
      */
-    public add (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
+    public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
         if (typeof command.props.type !== `number`) throw new Error(`Cannot push a command with a missing "type" parameter`);
         if (typeof command.props.name !== `string`) throw new Error(`Cannot push a command with a missing "name" parameter`);
         if (command instanceof ChatCommand && typeof command.props.description !== `string`) throw new Error(`Cannot push a command with a missing "description" parameter`);
@@ -83,6 +89,35 @@ export class CommandHandler {
         this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
             level: `DEBUG`, system: this.system
         });
+        return this;
+    }
+
+    /**
+     * Bind a button to the command handler.
+     * @param button The button to bind.
+     */
+    public bindButton (button: Button): this {
+        const raw: DiscordTypes.APIButtonComponentWithCustomId = button.getRaw() as any;
+        if (typeof raw.custom_id !== `string` || this.buttons.find((b, customId) => b === button && customId === raw.custom_id)) return this;
+
+        if (this.buttons.find((_, customId) => customId === raw.custom_id)) this._log(`Overriding existing component with ID ${raw.custom_id}`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        this.buttons.set(raw.custom_id, button);
+
+        this._log(`Bound button with custom ID ${raw.custom_id}`, {
+            level: `DEBUG`, system: this.system
+        });
+        return this;
+    }
+
+    /**
+     * Unbind a button from the command handler.
+     * @param id The button's custom ID.
+     */
+    public unbindButton (id: string): this {
+        this.buttons.delete(id);
         return this;
     }
 
@@ -105,6 +140,15 @@ export class CommandHandler {
         this._log(`Bound modal with custom ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
+        return this;
+    }
+
+    /**
+     * Unbind a modal from the command handler.
+     * @param id The modal's custom ID.
+     */
+    public unbindModal (id: string): this {
+        this.modals.delete(id);
         return this;
     }
 
@@ -189,12 +233,26 @@ export class CommandHandler {
                 break;
             }
 
+            case DiscordTypes.InteractionType.MessageComponent: {
+                if (interaction.data.component_type === DiscordTypes.ComponentType.Button) {
+                    const button = this.buttons.get(interaction.data.custom_id);
+                    if (button) {
+                        run = button.run;
+                        ctx = new ButtonContext(this, interaction);
+                    }
+                }
+
+                break;
+            }
+
             case DiscordTypes.InteractionType.ModalSubmit: {
                 const modal = this.modals.get(interaction.data.custom_id);
                 if (modal) {
                     run = modal.run;
                     ctx = new ModalContext(this, modal, interaction);
                 }
+
+                break;
             }
         }
 
