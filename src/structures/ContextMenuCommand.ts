@@ -23,6 +23,16 @@ export type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuAp
 
 /**
  * The context command command builder.
+ *
+ * @example
+ * ```ts
+ * new ContextMenuCommand()
+ *   .setType(`user`)
+ *   .setName(`User Command`)
+ *   .setExecute((ctx) => {
+ *     ctx.send(`You selected "${ctx.target.user.username}""`);
+ *   });
+ * ```
  */
 export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Record<string, never>> {
     /**
