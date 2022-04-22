@@ -146,7 +146,10 @@ class ModalContext extends BaseContext_1.BaseContext {
     constructor(commandHandler, modal, interaction) {
         super(commandHandler, interaction);
         this.channelId = interaction.channel_id;
-        this.modal = modal.props;
+        this.modal = {
+            customId: modal.props.custom_id,
+            title: modal.props.title
+        };
         this.parameters = (interaction.data.components?.map((component) => component.components).flat() ?? []).reduce((p, c) => Object.assign(p, { [c.custom_id]: c.value?.length ? c.value : undefined }), {});
     }
     /**
@@ -154,7 +157,7 @@ class ModalContext extends BaseContext_1.BaseContext {
      * Use this method to prevent memory leaks from inactive modals.
      */
     unbind() {
-        this.commandHandler.unbindModal(this.modal.custom_id);
+        this.commandHandler.unbindModal(this.modal.customId);
     }
 }
 exports.ModalContext = ModalContext;

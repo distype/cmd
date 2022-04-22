@@ -103,7 +103,10 @@ export declare class ModalContext<PR extends Partial<ModalProps>, PA extends Dis
     /**
      * Modal data.
      */
-    readonly modal: PR;
+    readonly modal: {
+        customId: PR[`custom_id`];
+        title: PR[`title`];
+    };
     /**
      * Parameter values from the user.
      */
