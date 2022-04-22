@@ -192,12 +192,13 @@ export class CommandHandler {
             level: `DEBUG`, system: this.system
         });
 
-        const promises: Array<Promise<DiscordTypes.APIApplicationCommand | never>> = [];
+        for (const command of newCommands) {
+            await this.client.rest.createGlobalApplicationCommand(applicationId, command);
+        }
 
-        newCommands.forEach((command) => promises.push(this.client.rest.createGlobalApplicationCommand(applicationId, command)));
-        deletedCommands.forEach((applicationCommand) => promises.push(this.client.rest.deleteGlobalApplicationCommand(applicationId, applicationCommand.id)));
-
-        await Promise.all(promises);
+        for (const command of deletedCommands) {
+            await this.client.rest.deleteGlobalApplicationCommand(applicationId, command.id);
+        }
 
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
