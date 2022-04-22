@@ -66,6 +66,22 @@ class CommandHandler {
          */
         this.system = `Command Handler`;
         /**
+         * Button middleware.
+         */
+        this._runButtonMiddleware = () => true;
+        /**
+         * Chat command middleware.
+         */
+        this._runChatCommandMiddleware = () => true;
+        /**
+         * Context menu command middleware.
+         */
+        this._runContextMenuCommandMiddleware = () => true;
+        /**
+         * Modal middleware.
+         */
+        this._runModalMiddleware = () => true;
+        /**
          * The nonce to use for indexing commands with an unknown ID.
          */
         this._unknownNonce = 0;
@@ -190,12 +206,46 @@ class CommandHandler {
      */
     setError(erroCallback) {
         this.runError = erroCallback;
+        return this;
+    }
+    /**
+     * Set middleware for buttons.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setButtonMiddleware(middleware) {
+        this._runButtonMiddleware = middleware;
+        return this;
+    }
+    /**
+     * Set middleware for chat commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setChatCommandMiddleware(middleware) {
+        this._runChatCommandMiddleware = middleware;
+        return this;
+    }
+    /**
+     * Set middleware for context menu commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setContextMenuCommandMiddleware(middleware) {
+        this._runContextMenuCommandMiddleware = middleware;
+        return this;
+    }
+    /**
+     * Set middleware for modals.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setModalMiddleware(middleware) {
+        this._runModalMiddleware = middleware;
+        return this;
     }
     /**
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
      */
     async _onInteraction(interaction) {
+        let middleware;
         let run;
         let ctx;
         switch (interaction.type) {
@@ -203,10 +253,12 @@ class CommandHandler {
                 const command = this.commands.get(interaction.data.id);
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
+                        middleware = this._runChatCommandMiddleware;
                         run = command.run;
                         ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction);
                     }
                     else {
+                        middleware = this._runContextMenuCommandMiddleware;
                         run = command.run;
                         ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction);
                     }
@@ -217,6 +269,7 @@ class CommandHandler {
                 if (interaction.data.component_type === DiscordTypes.ComponentType.Button) {
                     const button = this.buttons.get(interaction.data.custom_id);
                     if (button) {
+                        middleware = this._runButtonMiddleware;
                         run = button.run;
                         ctx = new Button_1.ButtonContext(this, interaction);
                     }
@@ -226,18 +279,33 @@ class CommandHandler {
             case DiscordTypes.InteractionType.ModalSubmit: {
                 const modal = this.modals.get(interaction.data.custom_id);
                 if (modal) {
+                    middleware = this._runModalMiddleware;
                     run = modal.run;
                     ctx = new Modal_1.ModalContext(this, modal, interaction);
                 }
                 break;
             }
         }
-        if (typeof run === `function` && ctx) {
+        if (typeof middleware === `function` && typeof run === `function` && ctx) {
             try {
+                const middlwareCall = middleware(ctx);
+                let middlewareResult;
+                if (middlwareCall instanceof Promise) {
+                    const reject = await middlwareCall.catch((error) => error);
+                    if (reject instanceof Error)
+                        throw reject;
+                    else
+                        middlewareResult = reject;
+                }
+                else {
+                    middlewareResult = middlwareCall;
+                }
+                if (middlewareResult === false)
+                    return;
                 const call = run(ctx);
                 if (call instanceof Promise) {
-                    const reject = await call.then(() => false).catch((error) => error);
-                    if (reject !== false)
+                    const reject = await call.catch((error) => error);
+                    if (reject instanceof Error)
                         throw reject;
                 }
             }

@@ -1,7 +1,7 @@
-import { Button } from './Button';
-import { ChatCommand, ChatCommandProps } from './ChatCommand';
-import { ContextMenuCommand, ContextMenuCommandProps } from './ContextMenuCommand';
-import { Modal, ModalProps } from './Modal';
+import { Button, ButtonContext } from './Button';
+import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
+import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
+import { Modal, ModalContext, ModalProps } from './Modal';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -40,6 +40,22 @@ export declare class CommandHandler {
      * The {@link LogCallback log callback} used by the command handler..
      */
     private _log;
+    /**
+     * Button middleware.
+     */
+    private _runButtonMiddleware;
+    /**
+     * Chat command middleware.
+     */
+    private _runChatCommandMiddleware;
+    /**
+     * Context menu command middleware.
+     */
+    private _runContextMenuCommandMiddleware;
+    /**
+     * Modal middleware.
+     */
+    private _runModalMiddleware;
     /**
      * The nonce to use for indexing commands with an unknown ID.
      */
@@ -84,7 +100,27 @@ export declare class CommandHandler {
      * Set the error callback function to run when a command's execution fails
      * @param erroCallback The callback to use.
      */
-    setError(erroCallback: CommandHandler[`runError`]): void;
+    setError(erroCallback: CommandHandler[`runError`]): this;
+    /**
+     * Set middleware for buttons.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setButtonMiddleware(middleware: (ctx: ButtonContext) => boolean): this;
+    /**
+     * Set middleware for chat commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setChatCommandMiddleware(middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this;
+    /**
+     * Set middleware for context menu commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setContextMenuCommandMiddleware(middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this;
+    /**
+     * Set middleware for modals.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    setModalMiddleware(middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this;
     /**
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
