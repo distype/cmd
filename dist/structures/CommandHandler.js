@@ -183,10 +183,12 @@ class CommandHandler {
             this._log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
                 level: `DEBUG`, system: this.system
             });
-        const promises = [];
-        newCommands.forEach((command) => promises.push(this.client.rest.createGlobalApplicationCommand(applicationId, command)));
-        deletedCommands.forEach((applicationCommand) => promises.push(this.client.rest.deleteGlobalApplicationCommand(applicationId, applicationCommand.id)));
-        await Promise.all(promises);
+        for (const command of newCommands) {
+            await this.client.rest.createGlobalApplicationCommand(applicationId, command);
+        }
+        for (const command of deletedCommands) {
+            await this.client.rest.deleteGlobalApplicationCommand(applicationId, command.id);
+        }
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
             const matchingCommandKey = this.commands.findKey((command) => (0, node_utils_1.deepEquals)(command.getRaw(), (0, sanitizeCommand_1.sanitizeCommand)(pushedCommand)));
