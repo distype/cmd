@@ -1,8 +1,10 @@
 import { BaseContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
+import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
+
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'distype';
+import { DiscordConstants, Snowflake } from 'distype';
 
 /**
  * Adds a prop to a modal.
@@ -79,6 +81,7 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
      * @returns The modal.
      */
     public setTitle <T extends string> (title: T): AddProp<`title`, T, PR, PA> {
+        if (title.length > DiscordConstants.MODAL_LIMITS.TITLE) throw new DistypeCmdError(`Specified title is longer than maximum length ${DiscordConstants.MODAL_LIMITS.TITLE}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
         this.props.title = title;
         return this as any;
     }
@@ -105,7 +108,14 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
         placeholder: P,
         required: R
     }, PR, PA> {
-        if (this.parameters.find((parameter) => parameter.custom_id === id)) throw new Error(`A field already exists with the ID "${id}"`);
+        if (id.length > DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.CUSTOM_ID) throw new DistypeCmdError(`Specified ID is longer than maximum length ${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.CUSTOM_ID}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if (label.length > DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.LABEL) throw new DistypeCmdError(`Specified label is longer than maximum length ${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.LABEL}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.maxLength ?? -1) > DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MAX || (options?.maxLength ?? Infinity) < DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MIN) throw new DistypeCmdError(`Specified max length is not in valid range ${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MIN}-${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MAX}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.minLength ?? -1) > DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MAX || (options?.minLength ?? Infinity) < DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MIN) throw new DistypeCmdError(`Specified min length is not in valid range ${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MIN}-${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MAX}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.placeholder ?? ``).length > DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.PLACEHOLDER) throw new DistypeCmdError(`Specified placeholder is longer than maximum length ${DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.PLACEHOLDER}`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+
+        if (this.parameters.length === DiscordConstants.MODAL_LIMITS.COMPONENTS) throw new DistypeCmdError(`Modal already contains maximum number of fields (${DiscordConstants.MODAL_LIMITS.COMPONENTS})`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if (this.parameters.find((parameter) => parameter.custom_id === id)) throw new DistypeCmdError(`A field already exists with the ID "${id}"`, DistypeCmdErrorType.INVALID_MODAL_VALUE);
 
         this.parameters.push({
             type: DiscordTypes.ComponentType.TextInput,
@@ -126,7 +136,6 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
      * @param exec The callback to execute when an interaction is received.
      */
     public setExecute (exec: (ctx: ModalContext<PR, PA>) => (void | Promise<void>)): this {
-        if (!this.props.custom_id || !this.props.title) throw new Error(`A modal's ID and title must be present to set its execute method`);
         this.run = exec;
         return this;
     }
@@ -136,8 +145,8 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
      * @returns The raw modal.
      */
     public getRaw (): DiscordTypes.APIModalInteractionResponseCallbackData {
-        if (typeof this.props.custom_id !== `string`) throw new Error(`Cannot convert a modal with a missing "custom_id" parameter to raw`);
-        if (typeof this.props.title !== `string`) throw new Error(`Cannot convert a modal with a missing "title" parameter to raw`);
+        if (typeof this.props.custom_id !== `string`) throw new DistypeCmdError(`Cannot convert a modal with a missing "custom_id" parameter to raw`, DistypeCmdErrorType.INVALID_MODAL_PARAMETERS_FOR_RAW);
+        if (typeof this.props.title !== `string`) throw new DistypeCmdError(`Cannot convert a modal with a missing "title" parameter to raw`, DistypeCmdErrorType.INVALID_MODAL_PARAMETERS_FOR_RAW);
 
         return {
             ...this.props as any,

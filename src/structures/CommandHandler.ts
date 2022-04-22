@@ -3,6 +3,7 @@ import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
 
+import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LogCallback } from '../types/Log';
 
@@ -77,11 +78,9 @@ export class CommandHandler {
      * @param command The command to add.
      */
     public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
-        if (typeof command.props.type !== `number`) throw new Error(`Cannot push a command with a missing "type" parameter`);
-        if (typeof command.props.name !== `string`) throw new Error(`Cannot push a command with a missing "name" parameter`);
-        if (command instanceof ChatCommand && typeof command.props.description !== `string`) throw new Error(`Cannot push a command with a missing "description" parameter`);
+        command.getRaw();
 
-        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new Error(`Commands of the same type cannot share names`);
+        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
 
         this.commands.set(`unknown${this._unknownNonce}`, command);
         this._unknownNonce++;
@@ -128,8 +127,7 @@ export class CommandHandler {
     public bindModal (modal: Modal<any, any>): this {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
 
-        if (typeof modal.props.custom_id !== `string`) throw new Error(`Cannot bind a modal will a missing "custom_id" parameter`);
-        if (typeof modal.props.title !== `string`) throw new Error(`Cannot bind a modal will a missing "title" parameter`);
+        modal.getRaw();
 
         if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
@@ -156,7 +154,7 @@ export class CommandHandler {
      * Pushes added / changed / deleted slash commands to Discord.
      */
     public async push (applicationId: Snowflake | undefined = this.client.gateway.user?.id ?? undefined): Promise<void> {
-        if (!applicationId) throw new Error(`Application ID is undefined`);
+        if (!applicationId) throw new DistypeCmdError(`Application ID is undefined`, DistypeCmdErrorType.APPLICATION_ID_UNDEFINED);
 
         const commands = this.commands.map((command) => command.getRaw());
         this._log(`Pushing ${commands.length} commands`, {
@@ -261,8 +259,8 @@ export class CommandHandler {
                 const call = run(ctx);
 
                 if (call instanceof Promise) {
-                    const reject = await call.then(() => false).catch((error) => error);
-                    if (reject) throw reject;
+                    const reject = await call.then(() => false).catch((error: Error) => error);
+                    if (reject !== false) throw reject;
                 }
             } catch (error: any) {
                 try {
