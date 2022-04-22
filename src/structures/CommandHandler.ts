@@ -52,6 +52,22 @@ export class CommandHandler {
      */
     private _log: LogCallback;
     /**
+     * Button middleware.
+     */
+    private _runButtonMiddleware: (ctx: ButtonContext) => (boolean | Promise<boolean>) = () => true;
+    /**
+     * Chat command middleware.
+     */
+    private _runChatCommandMiddleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => (boolean | Promise<boolean>) = () => true;
+    /**
+     * Context menu command middleware.
+     */
+    private _runContextMenuCommandMiddleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => (boolean | Promise<boolean>) = () => true;
+    /**
+     * Modal middleware.
+     */
+    private _runModalMiddleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => (boolean | Promise<boolean>) = () => true;
+    /**
      * The nonce to use for indexing commands with an unknown ID.
      */
     private _unknownNonce = 0;
@@ -203,8 +219,45 @@ export class CommandHandler {
      * Set the error callback function to run when a command's execution fails
      * @param erroCallback The callback to use.
      */
-    public setError (erroCallback: CommandHandler[`runError`]): void {
+    public setError (erroCallback: CommandHandler[`runError`]): this {
         this.runError = erroCallback;
+        return this;
+    }
+
+    /**
+     * Set middleware for buttons.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    public setButtonMiddleware (middleware: (ctx: ButtonContext) => boolean): this {
+        this._runButtonMiddleware = middleware;
+        return this;
+    }
+
+    /**
+     * Set middleware for chat commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    public setChatCommandMiddleware (middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this {
+        this._runChatCommandMiddleware = middleware;
+        return this;
+    }
+
+    /**
+     * Set middleware for context menu commands.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    public setContextMenuCommandMiddleware (middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this {
+        this._runContextMenuCommandMiddleware = middleware;
+        return this;
+    }
+
+    /**
+     * Set middleware for modals.
+     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     */
+    public setModalMiddleware (middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this {
+        this._runModalMiddleware = middleware;
+        return this;
     }
 
     /**
@@ -212,6 +265,7 @@ export class CommandHandler {
      * @param interaction The received interaction.
      */
     private async _onInteraction (interaction: DiscordTypes.APIInteraction): Promise<void> {
+        let middleware: any;
         let run: any;
         let ctx: any;
 
@@ -220,9 +274,11 @@ export class CommandHandler {
                 const command = this.commands.get(interaction.data.id);
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
+                        middleware = this._runChatCommandMiddleware;
                         run = command.run;
                         ctx = new ChatCommandContext(this, command as any, interaction as any);
                     } else {
+                        middleware = this._runContextMenuCommandMiddleware;
                         run = command.run;
                         ctx = new ContextMenuCommandContext(this, command as any, interaction as any);
                     }
@@ -235,6 +291,7 @@ export class CommandHandler {
                 if (interaction.data.component_type === DiscordTypes.ComponentType.Button) {
                     const button = this.buttons.get(interaction.data.custom_id);
                     if (button) {
+                        middleware = this._runButtonMiddleware;
                         run = button.run;
                         ctx = new ButtonContext(this, interaction);
                     }
@@ -246,6 +303,7 @@ export class CommandHandler {
             case DiscordTypes.InteractionType.ModalSubmit: {
                 const modal = this.modals.get(interaction.data.custom_id);
                 if (modal) {
+                    middleware = this._runModalMiddleware;
                     run = modal.run;
                     ctx = new ModalContext(this, modal, interaction);
                 }
@@ -254,13 +312,23 @@ export class CommandHandler {
             }
         }
 
-        if (typeof run === `function` && ctx) {
+        if (typeof middleware === `function` && typeof run === `function` && ctx) {
             try {
-                const call = run(ctx);
+                const middlwareCall = middleware(ctx);
+                let middlewareResult;
+                if (middlwareCall instanceof Promise) {
+                    const reject = await middlwareCall.catch((error: Error) => error);
+                    if (reject instanceof Error) throw reject;
+                    else middlewareResult = reject;
+                } else {
+                    middlewareResult = middlwareCall;
+                }
+                if (middlewareResult === false) return;
 
+                const call = run(ctx);
                 if (call instanceof Promise) {
-                    const reject = await call.then(() => false).catch((error: Error) => error);
-                    if (reject !== false) throw reject;
+                    const reject = await call.catch((error: Error) => error);
+                    if (reject instanceof Error) throw reject;
                 }
             } catch (error: any) {
                 try {
