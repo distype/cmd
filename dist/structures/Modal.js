@@ -25,7 +25,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModalContext = exports.Modal = void 0;
 const BaseContext_1 = require("./BaseContext");
+const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const distype_1 = require("distype");
 /**
  * A modal builder.
  *
@@ -72,12 +74,26 @@ class Modal {
      * @returns The modal.
      */
     setTitle(title) {
+        if (title.length > distype_1.DiscordConstants.MODAL_LIMITS.TITLE)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified title is longer than maximum length ${distype_1.DiscordConstants.MODAL_LIMITS.TITLE}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
         this.props.title = title;
         return this;
     }
     addField(required, id, label, style, options) {
+        if (id.length > distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.CUSTOM_ID)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified ID is longer than maximum length ${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.CUSTOM_ID}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if (label.length > distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.LABEL)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified label is longer than maximum length ${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.LABEL}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.maxLength ?? -1) > distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MAX || (options?.maxLength ?? Infinity) < distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MIN)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified max length is not in valid range ${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MIN}-${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MAX_LENGTH.MAX}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.minLength ?? -1) > distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MAX || (options?.minLength ?? Infinity) < distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MIN)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified min length is not in valid range ${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MIN}-${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.MIN_LENGTH.MAX}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if ((options?.placeholder ?? ``).length > distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.PLACEHOLDER)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified placeholder is longer than maximum length ${distype_1.DiscordConstants.COMPONENT_LIMITS.TEXT_INPUT.PLACEHOLDER}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
+        if (this.parameters.length === distype_1.DiscordConstants.MODAL_LIMITS.COMPONENTS)
+            throw new DistypeCmdError_1.DistypeCmdError(`Modal already contains maximum number of fields (${distype_1.DiscordConstants.MODAL_LIMITS.COMPONENTS})`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
         if (this.parameters.find((parameter) => parameter.custom_id === id))
-            throw new Error(`A field already exists with the ID "${id}"`);
+            throw new DistypeCmdError_1.DistypeCmdError(`A field already exists with the ID "${id}"`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
         this.parameters.push({
             type: DiscordTypes.ComponentType.TextInput,
             required,
@@ -95,8 +111,6 @@ class Modal {
      * @param exec The callback to execute when an interaction is received.
      */
     setExecute(exec) {
-        if (!this.props.custom_id || !this.props.title)
-            throw new Error(`A modal's ID and title must be present to set its execute method`);
         this.run = exec;
         return this;
     }
@@ -106,9 +120,9 @@ class Modal {
      */
     getRaw() {
         if (typeof this.props.custom_id !== `string`)
-            throw new Error(`Cannot convert a modal with a missing "custom_id" parameter to raw`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a modal with a missing "custom_id" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_PARAMETERS_FOR_RAW);
         if (typeof this.props.title !== `string`)
-            throw new Error(`Cannot convert a modal with a missing "title" parameter to raw`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a modal with a missing "title" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_PARAMETERS_FOR_RAW);
         return {
             ...this.props,
             components: this.parameters.map((parameter) => ({

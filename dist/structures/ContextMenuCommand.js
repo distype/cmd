@@ -25,8 +25,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContextMenuCommandContext = exports.ContextMenuCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
+const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const distype_1 = require("distype");
 /**
  * The context command command builder.
  *
@@ -54,11 +56,11 @@ class ContextMenuCommand {
     }
     /**
      * Set the command's type.
-     * @param name The name to use.
+     * @param type The type to use.
      * @returns The command.
      */
-    setType(name) {
-        this.props.type = name === `message` ? DiscordTypes.ApplicationCommandType.Message : DiscordTypes.ApplicationCommandType.User;
+    setType(type) {
+        this.props.type = type === `message` ? DiscordTypes.ApplicationCommandType.Message : DiscordTypes.ApplicationCommandType.User;
         return this;
     }
     /**
@@ -67,6 +69,8 @@ class ContextMenuCommand {
      * @returns The command.
      */
     setName(name) {
+        if (name.length > distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME)
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified name is longer than maximum length ${distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_VALUE);
         this.props.name = name;
         return this;
     }
@@ -93,8 +97,6 @@ class ContextMenuCommand {
      * @param exec The callback to execute when an interaction is received.
      */
     setExecute(exec) {
-        if (!this.props.type || !this.props.name)
-            throw new Error(`A context menu command's type and name must be present to set its execute method`);
         this.run = exec;
         return this;
     }
@@ -104,9 +106,9 @@ class ContextMenuCommand {
      */
     getRaw() {
         if (typeof this.props.type !== `number`)
-            throw new Error(`Cannot convert a command with a missing "type" parameter to raw`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW);
         if (typeof this.props.name !== `string`)
-            throw new Error(`Cannot convert a command with a missing "name" parameter to raw`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW);
         return (0, sanitizeCommand_1.sanitizeCommand)(this.props);
     }
 }

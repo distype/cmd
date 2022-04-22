@@ -28,6 +28,7 @@ const Button_1 = require("./Button");
 const ChatCommand_1 = require("./ChatCommand");
 const ContextMenuCommand_1 = require("./ContextMenuCommand");
 const Modal_1 = require("./Modal");
+const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
@@ -80,14 +81,9 @@ class CommandHandler {
      * @param command The command to add.
      */
     bindCommand(command) {
-        if (typeof command.props.type !== `number`)
-            throw new Error(`Cannot push a command with a missing "type" parameter`);
-        if (typeof command.props.name !== `string`)
-            throw new Error(`Cannot push a command with a missing "name" parameter`);
-        if (command instanceof ChatCommand_1.ChatCommand && typeof command.props.description !== `string`)
-            throw new Error(`Cannot push a command with a missing "description" parameter`);
+        command.getRaw();
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type))
-            throw new Error(`Commands of the same type cannot share names`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdError_1.DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
         this.commands.set(`unknown${this._unknownNonce}`, command);
         this._unknownNonce++;
         this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
@@ -128,10 +124,7 @@ class CommandHandler {
     bindModal(modal) {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id))
             return this;
-        if (typeof modal.props.custom_id !== `string`)
-            throw new Error(`Cannot bind a modal will a missing "custom_id" parameter`);
-        if (typeof modal.props.title !== `string`)
-            throw new Error(`Cannot bind a modal will a missing "title" parameter`);
+        modal.getRaw();
         if (this.modals.find((_, customId) => customId === modal.props.custom_id))
             this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
                 level: `DEBUG`, system: this.system
@@ -155,7 +148,7 @@ class CommandHandler {
      */
     async push(applicationId = this.client.gateway.user?.id ?? undefined) {
         if (!applicationId)
-            throw new Error(`Application ID is undefined`);
+            throw new DistypeCmdError_1.DistypeCmdError(`Application ID is undefined`, DistypeCmdError_1.DistypeCmdErrorType.APPLICATION_ID_UNDEFINED);
         const commands = this.commands.map((command) => command.getRaw());
         this._log(`Pushing ${commands.length} commands`, {
             level: `INFO`, system: this.system
@@ -244,7 +237,7 @@ class CommandHandler {
                 const call = run(ctx);
                 if (call instanceof Promise) {
                     const reject = await call.then(() => false).catch((error) => error);
-                    if (reject)
+                    if (reject !== false)
                         throw reject;
                 }
             }

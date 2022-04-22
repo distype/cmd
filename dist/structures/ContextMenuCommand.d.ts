@@ -41,10 +41,10 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
     run: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null;
     /**
      * Set the command's type.
-     * @param name The name to use.
+     * @param type The type to use.
      * @returns The command.
      */
-    setType<T extends `message` | `user`>(name: T): AddProp<`type`, T extends `message` ? DiscordTypes.ApplicationCommandType.Message : DiscordTypes.ApplicationCommandType.User, PR>;
+    setType<T extends `message` | `user`>(type: T): AddProp<`type`, T extends `message` ? DiscordTypes.ApplicationCommandType.Message : DiscordTypes.ApplicationCommandType.User, PR>;
     /**
      * Set the command's name.
      * @param name The name to use.
