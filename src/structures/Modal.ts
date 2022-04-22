@@ -169,7 +169,10 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
     /**
      * Modal data.
      */
-    public readonly modal: PR;
+    public readonly modal: {
+        customId: PR[`custom_id`]
+        title: PR[`title`]
+    };
     /**
      * Parameter values from the user.
      */
@@ -185,7 +188,10 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
         super(commandHandler, interaction);
 
         this.channelId = interaction.channel_id;
-        this.modal = modal.props;
+        this.modal = {
+            customId: modal.props.custom_id,
+            title: modal.props.title
+        };
         this.parameters = (interaction.data.components?.map((component) => component.components).flat() ?? []).reduce((p, c) => Object.assign(p, { [c.custom_id]: c.value?.length ? c.value : undefined }), {}) as any;
     }
 
@@ -194,6 +200,6 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
      * Use this method to prevent memory leaks from inactive modals.
      */
     public unbind (): void {
-        this.commandHandler.unbindModal(this.modal.custom_id!);
+        this.commandHandler.unbindModal(this.modal.customId!);
     }
 }
