@@ -32,15 +32,43 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  */
 class BaseContext {
     /**
+     * The client the context is bound to.
+     */
+    client;
+    /**
+     * The command handler that invoked the context.
+     */
+    commandHandler;
+    /**
+     * Message IDs of sent responses.
+     */
+    responses = [];
+    /**
+     * The ID of the guild that the interaction was ran in.
+     */
+    guildId;
+    /**
+     * The guild's preferred locale, if the interaction was invoked in a guild.
+     */
+    guildLocale;
+    /**
+     * Interaction data.
+     */
+    interaction;
+    /**
+     * The invoking user's member data.
+     */
+    member;
+    /**
+     * The invoking user.
+     */
+    user;
+    /**
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
     constructor(commandHandler, interaction) {
-        /**
-         * Message IDs of sent responses.
-         */
-        this.responses = [];
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
         this.guildId = interaction.guild_id ?? interaction.data?.guild_id;
@@ -129,10 +157,7 @@ exports.BaseContext = BaseContext;
  * Base context with a modal.
  */
 class BaseContextWithModal extends BaseContext {
-    constructor() {
-        super(...arguments);
-        this.responses = [];
-    }
+    responses = [];
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -157,6 +182,11 @@ exports.BaseContextWithModal = BaseContextWithModal;
  * Base context for components.
  */
 class BaseComponentContext extends BaseContextWithModal {
+    responses = [];
+    /**
+     * Component data.
+     */
+    component;
     /**
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
@@ -164,7 +194,6 @@ class BaseComponentContext extends BaseContextWithModal {
      */
     constructor(commandHandler, interaction) {
         super(commandHandler, interaction);
-        this.responses = [];
         this.component = {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type

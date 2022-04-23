@@ -43,17 +43,15 @@ const distype_1 = require("distype");
  * ```
  */
 class ContextMenuCommand {
-    constructor() {
-        /**
-         * The command's props.
-         */
-        this.props = {};
-        /**
-         * The command's execute method.
-         * @internal
-         */
-        this.run = null;
-    }
+    /**
+     * The command's props.
+     */
+    props = {};
+    /**
+     * The command's execute method.
+     * @internal
+     */
+    run = null;
     /**
      * Set the command's type.
      * @param type The type to use.
@@ -117,6 +115,22 @@ exports.ContextMenuCommand = ContextMenuCommand;
  * Context menu command context.
  */
 class ContextMenuCommandContext extends BaseContext_1.BaseContextWithModal {
+    /**
+     * The ID of the channel that the command was ran in.
+     */
+    channelId;
+    /**
+     * Command data.
+     */
+    command;
+    /**
+     * The executed command's target.
+     */
+    target;
+    /**
+     * The ID of the executed command's target.
+     */
+    targetId;
     /**
      * Create a context menu command's context.
      * @param commandHandler The command handler that invoked the context.

@@ -45,21 +45,19 @@ const distype_1 = require("distype");
  * ```
  */
 class ChatCommand {
-    constructor() {
-        /**
-         * The command's props.
-         */
-        this.props = { type: DiscordTypes.ApplicationCommandType.ChatInput };
-        /**
-         * The command's parameters.
-         */
-        this.parameters = [];
-        /**
-         * The command's execute method.
-         * @internal
-         */
-        this.run = null;
-    }
+    /**
+     * The command's props.
+     */
+    props = { type: DiscordTypes.ApplicationCommandType.ChatInput };
+    /**
+     * The command's parameters.
+     */
+    parameters = [];
+    /**
+     * The command's execute method.
+     * @internal
+     */
+    run = null;
     /**
      * Set the command's name.
      * @param name The name to use.
@@ -391,6 +389,18 @@ exports.ChatCommand = ChatCommand;
  * Chat command context.
  */
 class ChatCommandContext extends BaseContext_1.BaseContextWithModal {
+    /**
+     * The ID of the channel that the command was ran in.
+     */
+    channelId;
+    /**
+     * Command data.
+     */
+    command;
+    /**
+     * Parameter values from the user.
+     */
+    parameters;
     /**
      * Create a chat command's context.
      * @param commandHandler The command handler that invoked the context.

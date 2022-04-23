@@ -18,6 +18,10 @@ const distype_1 = require("distype");
  */
 class Embed {
     /**
+     * The raw embed.
+     */
+    _raw;
+    /**
      * Create a message embed.
      * @param base An embed to use as a base.
      */

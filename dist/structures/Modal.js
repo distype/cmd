@@ -44,21 +44,19 @@ const distype_1 = require("distype");
  * ```
  */
 class Modal {
-    constructor() {
-        /**
-         * The modal's props.
-         */
-        this.props = {};
-        /**
-         * The modal's parameters.
-         */
-        this.parameters = [];
-        /**
-         * The modal's execute method.
-         * @internal
-         */
-        this.run = null;
-    }
+    /**
+     * The modal's props.
+     */
+    props = {};
+    /**
+     * The modal's parameters.
+     */
+    parameters = [];
+    /**
+     * The modal's execute method.
+     * @internal
+     */
+    run = null;
     /**
      * Set the modal's ID.
      * @param id The custom ID to use.
@@ -137,6 +135,18 @@ exports.Modal = Modal;
  * Modal context.
  */
 class ModalContext extends BaseContext_1.BaseContext {
+    /**
+     * The ID of the channel that the modal was submitted in.
+     */
+    channelId;
+    /**
+     * Modal data.
+     */
+    modal;
+    /**
+     * Parameter values from the user.
+     */
+    parameters;
     /**
      * Create a modal's context.
      * @param commandHandler The command handler that invoked the context.

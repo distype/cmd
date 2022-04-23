@@ -45,15 +45,19 @@ var ButtonStyle;
  */
 class Button {
     /**
+     * The button's execute method.
+     * @internal
+     */
+    run = null;
+    /**
+     * The raw button.
+     */
+    _raw;
+    /**
      * Create a button.
      * @param base A button to use as a base.
      */
     constructor(base = {}) {
-        /**
-         * The button's execute method.
-         * @internal
-         */
-        this.run = null;
         this._raw = base;
     }
     /**

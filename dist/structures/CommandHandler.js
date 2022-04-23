@@ -34,57 +34,65 @@ const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 class CommandHandler {
     /**
+     * The command handler's buttons.
+     */
+    buttons = new node_utils_1.ExtendedMap();
+    /**
+     * The client the command handler is bound to.
+     */
+    client;
+    /**
+     * The command handler's commands.
+     */
+    commands = new node_utils_1.ExtendedMap();
+    /**
+     * The command handler's modals.
+     */
+    modals = new node_utils_1.ExtendedMap();
+    /**
+     * Called when a command encounters an error.
+     * @param error The error encountered.
+     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
+     * @internal
+     */
+    runError = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+        level: `ERROR`, system: this.system
+    });
+    /**
+     * The system string used for emitting errors and for the {@link LogCallback log callback}.
+     */
+    system = `Command Handler`;
+    /**
+     * The {@link LogCallback log callback} used by the command handler..
+     */
+    _log;
+    /**
+     * Button middleware.
+     */
+    _runButtonMiddleware = () => true;
+    /**
+     * Chat command middleware.
+     */
+    _runChatCommandMiddleware = () => true;
+    /**
+     * Context menu command middleware.
+     */
+    _runContextMenuCommandMiddleware = () => true;
+    /**
+     * Modal middleware.
+     */
+    _runModalMiddleware = () => true;
+    /**
+     * The nonce to use for indexing commands with an unknown ID.
+     */
+    _unknownNonce = 0;
+    /**
      * Create the command handler.
      * @param client The client to bind the command handler to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(client, logCallback = () => { }, logThisArg) {
-        /**
-         * The command handler's buttons.
-         */
-        this.buttons = new node_utils_1.ExtendedMap();
-        /**
-         * The command handler's commands.
-         */
-        this.commands = new node_utils_1.ExtendedMap();
-        /**
-         * The command handler's modals.
-         */
-        this.modals = new node_utils_1.ExtendedMap();
-        /**
-         * Called when a command encounters an error.
-         * @param error The error encountered.
-         * @param unexpected If the error was unexpected (not called via `ctx.error()`).
-         * @internal
-         */
-        this.runError = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
-            level: `ERROR`, system: this.system
-        });
-        /**
-         * The system string used for emitting errors and for the {@link LogCallback log callback}.
-         */
-        this.system = `Command Handler`;
-        /**
-         * Button middleware.
-         */
-        this._runButtonMiddleware = () => true;
-        /**
-         * Chat command middleware.
-         */
-        this._runChatCommandMiddleware = () => true;
-        /**
-         * Context menu command middleware.
-         */
-        this._runContextMenuCommandMiddleware = () => true;
-        /**
-         * Modal middleware.
-         */
-        this._runModalMiddleware = () => true;
-        /**
-         * The nonce to use for indexing commands with an unknown ID.
-         */
-        this._unknownNonce = 0;
         this.client = client;
         this.client.gateway.on(`INTERACTION_CREATE`, ({ d }) => this._onInteraction(d));
         this._log = logCallback.bind(logThisArg);

@@ -72,16 +72,20 @@ var DistypeCmdErrorType;
  */
 class DistypeCmdError extends Error {
     /**
+     * The type of error that has occured.
+     */
+    errorType;
+    /**
+     * The system the error was emitted from.
+     */
+    system = `Command Handler`;
+    /**
      * Create a @distype/cmd shard error.
      * @param message The error's message.
      * @param errorType The type of error that has occured.
      */
     constructor(message, errorType) {
         super(message);
-        /**
-         * The system the error was emitted from.
-         */
-        this.system = `Command Handler`;
         this.errorType = errorType;
     }
     /**
