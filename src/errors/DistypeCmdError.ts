@@ -1,5 +1,5 @@
 /**
- * The type of error that has occured.
+ * The type of error that has ocurred.
  */
 export enum DistypeCmdErrorType {
     /**
@@ -15,7 +15,7 @@ export enum DistypeCmdErrorType {
      */
     CANNOT_OPEN_MODAL = `CANNOT_OPEN_MODAL`,
     /**
-     * Dupplicate command names were found.
+     * Duplicate command names were found.
      */
     DUPLICATE_COMMAND_NAME = `DUPLICATE_COMMAND_NAME`,
     /**
@@ -37,11 +37,11 @@ export enum DistypeCmdErrorType {
     /**
      * An invalid value was used while modifying a context menu command.
      */
-    INVALID_CONTEX_MENU_COMMAND_VALUE = `INVALID_CONTEX_MENU_COMMAND_VALUE`,
+    INVALID_CONTEXT_MENU_COMMAND_VALUE = `INVALID_CONTEXT_MENU_COMMAND_VALUE`,
     /**
      * While converting a context menu command to raw, invalid parameters were found.
      */
-    INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW = `INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW`,
+    INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW = `INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW`,
     /**
      * An invalid value was used while modifying an embed.
      */
@@ -69,7 +69,7 @@ export enum DistypeCmdErrorType {
  */
 export class DistypeCmdError extends Error {
     /**
-     * The type of error that has occured.
+     * The type of error that has ocurred.
      */
     public readonly errorType: DistypeCmdErrorType;
     /**
@@ -80,7 +80,7 @@ export class DistypeCmdError extends Error {
     /**
      * Create a @distype/cmd shard error.
      * @param message The error's message.
-     * @param errorType The type of error that has occured.
+     * @param errorType The type of error that has ocurred.
      */
     constructor (message: string, errorType: DistypeCmdErrorType) {
         super(message);

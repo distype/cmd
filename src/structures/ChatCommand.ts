@@ -129,11 +129,11 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 
     /**
      * Set the command's name localizations.
-     * @param nameLocalizaions The name localizations to use.
+     * @param nameLocalizations The name localizations to use.
      * @returns The command.
      */
-    public setNameLocalizations <T extends ChatCommandProp<`name_localizations`>> (nameLocalizaions: T): AddProp<`name_localizations`, T, PR, PA> {
-        this.props.name_localizations = nameLocalizaions;
+    public setNameLocalizations <T extends ChatCommandProp<`name_localizations`>> (nameLocalizations: T): AddProp<`name_localizations`, T, PR, PA> {
+        this.props.name_localizations = nameLocalizations;
         return this as any;
     }
 
