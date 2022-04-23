@@ -71,11 +71,11 @@ class ChatCommand {
     }
     /**
      * Set the command's name localizations.
-     * @param nameLocalizaions The name localizations to use.
+     * @param nameLocalizations The name localizations to use.
      * @returns The command.
      */
-    setNameLocalizations(nameLocalizaions) {
-        this.props.name_localizations = nameLocalizaions;
+    setNameLocalizations(nameLocalizations) {
+        this.props.name_localizations = nameLocalizations;
         return this;
     }
     /**

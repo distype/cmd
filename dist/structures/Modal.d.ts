@@ -13,7 +13,7 @@ declare type AddProp<K extends keyof Required<ModalProps>, V extends ModalProp<K
  */
 declare type AddParameter<T extends DiscordTypes.APIModalActionRowComponent, Props, Parameters extends DiscordTypes.APIModalActionRowComponent[]> = Modal<Props, [...Parameters, T]>;
 /**
- * Generate a paramater's value in an interaction.
+ * Generate a parameter's value in an interaction.
  * @internal
  */
 declare type ParameterValue<R extends boolean | undefined> = R extends true ? string : string | undefined;

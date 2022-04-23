@@ -68,17 +68,17 @@ class ContextMenuCommand {
      */
     setName(name) {
         if (name.length > distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME)
-            throw new DistypeCmdError_1.DistypeCmdError(`Specified name is longer than maximum length ${distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_VALUE);
+            throw new DistypeCmdError_1.DistypeCmdError(`Specified name is longer than maximum length ${distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_VALUE);
         this.props.name = name;
         return this;
     }
     /**
      * Set the command's name localizations.
-     * @param nameLocalizaions The name localizations to use.
+     * @param nameLocalizations The name localizations to use.
      * @returns The command.
      */
-    setNameLocalizations(nameLocalizaions) {
-        this.props.name_localizations = nameLocalizaions;
+    setNameLocalizations(nameLocalizations) {
+        this.props.name_localizations = nameLocalizations;
         return this;
     }
     /**
@@ -104,9 +104,9 @@ class ContextMenuCommand {
      */
     getRaw() {
         if (typeof this.props.type !== `number`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
         if (typeof this.props.name !== `string`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW);
+            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
         return (0, sanitizeCommand_1.sanitizeCommand)(this.props);
     }
 }

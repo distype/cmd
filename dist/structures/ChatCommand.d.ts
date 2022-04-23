@@ -107,10 +107,10 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
     setName<T extends ChatCommandProp<`name`>>(name: T): AddProp<`name`, T, PR, PA>;
     /**
      * Set the command's name localizations.
-     * @param nameLocalizaions The name localizations to use.
+     * @param nameLocalizations The name localizations to use.
      * @returns The command.
      */
-    setNameLocalizations<T extends ChatCommandProp<`name_localizations`>>(nameLocalizaions: T): AddProp<`name_localizations`, T, PR, PA>;
+    setNameLocalizations<T extends ChatCommandProp<`name_localizations`>>(nameLocalizations: T): AddProp<`name_localizations`, T, PR, PA>;
     /**
      * Set the command's description.
      * @param description The description to use.

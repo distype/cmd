@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DistypeCmdError = exports.DistypeCmdErrorType = void 0;
 /**
- * The type of error that has occured.
+ * The type of error that has ocurred.
  */
 var DistypeCmdErrorType;
 (function (DistypeCmdErrorType) {
@@ -19,7 +19,7 @@ var DistypeCmdErrorType;
      */
     DistypeCmdErrorType["CANNOT_OPEN_MODAL"] = "CANNOT_OPEN_MODAL";
     /**
-     * Dupplicate command names were found.
+     * Duplicate command names were found.
      */
     DistypeCmdErrorType["DUPLICATE_COMMAND_NAME"] = "DUPLICATE_COMMAND_NAME";
     /**
@@ -41,11 +41,11 @@ var DistypeCmdErrorType;
     /**
      * An invalid value was used while modifying a context menu command.
      */
-    DistypeCmdErrorType["INVALID_CONTEX_MENU_COMMAND_VALUE"] = "INVALID_CONTEX_MENU_COMMAND_VALUE";
+    DistypeCmdErrorType["INVALID_CONTEXT_MENU_COMMAND_VALUE"] = "INVALID_CONTEXT_MENU_COMMAND_VALUE";
     /**
      * While converting a context menu command to raw, invalid parameters were found.
      */
-    DistypeCmdErrorType["INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW"] = "INVALID_CONTEX_MENU_COMMAND_PARAMETERS_FOR_RAW";
+    DistypeCmdErrorType["INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW"] = "INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW";
     /**
      * An invalid value was used while modifying an embed.
      */
@@ -72,7 +72,7 @@ var DistypeCmdErrorType;
  */
 class DistypeCmdError extends Error {
     /**
-     * The type of error that has occured.
+     * The type of error that has ocurred.
      */
     errorType;
     /**
@@ -82,7 +82,7 @@ class DistypeCmdError extends Error {
     /**
      * Create a @distype/cmd shard error.
      * @param message The error's message.
-     * @param errorType The type of error that has occured.
+     * @param errorType The type of error that has ocurred.
      */
     constructor(message, errorType) {
         super(message);

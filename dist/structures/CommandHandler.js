@@ -212,10 +212,10 @@ class CommandHandler {
     }
     /**
      * Set the error callback function to run when a command's execution fails
-     * @param erroCallback The callback to use.
+     * @param errorCallback The callback to use.
      */
-    setError(erroCallback) {
-        this.runError = erroCallback;
+    setError(errorCallback) {
+        this.runError = errorCallback;
         return this;
     }
     /**
@@ -298,17 +298,17 @@ class CommandHandler {
         }
         if (typeof middleware === `function` && typeof run === `function` && ctx) {
             try {
-                const middlwareCall = middleware(ctx);
+                const middlewareCall = middleware(ctx);
                 let middlewareResult;
-                if (middlwareCall instanceof Promise) {
-                    const reject = await middlwareCall.catch((error) => error);
+                if (middlewareCall instanceof Promise) {
+                    const reject = await middlewareCall.catch((error) => error);
                     if (reject instanceof Error)
                         throw reject;
                     else
                         middlewareResult = reject;
                 }
                 else {
-                    middlewareResult = middlwareCall;
+                    middlewareResult = middlewareCall;
                 }
                 if (middlewareResult === false)
                     return;

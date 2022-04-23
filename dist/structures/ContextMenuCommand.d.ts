@@ -53,10 +53,10 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
     setName<T extends ContextMenuCommandProp<`name`>>(name: T): AddProp<`name`, T, PR>;
     /**
      * Set the command's name localizations.
-     * @param nameLocalizaions The name localizations to use.
+     * @param nameLocalizations The name localizations to use.
      * @returns The command.
      */
-    setNameLocalizations<T extends ContextMenuCommandProp<`name_localizations`>>(nameLocalizaions: T): AddProp<`name_localizations`, T, PR>;
+    setNameLocalizations<T extends ContextMenuCommandProp<`name_localizations`>>(nameLocalizations: T): AddProp<`name_localizations`, T, PR>;
     /**
      * Set the command's default permission.
      * @param defaultPermission The default permission to use.

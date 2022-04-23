@@ -98,9 +98,9 @@ export declare class CommandHandler {
     push(applicationId?: Snowflake | undefined): Promise<void>;
     /**
      * Set the error callback function to run when a command's execution fails
-     * @param erroCallback The callback to use.
+     * @param errorCallback The callback to use.
      */
-    setError(erroCallback: CommandHandler[`runError`]): this;
+    setError(errorCallback: CommandHandler[`runError`]): this;
     /**
      * Set middleware for buttons.
      * @param middleware The middleware callback. If it returns `false`, the button will not be executed.

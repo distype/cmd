@@ -143,7 +143,7 @@ class BaseContext {
     }
     /**
      * Delete a response.
-     * @param id The ID of the reponse to delete.
+     * @param id The ID of the response to delete.
      */
     async delete(id) {
         if (!this.responses.includes(id))
@@ -162,7 +162,7 @@ class BaseContextWithModal extends BaseContext {
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
      * If the command handler already has a bound modal with the same ID, it will be overwritten.
-     * A modal will stay bound to the command handler until it's exection context's "unbind()" method is called.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
      * @param modal The modal to respond with.
      */
     async showModal(modal) {
