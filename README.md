@@ -12,15 +12,16 @@
 
 ## About
 
-A command handler for [Distype](https://github.com/distype/distype) (WIP).
+A command handler for [Distype](https://github.com/distype/distype).
 
 ## How it works
 
 Commands are made via builders ([example below](https://github.com/distype/cmd/blob/main/README.md#example-bot)), and are then pushed to the command handler to be executed whenever an interaction is received. This library also includes builders for other components, including embeds, modals, and message components.
 
-Command execute methods use a command context to allow you to access useful variables, such as the client and information about the command. Additionally, command parameters are dynamically typed on the command context (shown below).
+Command execute methods use a command context to allow you to access useful variables, such as the client and information about the command.
 
 ![img](https://raw.githubusercontent.com/distype/assets/main/cmd.gif)
+> Command parameters are dynamically typed on the command context
 
 ## Example Bot
 
