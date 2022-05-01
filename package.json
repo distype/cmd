@@ -1,7 +1,7 @@
 {
   "name": "@distype/cmd",
   "version": "0.2.0",
-  "description": " A command handler for Distype",
+  "description": " A command handler for Distype.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
