@@ -74,9 +74,9 @@ export declare class BaseContext {
     error(error: Error): void;
     /**
      * Defers the interaction (displays a loading state to the user).
-     * @param flags Message flags for the followup after the defer.
+     * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
-    defer(flags?: DiscordTypes.MessageFlags): Promise<`defer`>;
+    defer(flags?: DiscordTypes.MessageFlags | number | true): Promise<`defer`>;
     /**
      * Sends a message.
      * @param message The message to send.
@@ -84,6 +84,13 @@ export declare class BaseContext {
      * @returns The ID of the created message, or `@original`.
      */
     send(message: Message, components?: Components): Promise<Snowflake | `@original`>;
+    /**
+     * A shorthand for sending messages with the ephemeral flag.
+     * @param message The message to send.
+     * @param components Components to add to the message.
+     * @returns The ID of the created message, or `@original`.
+     */
+    sendEphemeral(message: Message, components?: Components): Promise<Snowflake | `@original`>;
     /**
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
