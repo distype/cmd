@@ -32,6 +32,8 @@ const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const promises_1 = require("node:fs/promises");
+const node_path_1 = require("node:path");
 class CommandHandler {
     /**
      * The command handler's buttons.
@@ -104,6 +106,32 @@ class CommandHandler {
         this._log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
+    }
+    /**
+     * Load commands / components / modals from a directory.
+     * @param directory The directory to load from.
+     */
+    async load(directory) {
+        if (!(0, node_path_1.isAbsolute)(directory))
+            directory = (0, node_path_1.resolve)(process.cwd(), directory);
+        const files = await (0, promises_1.readdir)(directory, { withFileTypes: true });
+        for (const file in files) {
+            if (files[file].isDirectory())
+                return this.load((0, node_path_1.resolve)(directory, files[file].name));
+            if (!files[file].name.endsWith(`.js`))
+                return;
+            delete require.cache[require.resolve((0, node_path_1.resolve)(directory, files[file].name))];
+            const structure = await Promise.resolve().then(() => __importStar(require((0, node_path_1.resolve)(directory, files[file].name))));
+            if (structure instanceof ChatCommand_1.ChatCommand || structure instanceof ContextMenuCommand_1.ContextMenuCommand) {
+                this.bindCommand(structure);
+            }
+            else if (structure instanceof Button_1.Button) {
+                this.bindButton(structure);
+            }
+            else if (structure instanceof Modal_1.Modal) {
+                this.bindModal(structure);
+            }
+        }
     }
     /**
      * Bind a command to the command handler.

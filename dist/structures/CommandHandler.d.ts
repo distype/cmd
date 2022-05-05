@@ -1,3 +1,4 @@
+import { BaseContext } from './BaseContext';
 import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
@@ -6,7 +7,6 @@ import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
-import { BaseContext } from './BaseContext';
 export declare type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
 export declare class CommandHandler {
     /**
@@ -71,6 +71,11 @@ export declare class CommandHandler {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(client: Client, logCallback?: LogCallback, logThisArg?: any);
+    /**
+     * Load commands / components / modals from a directory.
+     * @param directory The directory to load from.
+     */
+    load(directory: string): Promise<void>;
     /**
      * Bind a command to the command handler.
      * @param command The command to add.
