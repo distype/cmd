@@ -102,14 +102,14 @@ export class BaseContext {
 
     /**
      * Defers the interaction (displays a loading state to the user).
-     * @param flags Message flags for the followup after the defer.
+     * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
-    public async defer (flags?: DiscordTypes.MessageFlags): Promise<`defer`> {
+    public async defer (flags?: DiscordTypes.MessageFlags | number | true): Promise<`defer`> {
         if (this.responses.length) throw new DistypeCmdError(`Cannot defer, a response has already been created`, DistypeCmdErrorType.CANNOT_DEFER);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
-            data: { flags }
+            data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
         });
 
         this.responses.push(`defer`);
@@ -137,6 +137,20 @@ export class BaseContext {
 
         this.responses.push(id);
         return id;
+    }
+
+    /**
+     * A shorthand for sending messages with the ephemeral flag.
+     * @param message The message to send.
+     * @param components Components to add to the message.
+     * @returns The ID of the created message, or `@original`.
+     */
+    public async sendEphemeral (message: Message, components?: Components): Promise<Snowflake | `@original`> {
+        const data = messageFactory(message, components);
+        return await this.send({
+            ...data,
+            flags: (data.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
+        });
     }
 
     /**
