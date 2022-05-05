@@ -2,6 +2,7 @@ import { BaseContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
+import { LogCallback } from '../types/Log';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { DiscordConstants, Snowflake } from 'distype';
@@ -184,8 +185,8 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
      * @param modal The modal that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction) {
-        super(commandHandler, interaction);
+    constructor (commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(commandHandler, interaction, logCallback, logThisArg);
 
         this.channelId = interaction.channel_id;
         this.modal = {

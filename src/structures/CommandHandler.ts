@@ -52,6 +52,10 @@ export class CommandHandler {
      */
     private _log: LogCallback;
     /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?: any;
+    /**
      * Button middleware.
      */
     private _runButtonMiddleware: (ctx: ButtonContext) => (boolean | Promise<boolean>) = () => true;
@@ -84,6 +88,7 @@ export class CommandHandler {
         this.client.gateway.on(`INTERACTION_CREATE`, ({ d }) => this._onInteraction(d));
 
         this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
@@ -277,11 +282,11 @@ export class CommandHandler {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
                         run = command.run;
-                        ctx = new ChatCommandContext(this, command as any, interaction as any);
+                        ctx = new ChatCommandContext(this, command as any, interaction as any, this._log, this._logThisArg);
                     } else {
                         middleware = this._runContextMenuCommandMiddleware;
                         run = command.run;
-                        ctx = new ContextMenuCommandContext(this, command as any, interaction as any);
+                        ctx = new ContextMenuCommandContext(this, command as any, interaction as any, this._log, this._logThisArg);
                     }
                 }
 
@@ -294,7 +299,7 @@ export class CommandHandler {
                     if (button) {
                         middleware = this._runButtonMiddleware;
                         run = button.run;
-                        ctx = new ButtonContext(this, interaction);
+                        ctx = new ButtonContext(this, interaction, this._log, this._logThisArg);
                     }
                 }
 
@@ -306,7 +311,7 @@ export class CommandHandler {
                 if (modal) {
                     middleware = this._runModalMiddleware;
                     run = modal.run;
-                    ctx = new ModalContext(this, modal, interaction);
+                    ctx = new ModalContext(this, modal, interaction, this._log, this._logThisArg);
                 }
 
                 break;

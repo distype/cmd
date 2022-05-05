@@ -1,12 +1,13 @@
 import { BaseContextWithModal } from './BaseContext';
+import { CommandHandler } from './CommandHandler';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LocalizedText } from '../types/LocalizedText';
+import { LogCallback } from '../types/Log';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { DiscordConstants, Snowflake } from 'distype';
-import { CommandHandler } from './CommandHandler';
 
 /**
  * Adds a prop to a command.
@@ -567,8 +568,8 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
      * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction) {
-        super(commandHandler, interaction);
+    constructor (commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(commandHandler, interaction, logCallback, logThisArg);
 
         this.channelId = interaction.channel_id;
         this.command = {

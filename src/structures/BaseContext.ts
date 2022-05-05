@@ -3,6 +3,7 @@ import { Modal } from './Modal';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { Components, Message, messageFactory } from '../functions/messageFactory';
+import { LogCallback } from '../types/Log';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
@@ -12,13 +13,17 @@ import { Client, Snowflake } from 'distype';
  */
 export class BaseContext {
     /**
-     * The client the context is bound to.
+     * The {@link Client client} the context is bound to.
      */
     public client: Client;
     /**
-     * The command handler that invoked the context.
+     * The {@link CommandHandler command handler} that invoked the context.
      */
     public commandHandler: CommandHandler;
+    /**
+     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
+     */
+    public log: LogCallback;
     /**
      * Message IDs of sent responses.
      */
@@ -71,7 +76,7 @@ export class BaseContext {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction) {
+    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
 
@@ -89,6 +94,8 @@ export class BaseContext {
             ...(interaction.member?.user ?? interaction.user!),
             locale: interaction.locale ?? interaction.locale
         };
+
+        this.log = logCallback.bind(logThisArg);
     }
 
     /**
@@ -229,8 +236,8 @@ export class BaseComponentContext extends BaseContextWithModal {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction) {
-        super(commandHandler, interaction);
+    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(commandHandler, interaction, logCallback, logThisArg);
 
         this.component = {
             customId: interaction.data.custom_id,
