@@ -1,5 +1,6 @@
 import { BaseContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
+import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 /**
@@ -105,6 +106,6 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
      * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction);
+    constructor(commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, logCallback?: LogCallback, logThisArg?: any);
 }
 export {};

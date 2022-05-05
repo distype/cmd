@@ -32,13 +32,17 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  */
 class BaseContext {
     /**
-     * The client the context is bound to.
+     * The {@link Client client} the context is bound to.
      */
     client;
     /**
-     * The command handler that invoked the context.
+     * The {@link CommandHandler command handler} that invoked the context.
      */
     commandHandler;
+    /**
+     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
+     */
+    log;
     /**
      * Message IDs of sent responses.
      */
@@ -68,7 +72,7 @@ class BaseContext {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler, interaction) {
+    constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
         this.guildId = interaction.guild_id ?? interaction.data?.guild_id;
@@ -85,6 +89,7 @@ class BaseContext {
             ...(interaction.member?.user ?? interaction.user),
             locale: interaction.locale ?? interaction.locale
         };
+        this.log = logCallback.bind(logThisArg);
     }
     /**
      * Calls the command handler's error callback.
@@ -92,7 +97,7 @@ class BaseContext {
      * @param error The error encountered.
      */
     error(error) {
-        this.commandHandler.runError(error, this, false);
+        this.commandHandler.runError(error instanceof Error ? error : new Error(error), this, false);
     }
     /**
      * Defers the interaction (displays a loading state to the user).
@@ -205,8 +210,8 @@ class BaseComponentContext extends BaseContextWithModal {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler, interaction) {
-        super(commandHandler, interaction);
+    constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
+        super(commandHandler, interaction, logCallback, logThisArg);
         this.component = {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type

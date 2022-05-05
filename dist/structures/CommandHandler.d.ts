@@ -37,9 +37,13 @@ export declare class CommandHandler {
      */
     readonly system = "Command Handler";
     /**
-     * The {@link LogCallback log callback} used by the command handler..
+     * The {@link LogCallback log callback} used by the command handler.
      */
     private _log;
+    /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?;
     /**
      * Button middleware.
      */

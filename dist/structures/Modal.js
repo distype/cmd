@@ -153,8 +153,8 @@ class ModalContext extends BaseContext_1.BaseContext {
      * @param modal The modal that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler, modal, interaction) {
-        super(commandHandler, interaction);
+    constructor(commandHandler, modal, interaction, logCallback = () => { }, logThisArg) {
+        super(commandHandler, interaction, logCallback, logThisArg);
         this.channelId = interaction.channel_id;
         this.modal = {
             customId: modal.props.custom_id,

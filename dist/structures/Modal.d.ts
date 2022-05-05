@@ -1,5 +1,6 @@
 import { BaseContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
+import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 /**
@@ -121,7 +122,7 @@ export declare class ModalContext<PR extends Partial<ModalProps>, PA extends Dis
      * @param modal The modal that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction);
+    constructor(commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Unbinds the modal's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive modals.

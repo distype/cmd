@@ -137,8 +137,8 @@ class ContextMenuCommandContext extends BaseContext_1.BaseContextWithModal {
      * @param command The command that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler, command, interaction) {
-        super(commandHandler, interaction);
+    constructor(commandHandler, command, interaction, logCallback = () => { }, logThisArg) {
+        super(commandHandler, interaction, logCallback, logThisArg);
         this.channelId = interaction.channel_id;
         this.command = {
             ...command.props,

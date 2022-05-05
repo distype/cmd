@@ -1,6 +1,7 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 import { Components, Message } from '../functions/messageFactory';
+import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 /**
@@ -8,13 +9,17 @@ import { Client, Snowflake } from 'distype';
  */
 export declare class BaseContext {
     /**
-     * The client the context is bound to.
+     * The {@link Client client} the context is bound to.
      */
     client: Client;
     /**
-     * The command handler that invoked the context.
+     * The {@link CommandHandler command handler} that invoked the context.
      */
     commandHandler: CommandHandler;
+    /**
+     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
+     */
+    log: LogCallback;
     /**
      * Message IDs of sent responses.
      */
@@ -65,13 +70,13 @@ export declare class BaseContext {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction);
+    constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Calls the command handler's error callback.
      * Note that this does not stop the execution of the command's execute method; you must also call `return`.
      * @param error The error encountered.
      */
-    error(error: Error): void;
+    error(error: string | Error): void;
     /**
      * Defers the interaction (displays a loading state to the user).
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
@@ -142,7 +147,7 @@ export declare class BaseComponentContext extends BaseContextWithModal {
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
      */
-    constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction);
+    constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction, logCallback?: LogCallback, logThisArg?: any);
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */

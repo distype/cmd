@@ -63,9 +63,13 @@ class CommandHandler {
      */
     system = `Command Handler`;
     /**
-     * The {@link LogCallback log callback} used by the command handler..
+     * The {@link LogCallback log callback} used by the command handler.
      */
     _log;
+    /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    _logThisArg;
     /**
      * Button middleware.
      */
@@ -96,6 +100,7 @@ class CommandHandler {
         this.client = client;
         this.client.gateway.on(`INTERACTION_CREATE`, ({ d }) => this._onInteraction(d));
         this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
@@ -265,12 +270,12 @@ class CommandHandler {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
                         run = command.run;
-                        ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction);
+                        ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction, this._log, this._logThisArg);
                     }
                     else {
                         middleware = this._runContextMenuCommandMiddleware;
                         run = command.run;
-                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction);
+                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction, this._log, this._logThisArg);
                     }
                 }
                 break;
@@ -281,7 +286,7 @@ class CommandHandler {
                     if (button) {
                         middleware = this._runButtonMiddleware;
                         run = button.run;
-                        ctx = new Button_1.ButtonContext(this, interaction);
+                        ctx = new Button_1.ButtonContext(this, interaction, this._log, this._logThisArg);
                     }
                 }
                 break;
@@ -291,12 +296,15 @@ class CommandHandler {
                 if (modal) {
                     middleware = this._runModalMiddleware;
                     run = modal.run;
-                    ctx = new Modal_1.ModalContext(this, modal, interaction);
+                    ctx = new Modal_1.ModalContext(this, modal, interaction, this._log, this._logThisArg);
                 }
                 break;
             }
         }
         if (typeof middleware === `function` && typeof run === `function` && ctx) {
+            this._log(`Running interaction ${interaction.id}`, {
+                level: `DEBUG`, system: this.system
+            });
             try {
                 const middlewareCall = middleware(ctx);
                 let middlewareResult;
