@@ -1,3 +1,4 @@
+import { BaseContext } from './BaseContext';
 import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
@@ -10,7 +11,8 @@ import { LogCallback } from '../types/Log';
 import { deepEquals, ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
-import { BaseContext } from './BaseContext';
+import { readdir } from 'node:fs/promises';
+import { isAbsolute, resolve } from 'node:path';
 
 export type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
 
@@ -92,6 +94,32 @@ export class CommandHandler {
         this._log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
+    }
+
+    /**
+     * Load commands / components / modals from a directory.
+     * @param directory The directory to load from.
+     */
+    public async load (directory: string): Promise<void> {
+        if (!isAbsolute(directory)) directory = resolve(process.cwd(), directory);
+
+        const files = await readdir(directory, { withFileTypes: true });
+
+        for (const file in files) {
+            if (files[file].isDirectory()) return this.load(resolve(directory, files[file].name));
+            if (!files[file].name.endsWith(`.js`)) return;
+
+            delete require.cache[require.resolve(resolve(directory, files[file].name))];
+            const structure = await import(resolve(directory, files[file].name));
+
+            if (structure instanceof ChatCommand || structure instanceof ContextMenuCommand) {
+                this.bindCommand(structure);
+            } else if (structure instanceof Button) {
+                this.bindButton(structure);
+            } else if (structure instanceof Modal) {
+                this.bindModal(structure);
+            }
+        }
     }
 
     /**
