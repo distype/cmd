@@ -48,7 +48,7 @@ export class CommandHandler {
     public readonly system = `Command Handler`;
 
     /**
-     * The {@link LogCallback log callback} used by the command handler..
+     * The {@link LogCallback log callback} used by the command handler.
      */
     private _log: LogCallback;
     /**
@@ -314,6 +314,10 @@ export class CommandHandler {
         }
 
         if (typeof middleware === `function` && typeof run === `function` && ctx) {
+            this._log(`Running interaction ${interaction.id}`, {
+                level: `DEBUG`, system: this.system
+            });
+
             try {
                 const middlewareCall = middleware(ctx);
                 let middlewareResult;
