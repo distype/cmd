@@ -103,8 +103,8 @@ export class BaseContext {
      * Note that this does not stop the execution of the command's execute method; you must also call `return`.
      * @param error The error encountered.
      */
-    public error (error: Error): void {
-        this.commandHandler.runError(error, this as any, false);
+    public error (error: string | Error): void {
+        this.commandHandler.runError(error instanceof Error ? error : new Error(error), this as any, false);
     }
 
     /**
