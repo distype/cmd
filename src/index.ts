@@ -29,3 +29,5 @@ export {
 } from './structures/Modal';
 
 export { LocalizedText } from './types/LocalizedText';
+
+export { cleanseMarkdown } from './utils/cleanseMarkdown';
