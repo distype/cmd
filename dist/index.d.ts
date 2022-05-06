@@ -6,3 +6,4 @@ export { Button, ButtonContext, ButtonStyle } from './structures/Button';
 export { Embed } from './structures/Embed';
 export { Modal, ModalContext, ModalProps } from './structures/Modal';
 export { LocalizedText } from './types/LocalizedText';
+export { cleanseMarkdown } from './utils/cleanseMarkdown';

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ModalContext = exports.Modal = exports.Embed = exports.ButtonStyle = exports.ButtonContext = exports.Button = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = void 0;
+exports.cleanseMarkdown = exports.ModalContext = exports.Modal = exports.Embed = exports.ButtonStyle = exports.ButtonContext = exports.Button = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = void 0;
 var ChatCommand_1 = require("./structures/ChatCommand");
 Object.defineProperty(exports, "ChatCommand", { enumerable: true, get: function () { return ChatCommand_1.ChatCommand; } });
 Object.defineProperty(exports, "ChatCommandContext", { enumerable: true, get: function () { return ChatCommand_1.ChatCommandContext; } });
@@ -18,3 +18,5 @@ Object.defineProperty(exports, "Embed", { enumerable: true, get: function () { r
 var Modal_1 = require("./structures/Modal");
 Object.defineProperty(exports, "Modal", { enumerable: true, get: function () { return Modal_1.Modal; } });
 Object.defineProperty(exports, "ModalContext", { enumerable: true, get: function () { return Modal_1.ModalContext; } });
+var cleanseMarkdown_1 = require("./utils/cleanseMarkdown");
+Object.defineProperty(exports, "cleanseMarkdown", { enumerable: true, get: function () { return cleanseMarkdown_1.cleanseMarkdown; } });
