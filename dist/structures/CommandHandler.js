@@ -121,7 +121,8 @@ class CommandHandler {
             if (!files[file].name.endsWith(`.js`))
                 return;
             delete require.cache[require.resolve((0, node_path_1.resolve)(directory, files[file].name))];
-            const structure = await Promise.resolve().then(() => __importStar(require((0, node_path_1.resolve)(directory, files[file].name))));
+            const imported = await Promise.resolve().then(() => __importStar(require((0, node_path_1.resolve)(directory, files[file].name))));
+            const structure = imported.default ?? imported;
             if (structure instanceof ChatCommand_1.ChatCommand || structure instanceof ContextMenuCommand_1.ContextMenuCommand) {
                 this.bindCommand(structure);
             }
