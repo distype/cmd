@@ -39,7 +39,7 @@
   "dependencies": {
     "@br88c/node-utils": "^1.2.0",  
     "discord-api-types": "^0.32.1",
-    "distype": "^0.12.1"
+    "distype": "^0.12.2"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.4.0",
