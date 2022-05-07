@@ -48,7 +48,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * The command's execute method.
      * @internal
      */
-    public run: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null = null;
+    public runExecute: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null = null;
 
     /**
      * Set the command's type.
@@ -93,10 +93,10 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    public setExecute (exec: this[`run`]): this {
-        this.run = exec;
+    public setExecute (executeCallback: this[`runExecute`]): this {
+        this.runExecute = executeCallback;
         return this;
     }
 

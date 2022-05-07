@@ -66,7 +66,7 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
      * The modal's execute method.
      * @internal
      */
-    public run: ((ctx: ModalContext<PR, PA>) => (void | Promise<void>)) | null = null;
+    public runExecute: ((ctx: ModalContext<PR, PA>) => (void | Promise<void>)) | null = null;
 
     /**
      * Set the modal's ID.
@@ -136,10 +136,10 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
 
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    public setExecute (exec: this[`run`]): this {
-        this.run = exec;
+    public setExecute (executeCallback: this[`runExecute`]): this {
+        this.runExecute = executeCallback;
         return this;
     }
 

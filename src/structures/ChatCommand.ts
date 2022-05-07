@@ -117,7 +117,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * The command's execute method.
      * @internal
      */
-    public run: ((ctx: ChatCommandContext<PR, PA>) => (void | Promise<void>)) | null = null;
+    public runExecute: ((ctx: ChatCommandContext<PR, PA>) => (void | Promise<void>)) | null = null;
 
     /**
      * Set the command's name.
@@ -524,10 +524,10 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    public setExecute (exec: this[`run`]): this {
-        this.run = exec;
+    public setExecute (executeCallback: this[`runExecute`]): this {
+        this.runExecute = executeCallback;
         return this;
     }
 

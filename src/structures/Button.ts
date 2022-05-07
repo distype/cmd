@@ -35,12 +35,12 @@ export class Button {
      * The button's execute method.
      * @internal
      */
-    public run: ((ctx: ButtonContext) => (void | Promise<void>)) | null = null;
+    public runExecute: ((ctx: ButtonContext) => (void | Promise<void>)) | null = null;
     /**
-     * The button's expire method.
+     * The button's expire execute method.
      * @internal
      */
-    public runExpire: ((ctx: BaseComponentExpireContext) => (void | Promise<void>)) | null = null;
+    public runExecuteExpire: ((ctx: BaseComponentExpireContext) => (void | Promise<void>)) | null = null;
 
     /**
      * The raw button.
@@ -129,20 +129,20 @@ export class Button {
     /**
      * Set the button's expire properties.
      * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
-     * @param callback A callback that is called when the button expires.
+     * @param expireCallback A callback that is called when the button expires.
      */
-    public setExpire (time: number, callback: this[`runExpire`]): this {
+    public setExpire (time: number, expireCallback: this[`runExecuteExpire`]): this {
         this.expireTime = time;
-        this.runExpire = callback;
+        this.runExecuteExpire = expireCallback;
         return this;
     }
 
     /**
      * Sets the button's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    public setExecute (exec: this[`run`]): this {
-        this.run = exec;
+    public setExecute (executeCallback: this[`runExecute`]): this {
+        this.runExecute = executeCallback;
         return this;
     }
 
