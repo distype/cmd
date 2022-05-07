@@ -14,8 +14,14 @@ import { Client, Snowflake } from 'distype';
 import { readdir } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 
-export type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
+/**
+ * A command owned by the command handler.
+ */
+export type CommandHandlerCommand = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
 
+/**
+ * The command handler.
+ */
 export class CommandHandler {
     /**
      * The command handler's buttons.
@@ -28,7 +34,7 @@ export class CommandHandler {
     /**
      * The command handler's commands.
      */
-    public commands: ExtendedMap<Snowflake | `unknown${number}`, Command> = new ExtendedMap();
+    public commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand> = new ExtendedMap();
     /**
      * The command handler's modals.
      */
