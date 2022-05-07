@@ -7,7 +7,13 @@ import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
-export declare type Command = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
+/**
+ * A command owned by the command handler.
+ */
+export declare type CommandHandlerCommand = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
+/**
+ * The command handler.
+ */
 export declare class CommandHandler {
     /**
      * The command handler's buttons.
@@ -20,7 +26,7 @@ export declare class CommandHandler {
     /**
      * The command handler's commands.
      */
-    commands: ExtendedMap<Snowflake | `unknown${number}`, Command>;
+    commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand>;
     /**
      * The command handler's modals.
      */

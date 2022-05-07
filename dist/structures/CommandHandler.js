@@ -34,6 +34,9 @@ const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
+/**
+ * The command handler.
+ */
 class CommandHandler {
     /**
      * The command handler's buttons.
