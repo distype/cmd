@@ -351,14 +351,19 @@ class CommandHandler {
                     return;
                 const call = run(ctx);
                 if (call instanceof Promise) {
-                    const reject = await call.catch((error) => error);
+                    const reject = await call.then(() => { }).catch((error) => error);
                     if (reject instanceof Error)
                         throw reject;
                 }
             }
             catch (error) {
                 try {
-                    this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    const call = this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    if (call instanceof Promise) {
+                        const reject = await call.then(() => { }).catch((error) => error);
+                        if (reject instanceof Error)
+                            throw reject;
+                    }
                 }
                 catch (eError) {
                     this._log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {

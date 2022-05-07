@@ -31,7 +31,7 @@ export declare class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    runError: (error: Error, ctx: BaseContext, unexpected: boolean) => void;
+    runError: (error: Error, ctx: BaseContext, unexpected: boolean) => (void | Promise<void>);
     /**
      * The system string used for emitting errors and for the {@link LogCallback log callback}.
      */
