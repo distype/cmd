@@ -426,12 +426,12 @@ export class CommandHandler {
         if (button.expireTimeout) clearTimeout(button.expireTimeout);
         if (button.expireTime === null) return;
 
-        const raw = button.getRaw();
-        const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
+        button.expireTimeout = setTimeout(async () => {
+            const raw = button.getRaw();
+            const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
 
-        if (typeof button.runExecuteExpire === `function`) {
-            button.expireTimeout = setTimeout(async () => {
-                try {
+            try {
+                if (typeof button.runExecuteExpire === `function`) {
                     const call = button.runExecuteExpire!(ctx);
 
                     if (call instanceof Promise) {
@@ -456,27 +456,25 @@ export class CommandHandler {
                             this._setButtonExpireTimeout(button);
                         }
                     }
-                } catch (error: any) {
-                    try {
-                        const call = this.runExpireError(ctx, error instanceof Error ? error : new Error(error), true);
-                        if (call instanceof Promise) {
-                            const reject = await call.then(() => {}).catch((error: Error) => error);
-                            if (reject instanceof Error) throw reject;
-                        }
-                    } catch (eError: any) {
-                        this._log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
-                            level: `ERROR`, system: this.system
-                        });
-                    }
+                } else {
+                    this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                        level: `DEBUG`, system: this.system
+                    });
+                    this.buttons.delete((raw as any).custom_id);
                 }
-            }, button.expireTime);
-        } else {
-            button.expireTimeout = setTimeout(() => {
-                this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                    level: `DEBUG`, system: this.system
-                });
-                this.buttons.delete((raw as any).custom_id);
-            }, button.expireTime);
-        }
+            } catch (error: any) {
+                try {
+                    const call = this.runExpireError(ctx, error instanceof Error ? error : new Error(error), true);
+                    if (call instanceof Promise) {
+                        const reject = await call.then(() => {}).catch((error: Error) => error);
+                        if (reject instanceof Error) throw reject;
+                    }
+                } catch (eError: any) {
+                    this._log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                        level: `ERROR`, system: this.system
+                    });
+                }
+            }
+        }, button.expireTime);
     }
 }
