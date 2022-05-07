@@ -423,18 +423,17 @@ export class CommandHandler {
     public _setButtonExpireTimeout (button: Button): void {
         if (button.expireTime === null) return;
 
+        const raw = button.getRaw();
+        this.buttons.delete((raw as any).custom_id);
+
+        const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
+
+        this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+            level: `DEBUG`, system: this.system
+        });
+
         if (button.expireTimeout) clearTimeout(button.expireTimeout);
         if (typeof button.runExecuteExpire === `function`) button.expireTimeout = setTimeout(async () => {
-            const raw = button.getRaw();
-
-            this.buttons.delete((raw as any).custom_id);
-
-            const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
-
-            this._log(`Running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
-                level: `DEBUG`, system: this.system
-            });
-
             try {
                 const call = button.runExecuteExpire!(ctx);
                 if (call instanceof Promise) {
