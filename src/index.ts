@@ -1,5 +1,3 @@
-export { Message } from './functions/messageFactory';
-
 export {
     ChatCommand,
     ChatCommandContext,
@@ -31,3 +29,9 @@ export {
 export { LocalizedText } from './types/LocalizedText';
 
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
+export {
+    FactoryComponent,
+    FactoryComponents,
+    FactoryMessage,
+    messageFactory
+} from './utils/messageFactory';

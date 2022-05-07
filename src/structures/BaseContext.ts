@@ -2,8 +2,8 @@ import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
-import { Components, Message, messageFactory } from '../functions/messageFactory';
 import { LogCallback } from '../types/Log';
+import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
@@ -129,7 +129,7 @@ export class BaseContext {
      * @param components Components to add to the message.
      * @returns The ID of the created message, or `@original`.
      */
-    public async send (message: Message, components?: Components): Promise<Snowflake | `@original`> {
+    public async send (message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`> {
         let id: Snowflake | `@original`;
 
         if (this.responses.length) {
@@ -152,7 +152,7 @@ export class BaseContext {
      * @param components Components to add to the message.
      * @returns The ID of the created message, or `@original`.
      */
-    public async sendEphemeral (message: Message, components?: Components): Promise<Snowflake | `@original`> {
+    public async sendEphemeral (message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`> {
         const data = messageFactory(message, components);
         return await this.send({
             ...data,
@@ -167,7 +167,7 @@ export class BaseContext {
      * @param components Components to add to the message.
      * @returns The new created response.
      */
-    public async edit (id: Snowflake | `@original`, message: Message, components?: Components): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+    public async edit (id: Snowflake | `@original`, message: FactoryMessage, components?: FactoryComponents): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
         if (!this.responses.includes(id)) throw new DistypeCmdError(`No response found matching the ID "${id}"`, DistypeCmdErrorType.RESPONSE_NOT_FOUND);
         return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, messageFactory(message, components));
     }
@@ -262,7 +262,7 @@ export class BaseComponentContext extends BaseContextWithModal {
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    public async editParent (message: Message, components?: Components): Promise<`editparent`> {
+    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<`editparent`> {
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.UpdateMessage,
             data: messageFactory(message, components)
