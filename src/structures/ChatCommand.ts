@@ -105,10 +105,12 @@ export interface ParameterLimits {
 export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordTypes.ApplicationCommandType.ChatInput }, PA extends DiscordTypes.APIApplicationCommandBasicOption[] = []> {
     /**
      * The command's props.
+     * @internal
      */
     public props: PR = { type: DiscordTypes.ApplicationCommandType.ChatInput } as PR;
     /**
      * The command's parameters.
+     * @internal
      */
     public parameters: PA = [] as unknown as PA;
     /**
