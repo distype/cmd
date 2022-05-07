@@ -186,6 +186,8 @@ export class CommandHandler {
      * @param id The button's custom ID.
      */
     public unbindButton (id: string): this {
+        const button = this.buttons.get(id);
+        if (button?.expireTimeout) clearTimeout(button.expireTimeout);
         this.buttons.delete(id);
         return this;
     }
