@@ -9,10 +9,10 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 
 /**
- * Base interaction context.
+ * Base context.
  * @internal
  */
-export class BaseInteractionContext {
+export class BaseContext {
     /**
      * The {@link Client client} the context is bound to.
      */
@@ -25,6 +25,23 @@ export class BaseInteractionContext {
      * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
      */
     public log: LogCallback;
+
+    /**
+     * Create context.
+     * @param commandHandler The command handler that invoked the context.
+     */
+    constructor (commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        this.client = commandHandler.client;
+        this.commandHandler = commandHandler;
+        this.log = logCallback.bind(logThisArg);
+    }
+}
+
+/**
+ * Base interaction context.
+ * @internal
+ */
+export class BaseInteractionContext extends BaseContext {
     /**
      * Message IDs of sent responses.
      */
@@ -78,8 +95,7 @@ export class BaseInteractionContext {
      * @param interaction Interaction data.
      */
     constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        this.client = commandHandler.client;
-        this.commandHandler = commandHandler;
+        super(commandHandler, logCallback, logThisArg);
 
         this.guildId = interaction.guild_id ?? (interaction.data as any)?.guild_id;
         this.guildLocale = interaction.guild_locale;
@@ -95,8 +111,6 @@ export class BaseInteractionContext {
             ...(interaction.member?.user ?? interaction.user!),
             locale: interaction.locale ?? interaction.locale
         };
-
-        this.log = logCallback.bind(logThisArg);
     }
 
     /**
