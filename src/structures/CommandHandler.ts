@@ -429,11 +429,11 @@ export class CommandHandler {
 
         const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
 
-        this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-            level: `DEBUG`, system: this.system
-        });
-
         if (typeof button.runExecuteExpire === `function`) button.expireTimeout = setTimeout(async () => {
+            this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                level: `DEBUG`, system: this.system
+            });
+
             try {
                 const call = button.runExecuteExpire!(ctx);
                 if (call instanceof Promise) {
