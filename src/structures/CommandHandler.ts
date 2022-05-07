@@ -39,7 +39,7 @@ export class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    public runError: (error: Error, ctx: BaseContext, unexpected: boolean) => void
+    public runError: (error: Error, ctx: BaseContext, unexpected: boolean) => (void | Promise<void>)
         = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
             level: `ERROR`, system: this.system
         });
@@ -366,12 +366,16 @@ export class CommandHandler {
 
                 const call = run(ctx);
                 if (call instanceof Promise) {
-                    const reject = await call.catch((error: Error) => error);
+                    const reject = await call.then(() => {}).catch((error: Error) => error);
                     if (reject instanceof Error) throw reject;
                 }
             } catch (error: any) {
                 try {
-                    this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    const call = this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    if (call instanceof Promise) {
+                        const reject = await call.then(() => {}).catch((error: Error) => error);
+                        if (reject instanceof Error) throw reject;
+                    }
                 } catch (eError: any) {
                     this._log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
                         level: `ERROR`, system: this.system
