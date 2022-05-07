@@ -407,11 +407,11 @@ class CommandHandler {
             clearTimeout(button.expireTimeout);
         if (button.expireTime === null)
             return;
-        const raw = button.getRaw();
-        this.buttons.delete(raw.custom_id);
-        const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
         if (typeof button.runExecuteExpire === `function`)
             button.expireTimeout = setTimeout(async () => {
+                const raw = button.getRaw();
+                this.buttons.delete(raw.custom_id);
+                const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
                 this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
                     level: `DEBUG`, system: this.system
                 });
