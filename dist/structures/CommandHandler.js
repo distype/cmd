@@ -403,6 +403,8 @@ class CommandHandler {
      * @param button The button to set the timeout for.
      */
     _setButtonExpireTimeout(button) {
+        if (button.expireTimeout)
+            clearTimeout(button.expireTimeout);
         if (button.expireTime === null)
             return;
         const raw = button.getRaw();
@@ -411,8 +413,6 @@ class CommandHandler {
         this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
             level: `DEBUG`, system: this.system
         });
-        if (button.expireTimeout)
-            clearTimeout(button.expireTimeout);
         if (typeof button.runExecuteExpire === `function`)
             button.expireTimeout = setTimeout(async () => {
                 try {
