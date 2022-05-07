@@ -150,7 +150,8 @@ class Button {
      */
     setExpire(time, expireCallback) {
         this.expireTime = time;
-        this.runExecuteExpire = expireCallback;
+        if (typeof expireCallback === `function`)
+            this.runExecuteExpire = expireCallback;
         return this;
     }
     /**
