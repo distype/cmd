@@ -6,7 +6,6 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 /**
  * Base context.
- * @internal
  */
 export declare class BaseContext {
     /**
@@ -113,7 +112,6 @@ export declare class BaseContext {
 }
 /**
  * Base context with a modal.
- * @internal
  */
 export declare class BaseContextWithModal extends BaseContext {
     responses: Array<Snowflake | `@original` | `defer` | `modal`>;
@@ -128,7 +126,6 @@ export declare class BaseContextWithModal extends BaseContext {
 }
 /**
  * Base context for components.
- * @internal
  */
 export declare class BaseComponentContext extends BaseContextWithModal {
     responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`>;

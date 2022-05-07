@@ -29,7 +29,6 @@ const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * Base context.
- * @internal
  */
 class BaseContext {
     /**
@@ -174,7 +173,6 @@ class BaseContext {
 exports.BaseContext = BaseContext;
 /**
  * Base context with a modal.
- * @internal
  */
 class BaseContextWithModal extends BaseContext {
     responses = [];
@@ -200,7 +198,6 @@ class BaseContextWithModal extends BaseContext {
 exports.BaseContextWithModal = BaseContextWithModal;
 /**
  * Base context for components.
- * @internal
  */
 class BaseComponentContext extends BaseContextWithModal {
     responses = [];
