@@ -421,6 +421,7 @@ export class CommandHandler {
      * @param button The button to set the timeout for.
      */
     public _setButtonExpireTimeout (button: Button): void {
+        if (button.expireTimeout) clearTimeout(button.expireTimeout);
         if (button.expireTime === null) return;
 
         const raw = button.getRaw();
@@ -432,7 +433,6 @@ export class CommandHandler {
             level: `DEBUG`, system: this.system
         });
 
-        if (button.expireTimeout) clearTimeout(button.expireTimeout);
         if (typeof button.runExecuteExpire === `function`) button.expireTimeout = setTimeout(async () => {
             try {
                 const call = button.runExecuteExpire!(ctx);
