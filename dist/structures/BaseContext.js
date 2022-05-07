@@ -25,10 +25,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseComponentContext = exports.BaseContextWithModal = exports.BaseContext = void 0;
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
-const messageFactory_1 = require("../functions/messageFactory");
+const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * Base context.
+ * @internal
  */
 class BaseContext {
     /**
@@ -173,6 +174,7 @@ class BaseContext {
 exports.BaseContext = BaseContext;
 /**
  * Base context with a modal.
+ * @internal
  */
 class BaseContextWithModal extends BaseContext {
     responses = [];
@@ -198,6 +200,7 @@ class BaseContextWithModal extends BaseContext {
 exports.BaseContextWithModal = BaseContextWithModal;
 /**
  * Base context for components.
+ * @internal
  */
 class BaseComponentContext extends BaseContextWithModal {
     responses = [];

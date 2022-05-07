@@ -30,6 +30,7 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  * Sanitizes a raw command.
  * @param command The command to sanitize.
  * @returns The sanitized command.
+ * @internal
  */
 function sanitizeCommand(command) {
     const raw = (0, node_utils_1.deepClone)({

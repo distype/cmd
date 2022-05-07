@@ -8,7 +8,6 @@ const v10_1 = require("discord-api-types/v10");
  * @param message The message to convert.
  * @param components Components to add to the message.
  * @returns The converted message.
- * @internal
  */
 function messageFactory(message, components) {
     let res;

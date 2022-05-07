@@ -1,11 +1,12 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
-import { Components, Message } from '../functions/messageFactory';
 import { LogCallback } from '../types/Log';
+import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 /**
  * Base context.
+ * @internal
  */
 export declare class BaseContext {
     /**
@@ -88,14 +89,14 @@ export declare class BaseContext {
      * @param components Components to add to the message.
      * @returns The ID of the created message, or `@original`.
      */
-    send(message: Message, components?: Components): Promise<Snowflake | `@original`>;
+    send(message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`>;
     /**
      * A shorthand for sending messages with the ephemeral flag.
      * @param message The message to send.
      * @param components Components to add to the message.
      * @returns The ID of the created message, or `@original`.
      */
-    sendEphemeral(message: Message, components?: Components): Promise<Snowflake | `@original`>;
+    sendEphemeral(message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`>;
     /**
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
@@ -103,7 +104,7 @@ export declare class BaseContext {
      * @param components Components to add to the message.
      * @returns The new created response.
      */
-    edit(id: Snowflake | `@original`, message: Message, components?: Components): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
+    edit(id: Snowflake | `@original`, message: FactoryMessage, components?: FactoryComponents): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
     /**
      * Delete a response.
      * @param id The ID of the response to delete.
@@ -112,6 +113,7 @@ export declare class BaseContext {
 }
 /**
  * Base context with a modal.
+ * @internal
  */
 export declare class BaseContextWithModal extends BaseContext {
     responses: Array<Snowflake | `@original` | `defer` | `modal`>;
@@ -126,6 +128,7 @@ export declare class BaseContextWithModal extends BaseContext {
 }
 /**
  * Base context for components.
+ * @internal
  */
 export declare class BaseComponentContext extends BaseContextWithModal {
     responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`>;
@@ -157,5 +160,5 @@ export declare class BaseComponentContext extends BaseContextWithModal {
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    editParent(message: Message, components?: Components): Promise<`editparent`>;
+    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<`editparent`>;
 }
