@@ -9,10 +9,10 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 
 /**
- * Base context.
+ * Base interaction context.
  * @internal
  */
-export class BaseContext {
+export class BaseInteractionContext {
     /**
      * The {@link Client client} the context is bound to.
      */
@@ -185,10 +185,10 @@ export class BaseContext {
 }
 
 /**
- * Base context with a modal.
+ * Base interaction context with a modal.
  * @internal
  */
-export class BaseContextWithModal extends BaseContext {
+export class BaseInteractionContextWithModal extends BaseInteractionContext {
     public override responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
 
     /**
@@ -217,7 +217,7 @@ export class BaseContextWithModal extends BaseContext {
  * Base context for components.
  * @internal
  */
-export class BaseComponentContext extends BaseContextWithModal {
+export class BaseComponentContext extends BaseInteractionContextWithModal {
     public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`> = [];
 
     /**

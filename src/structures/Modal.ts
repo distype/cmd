@@ -1,4 +1,4 @@
-import { BaseContext } from './BaseContext';
+import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
@@ -164,7 +164,7 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
 /**
  * Modal context.
  */
-export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseContext {
+export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */

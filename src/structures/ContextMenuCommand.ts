@@ -1,4 +1,4 @@
-import { BaseContextWithModal } from './BaseContext';
+import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
@@ -115,7 +115,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 /**
  * Context menu command context.
  */
-export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseContextWithModal {
+export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

@@ -1,4 +1,4 @@
-import { BaseContext } from './BaseContext';
+import { BaseInteractionContext } from './BaseContext';
 import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
@@ -45,7 +45,7 @@ export class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    public runError: (error: Error, ctx: BaseContext, unexpected: boolean) => (void | Promise<void>)
+    public runError: (error: Error, ctx: BaseInteractionContext, unexpected: boolean) => (void | Promise<void>)
         = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
             level: `ERROR`, system: this.system
         });

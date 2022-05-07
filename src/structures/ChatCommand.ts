@@ -1,4 +1,4 @@
-import { BaseContextWithModal } from './BaseContext';
+import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
@@ -550,7 +550,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 /**
  * Chat command context.
  */
-export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseContextWithModal {
+export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */
