@@ -29,6 +29,8 @@ export class BaseContext {
     /**
      * Create context.
      * @param commandHandler The command handler that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         this.client = commandHandler.client;
@@ -93,6 +95,8 @@ export class BaseInteractionContext extends BaseContext {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super(commandHandler, logCallback, logThisArg);
@@ -119,7 +123,7 @@ export class BaseInteractionContext extends BaseContext {
      * @param error The error encountered.
      */
     public error (error: string | Error): void {
-        this.commandHandler.runError(error instanceof Error ? error : new Error(error), this as any, false);
+        this.commandHandler.runError(this, error instanceof Error ? error : new Error(error), false);
     }
 
     /**
@@ -252,6 +256,8 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super(commandHandler, interaction, logCallback, logThisArg);
@@ -286,5 +292,49 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
         });
 
         return `editparent`;
+    }
+}
+
+/**
+ * Base component expire context.
+ */
+export class BaseComponentExpireContext extends BaseContext {
+    /**
+     * Component data.
+     */
+    public readonly component: {
+        /**
+         * The component's custom ID.
+         */
+        customId: string
+        /**
+         * The component's type.
+         */
+        type: DiscordTypes.ComponentType
+    };
+
+    /**
+     * Create component expire context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param customId The component's custom ID.
+     * @param type The component's type.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor (commandHandler: CommandHandler, customId: string, type: DiscordTypes.ComponentType, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(commandHandler, logCallback, logThisArg);
+
+        this.component = {
+            customId, type
+        };
+    }
+
+    /**
+     * Calls the command handler's expire error callback.
+     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
+     * @param error The error encountered.
+     */
+    public error (error: string | Error): void {
+        this.commandHandler.runExpireError(this, error instanceof Error ? error : new Error(error), false);
     }
 }

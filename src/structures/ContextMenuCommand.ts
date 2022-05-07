@@ -95,7 +95,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    public setExecute (exec: (ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)): this {
+    public setExecute (exec: this[`run`]): this {
         this.run = exec;
         return this;
     }

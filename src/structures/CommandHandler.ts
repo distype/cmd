@@ -1,4 +1,4 @@
-import { BaseInteractionContext } from './BaseContext';
+import { BaseComponentExpireContext, BaseInteractionContext } from './BaseContext';
 import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
@@ -40,13 +40,25 @@ export class CommandHandler {
      */
     public modals: ExtendedMap<string, Modal<ModalProps>> = new ExtendedMap();
     /**
-     * Called when a command encounters an error.
+     * Called when an interaction encounters an error.
+     * @param ctx The command context.
      * @param error The error encountered.
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    public runError: (error: Error, ctx: BaseInteractionContext, unexpected: boolean) => (void | Promise<void>)
-        = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+    public runError: (ctx: BaseInteractionContext, error: Error, unexpected: boolean) => (void | Promise<void>)
+        = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+            level: `ERROR`, system: this.system
+        });
+    /**
+     * Called when a component expire context encounters an error.
+     * @param ctx The command context.
+     * @param error The error encountered.
+     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
+     * @internal
+     */
+    public runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>)
+        = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
             level: `ERROR`, system: this.system
         });
 
@@ -257,11 +269,20 @@ export class CommandHandler {
     }
 
     /**
-     * Set the error callback function to run when a command's execution fails
+     * Set the error callback function to run when an interaction's execution fails.
      * @param errorCallback The callback to use.
      */
     public setError (errorCallback: CommandHandler[`runError`]): this {
         this.runError = errorCallback;
+        return this;
+    }
+
+    /**
+     * Set the error callback function to run when a component's expire callback fails.
+     * @param errorCallback The callback to use.
+     */
+    public setExpireError (errorCallback: CommandHandler[`runExpireError`]): this {
+        this.runExpireError = errorCallback;
         return this;
     }
 
@@ -377,7 +398,7 @@ export class CommandHandler {
                 }
             } catch (error: any) {
                 try {
-                    const call = this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    const call = this.runError(ctx, error instanceof Error ? error : new Error(error), true);
                     if (call instanceof Promise) {
                         const reject = await call.then(() => {}).catch((error: Error) => error);
                         if (reject instanceof Error) throw reject;

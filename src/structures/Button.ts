@@ -1,4 +1,4 @@
-import { BaseComponentContext } from './BaseContext';
+import { BaseComponentContext, BaseComponentExpireContext } from './BaseContext';
 
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 
@@ -22,10 +22,25 @@ export enum ButtonStyle {
  */
 export class Button {
     /**
+     * The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @internal
+     */
+    public expireTime: number | null = null;
+    /**
+     * A timeout for the button to expire.
+     * @internal
+     */
+    public expireTimeout: NodeJS.Timeout | null = null;
+    /**
      * The button's execute method.
      * @internal
      */
     public run: ((ctx: ButtonContext) => (void | Promise<void>)) | null = null;
+    /**
+     * The button's expire method.
+     * @internal
+     */
+    public runExpire: ((ctx: BaseComponentExpireContext) => (void | Promise<void>)) | null = null;
 
     /**
      * The raw button.
@@ -111,7 +126,22 @@ export class Button {
         return this;
     }
 
-    public setExecute (exec: (ctx: ButtonContext) => (void | Promise<void>)): this {
+    /**
+     * Set the button's expire properties.
+     * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @param callback A callback that is called when the button expires.
+     */
+    public setExpire (time: number, callback: this[`runExpire`]): this {
+        this.expireTime = time;
+        this.runExpire = callback;
+        return this;
+    }
+
+    /**
+     * Sets the button's execute method.
+     * @param exec The callback to execute when an interaction is received.
+     */
+    public setExecute (exec: this[`run`]): this {
         this.run = exec;
         return this;
     }
