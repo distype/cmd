@@ -146,7 +146,7 @@ class Button {
     /**
      * Set the button's expire properties.
      * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
-     * @param expireCallback A callback that is called when the button expires.
+     * @param expireCallback A callback that is called when the button expires. It should return a boolean that specifies if the current expire should be cancelled and the button's expire time should be waited again. `true` will unbind the button (it will expire), `false` will preserve it.
      */
     setExpire(time, expireCallback) {
         this.expireTime = time;

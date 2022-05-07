@@ -35,7 +35,7 @@ export declare class Button {
      * The button's expire execute method.
      * @internal
      */
-    runExecuteExpire: ((ctx: BaseComponentExpireContext) => (void | Promise<void>)) | null;
+    runExecuteExpire: ((ctx: BaseComponentExpireContext) => (boolean | Promise<boolean>)) | null;
     /**
      * The raw button.
      */
@@ -86,7 +86,7 @@ export declare class Button {
     /**
      * Set the button's expire properties.
      * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
-     * @param expireCallback A callback that is called when the button expires.
+     * @param expireCallback A callback that is called when the button expires. It should return a boolean that specifies if the current expire should be cancelled and the button's expire time should be waited again. `true` will unbind the button (it will expire), `false` will preserve it.
      */
     setExpire(time: number, expireCallback?: this[`runExecuteExpire`]): this;
     /**

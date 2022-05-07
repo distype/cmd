@@ -407,20 +407,36 @@ class CommandHandler {
             clearTimeout(button.expireTimeout);
         if (button.expireTime === null)
             return;
-        if (typeof button.runExecuteExpire === `function`)
+        const raw = button.getRaw();
+        const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
+        if (typeof button.runExecuteExpire === `function`) {
             button.expireTimeout = setTimeout(async () => {
-                const raw = button.getRaw();
-                this.buttons.delete(raw.custom_id);
-                const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
-                this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                    level: `DEBUG`, system: this.system
-                });
                 try {
                     const call = button.runExecuteExpire(ctx);
                     if (call instanceof Promise) {
-                        const reject = await call.then(() => { }).catch((error) => error);
-                        if (reject instanceof Error)
-                            throw reject;
+                        const result = await call.then((res) => Boolean(res)).catch((error) => error);
+                        if (result instanceof Error)
+                            throw result;
+                        if (result) {
+                            this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                                level: `DEBUG`, system: this.system
+                            });
+                            this.buttons.delete(raw.custom_id);
+                        }
+                        else {
+                            this._setButtonExpireTimeout(button);
+                        }
+                    }
+                    else {
+                        if (call) {
+                            this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                                level: `DEBUG`, system: this.system
+                            });
+                            this.buttons.delete(raw.custom_id);
+                        }
+                        else {
+                            this._setButtonExpireTimeout(button);
+                        }
                     }
                 }
                 catch (error) {
@@ -439,6 +455,15 @@ class CommandHandler {
                     }
                 }
             }, button.expireTime);
+        }
+        else {
+            button.expireTimeout = setTimeout(() => {
+                this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                    level: `DEBUG`, system: this.system
+                });
+                this.buttons.delete(raw.custom_id);
+            }, button.expireTime);
+        }
     }
 }
 exports.CommandHandler = CommandHandler;
