@@ -1,4 +1,9 @@
 export {
+    DistypeCmdError,
+    DistypeCmdErrorType
+} from './errors/DistypeCmdError';
+
+export {
     ChatCommand,
     ChatCommandContext,
     ChatCommandProps,
@@ -6,8 +11,8 @@ export {
     ParameterLimits
 } from './structures/ChatCommand';
 export {
-    Command,
-    CommandHandler
+    CommandHandler,
+    CommandHandlerCommand
 } from './structures/CommandHandler';
 export {
     ContextMenuCommand,
@@ -27,6 +32,11 @@ export {
 } from './structures/Modal';
 
 export { LocalizedText } from './types/LocalizedText';
+export {
+    LogCallback,
+    LogLevel,
+    LogMessageOptions
+} from './types/Log';
 
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
 export {
