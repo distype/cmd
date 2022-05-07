@@ -52,7 +52,7 @@ class ContextMenuCommand {
      * The command's execute method.
      * @internal
      */
-    run = null;
+    runExecute = null;
     /**
      * Set the command's type.
      * @param type The type to use.
@@ -93,10 +93,10 @@ class ContextMenuCommand {
     }
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec) {
-        this.run = exec;
+    setExecute(executeCallback) {
+        this.runExecute = executeCallback;
         return this;
     }
     /**

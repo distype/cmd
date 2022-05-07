@@ -78,7 +78,7 @@ export declare class CommandHandler {
     /**
      * The nonce to use for indexing commands with an unknown ID.
      */
-    private _unknownNonce;
+    private _unknownCommandIdNonce;
     /**
      * Create the command handler.
      * @param client The client to bind the command handler to.

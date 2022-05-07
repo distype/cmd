@@ -57,7 +57,7 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
      * The modal's execute method.
      * @internal
      */
-    run: ((ctx: ModalContext<PR, PA>) => (void | Promise<void>)) | null;
+    runExecute: ((ctx: ModalContext<PR, PA>) => (void | Promise<void>)) | null;
     /**
      * Set the modal's ID.
      * @param id The custom ID to use.
@@ -86,9 +86,9 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
     }, PR, PA>;
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec: this[`run`]): this;
+    setExecute(executeCallback: this[`runExecute`]): this;
     /**
      * Converts a modal to a Discord API compatible object.
      * @returns The raw modal.

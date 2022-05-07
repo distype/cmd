@@ -58,12 +58,12 @@ class Button {
      * The button's execute method.
      * @internal
      */
-    run = null;
+    runExecute = null;
     /**
-     * The button's expire method.
+     * The button's expire execute method.
      * @internal
      */
-    runExpire = null;
+    runExecuteExpire = null;
     /**
      * The raw button.
      */
@@ -146,19 +146,19 @@ class Button {
     /**
      * Set the button's expire properties.
      * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
-     * @param callback A callback that is called when the button expires.
+     * @param expireCallback A callback that is called when the button expires.
      */
-    setExpire(time, callback) {
+    setExpire(time, expireCallback) {
         this.expireTime = time;
-        this.runExpire = callback;
+        this.runExecuteExpire = expireCallback;
         return this;
     }
     /**
      * Sets the button's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec) {
-        this.run = exec;
+    setExecute(executeCallback) {
+        this.runExecute = executeCallback;
         return this;
     }
     /**

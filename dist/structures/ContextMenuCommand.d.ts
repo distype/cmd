@@ -40,7 +40,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      * The command's execute method.
      * @internal
      */
-    run: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null;
+    runExecute: ((ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)) | null;
     /**
      * Set the command's type.
      * @param type The type to use.
@@ -67,9 +67,9 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
     setDefaultPermission<T extends ContextMenuCommandProp<`default_permission`>>(defaultPermission: T): AddProp<`default_permission`, T, PR>;
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec: this[`run`]): this;
+    setExecute(executeCallback: this[`runExecute`]): this;
     /**
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.

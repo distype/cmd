@@ -59,7 +59,7 @@ class ChatCommand {
      * The command's execute method.
      * @internal
      */
-    run = null;
+    runExecute = null;
     /**
      * Set the command's name.
      * @param name The name to use.
@@ -363,10 +363,10 @@ class ChatCommand {
     }
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec) {
-        this.run = exec;
+    setExecute(executeCallback) {
+        this.runExecute = executeCallback;
         return this;
     }
     /**

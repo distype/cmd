@@ -105,7 +105,7 @@ class CommandHandler {
     /**
      * The nonce to use for indexing commands with an unknown ID.
      */
-    _unknownNonce = 0;
+    _unknownCommandIdNonce = 0;
     /**
      * Create the command handler.
      * @param client The client to bind the command handler to.
@@ -156,8 +156,8 @@ class CommandHandler {
         command.getRaw();
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type))
             throw new DistypeCmdError_1.DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdError_1.DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
-        this.commands.set(`unknown${this._unknownNonce}`, command);
-        this._unknownNonce++;
+        this.commands.set(`unknown${this._unknownCommandIdNonce}`, command);
+        this._unknownCommandIdNonce++;
         this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
             level: `DEBUG`, system: this.system
         });
@@ -320,12 +320,12 @@ class CommandHandler {
                 if (command) {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
-                        run = command.run;
+                        run = command.runExecute;
                         ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction, this._log, this._logThisArg);
                     }
                     else {
                         middleware = this._runContextMenuCommandMiddleware;
-                        run = command.run;
+                        run = command.runExecute;
                         ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction, this._log, this._logThisArg);
                     }
                 }
@@ -336,7 +336,7 @@ class CommandHandler {
                     const button = this.buttons.get(interaction.data.custom_id);
                     if (button) {
                         middleware = this._runButtonMiddleware;
-                        run = button.run;
+                        run = button.runExecute;
                         ctx = new Button_1.ButtonContext(this, interaction, this._log, this._logThisArg);
                     }
                 }
@@ -346,7 +346,7 @@ class CommandHandler {
                 const modal = this.modals.get(interaction.data.custom_id);
                 if (modal) {
                     middleware = this._runModalMiddleware;
-                    run = modal.run;
+                    run = modal.runExecute;
                     ctx = new Modal_1.ModalContext(this, modal, interaction, this._log, this._logThisArg);
                 }
                 break;

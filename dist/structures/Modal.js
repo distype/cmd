@@ -58,7 +58,7 @@ class Modal {
      * The modal's execute method.
      * @internal
      */
-    run = null;
+    runExecute = null;
     /**
      * Set the modal's ID.
      * @param id The custom ID to use.
@@ -108,10 +108,10 @@ class Modal {
     }
     /**
      * Sets the command's execute method.
-     * @param exec The callback to execute when an interaction is received.
+     * @param executeCallback The callback to execute when an interaction is received.
      */
-    setExecute(exec) {
-        this.run = exec;
+    setExecute(executeCallback) {
+        this.runExecute = executeCallback;
         return this;
     }
     /**
