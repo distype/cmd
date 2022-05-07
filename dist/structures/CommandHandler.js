@@ -131,10 +131,12 @@ class CommandHandler {
             directory = (0, node_path_1.resolve)(process.cwd(), directory);
         const files = await (0, promises_1.readdir)(directory, { withFileTypes: true });
         for (const file in files) {
-            if (files[file].isDirectory())
-                return this.load((0, node_path_1.resolve)(directory, files[file].name));
+            if (files[file].isDirectory()) {
+                await this.load((0, node_path_1.resolve)(directory, files[file].name));
+                continue;
+            }
             if (!files[file].name.endsWith(`.js`))
-                return;
+                continue;
             delete require.cache[require.resolve((0, node_path_1.resolve)(directory, files[file].name))];
             const imported = await Promise.resolve().then(() => __importStar(require((0, node_path_1.resolve)(directory, files[file].name))));
             const structure = imported.default ?? imported;
