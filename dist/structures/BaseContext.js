@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseComponentContext = exports.BaseContextWithModal = exports.BaseContext = void 0;
+exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.BaseInteractionContextWithModal = exports.BaseInteractionContext = exports.BaseContext = void 0;
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
@@ -44,6 +44,24 @@ class BaseContext {
      * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
      */
     log;
+    /**
+     * Create context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(commandHandler, logCallback = () => { }, logThisArg) {
+        this.client = commandHandler.client;
+        this.commandHandler = commandHandler;
+        this.log = logCallback.bind(logThisArg);
+    }
+}
+exports.BaseContext = BaseContext;
+/**
+ * Base interaction context.
+ * @internal
+ */
+class BaseInteractionContext extends BaseContext {
     /**
      * Message IDs of sent responses.
      */
@@ -72,10 +90,11 @@ class BaseContext {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
-        this.client = commandHandler.client;
-        this.commandHandler = commandHandler;
+        super(commandHandler, logCallback, logThisArg);
         this.guildId = interaction.guild_id ?? interaction.data?.guild_id;
         this.guildLocale = interaction.guild_locale;
         this.interaction = {
@@ -90,7 +109,6 @@ class BaseContext {
             ...(interaction.member?.user ?? interaction.user),
             locale: interaction.locale ?? interaction.locale
         };
-        this.log = logCallback.bind(logThisArg);
     }
     /**
      * Calls the command handler's error callback.
@@ -98,7 +116,7 @@ class BaseContext {
      * @param error The error encountered.
      */
     error(error) {
-        this.commandHandler.runError(error instanceof Error ? error : new Error(error), this, false);
+        this.commandHandler.runError(this, error instanceof Error ? error : new Error(error), false);
     }
     /**
      * Defers the interaction (displays a loading state to the user).
@@ -171,12 +189,12 @@ class BaseContext {
         this.responses = this.responses.filter((response) => response !== id);
     }
 }
-exports.BaseContext = BaseContext;
+exports.BaseInteractionContext = BaseInteractionContext;
 /**
- * Base context with a modal.
+ * Base interaction context with a modal.
  * @internal
  */
-class BaseContextWithModal extends BaseContext {
+class BaseInteractionContextWithModal extends BaseInteractionContext {
     responses = [];
     /**
      * Respond with a modal.
@@ -197,12 +215,12 @@ class BaseContextWithModal extends BaseContext {
         return `modal`;
     }
 }
-exports.BaseContextWithModal = BaseContextWithModal;
+exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
 /**
  * Base context for components.
  * @internal
  */
-class BaseComponentContext extends BaseContextWithModal {
+class BaseComponentContext extends BaseInteractionContextWithModal {
     responses = [];
     /**
      * Component data.
@@ -212,6 +230,8 @@ class BaseComponentContext extends BaseContextWithModal {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
         super(commandHandler, interaction, logCallback, logThisArg);
@@ -244,3 +264,35 @@ class BaseComponentContext extends BaseContextWithModal {
     }
 }
 exports.BaseComponentContext = BaseComponentContext;
+/**
+ * Base component expire context.
+ */
+class BaseComponentExpireContext extends BaseContext {
+    /**
+     * Component data.
+     */
+    component;
+    /**
+     * Create component expire context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param customId The component's custom ID.
+     * @param type The component's type.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(commandHandler, customId, type, logCallback = () => { }, logThisArg) {
+        super(commandHandler, logCallback, logThisArg);
+        this.component = {
+            customId, type
+        };
+    }
+    /**
+     * Calls the command handler's expire error callback.
+     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
+     * @param error The error encountered.
+     */
+    error(error) {
+        this.commandHandler.runExpireError(this, error instanceof Error ? error : new Error(error), false);
+    }
+}
+exports.BaseComponentExpireContext = BaseComponentExpireContext;

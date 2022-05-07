@@ -115,7 +115,7 @@ exports.ContextMenuCommand = ContextMenuCommand;
 /**
  * Context menu command context.
  */
-class ContextMenuCommandContext extends BaseContext_1.BaseContextWithModal {
+class ContextMenuCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

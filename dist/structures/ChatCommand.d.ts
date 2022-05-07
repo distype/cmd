@@ -1,4 +1,4 @@
-import { BaseContextWithModal } from './BaseContext';
+import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { LocalizedText } from '../types/LocalizedText';
 import { LogCallback } from '../types/Log';
@@ -265,7 +265,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    setExecute(exec: (ctx: ChatCommandContext<PR, PA>) => (void | Promise<void>)): this;
+    setExecute(exec: this[`run`]): this;
     /**
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.
@@ -275,7 +275,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 /**
  * Chat command context.
  */
-export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseContextWithModal {
+export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

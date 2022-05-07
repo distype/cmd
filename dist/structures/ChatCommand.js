@@ -390,7 +390,7 @@ exports.ChatCommand = ChatCommand;
 /**
  * Chat command context.
  */
-class ChatCommandContext extends BaseContext_1.BaseContextWithModal {
+class ChatCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

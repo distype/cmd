@@ -1,4 +1,4 @@
-import { BaseContextWithModal } from './BaseContext';
+import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -69,7 +69,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    setExecute(exec: (ctx: ContextMenuCommandContext<PR>) => (void | Promise<void>)): this;
+    setExecute(exec: this[`run`]): this;
     /**
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.
@@ -79,7 +79,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
 /**
  * Context menu command context.
  */
-export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseContextWithModal {
+export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal {
     /**
      * The ID of the channel that the command was ran in.
      */

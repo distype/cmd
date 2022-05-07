@@ -1,4 +1,5 @@
-import { BaseComponentContext } from './BaseContext';
+/// <reference types="node" />
+import { BaseComponentContext, BaseComponentExpireContext } from './BaseContext';
 import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * A button's style.
@@ -16,10 +17,25 @@ export declare enum ButtonStyle {
  */
 export declare class Button {
     /**
+     * The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @internal
+     */
+    expireTime: number | null;
+    /**
+     * A timeout for the button to expire.
+     * @internal
+     */
+    expireTimeout: NodeJS.Timeout | null;
+    /**
      * The button's execute method.
      * @internal
      */
     run: ((ctx: ButtonContext) => (void | Promise<void>)) | null;
+    /**
+     * The button's expire method.
+     * @internal
+     */
+    runExpire: ((ctx: BaseComponentExpireContext) => (void | Promise<void>)) | null;
     /**
      * The raw button.
      */
@@ -67,7 +83,17 @@ export declare class Button {
      * @returns The button.
      */
     setDisabled(disabled: boolean): this;
-    setExecute(exec: (ctx: ButtonContext) => (void | Promise<void>)): this;
+    /**
+     * Set the button's expire properties.
+     * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @param callback A callback that is called when the button expires.
+     */
+    setExpire(time: number, callback: this[`runExpire`]): this;
+    /**
+     * Sets the button's execute method.
+     * @param exec The callback to execute when an interaction is received.
+     */
+    setExecute(exec: this[`run`]): this;
     /**
      * Get the raw button.
      * Note that the returned button is immutable.

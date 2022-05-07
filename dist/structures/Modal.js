@@ -136,7 +136,7 @@ exports.Modal = Modal;
 /**
  * Modal context.
  */
-class ModalContext extends BaseContext_1.BaseContext {
+class ModalContext extends BaseContext_1.BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */

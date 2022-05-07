@@ -1,4 +1,4 @@
-import { BaseContext } from './BaseContext';
+import { BaseComponentExpireContext, BaseInteractionContext } from './BaseContext';
 import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
@@ -32,12 +32,21 @@ export declare class CommandHandler {
      */
     modals: ExtendedMap<string, Modal<ModalProps>>;
     /**
-     * Called when a command encounters an error.
+     * Called when an interaction encounters an error.
+     * @param ctx The command context.
      * @param error The error encountered.
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    runError: (error: Error, ctx: BaseContext, unexpected: boolean) => (void | Promise<void>);
+    runError: (ctx: BaseInteractionContext, error: Error, unexpected: boolean) => (void | Promise<void>);
+    /**
+     * Called when a component expire context encounters an error.
+     * @param ctx The command context.
+     * @param error The error encountered.
+     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
+     * @internal
+     */
+    runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>);
     /**
      * The system string used for emitting errors and for the {@link LogCallback log callback}.
      */
@@ -112,10 +121,15 @@ export declare class CommandHandler {
      */
     push(applicationId?: Snowflake | undefined): Promise<void>;
     /**
-     * Set the error callback function to run when a command's execution fails
+     * Set the error callback function to run when an interaction's execution fails.
      * @param errorCallback The callback to use.
      */
     setError(errorCallback: CommandHandler[`runError`]): this;
+    /**
+     * Set the error callback function to run when a component's expire callback fails.
+     * @param errorCallback The callback to use.
+     */
+    setExpireError(errorCallback: CommandHandler[`runExpireError`]): this;
     /**
      * Set middleware for buttons.
      * @param middleware The middleware callback. If it returns `false`, the button will not be executed.

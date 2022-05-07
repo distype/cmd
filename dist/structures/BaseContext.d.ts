@@ -22,6 +22,19 @@ export declare class BaseContext {
      */
     log: LogCallback;
     /**
+     * Create context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+}
+/**
+ * Base interaction context.
+ * @internal
+ */
+export declare class BaseInteractionContext extends BaseContext {
+    /**
      * Message IDs of sent responses.
      */
     responses: Array<Snowflake | `@original` | `defer`>;
@@ -70,6 +83,8 @@ export declare class BaseContext {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback?: LogCallback, logThisArg?: any);
     /**
@@ -112,10 +127,10 @@ export declare class BaseContext {
     delete(id: Snowflake | `@original`): Promise<void>;
 }
 /**
- * Base context with a modal.
+ * Base interaction context with a modal.
  * @internal
  */
-export declare class BaseContextWithModal extends BaseContext {
+export declare class BaseInteractionContextWithModal extends BaseInteractionContext {
     responses: Array<Snowflake | `@original` | `defer` | `modal`>;
     /**
      * Respond with a modal.
@@ -130,7 +145,7 @@ export declare class BaseContextWithModal extends BaseContext {
  * Base context for components.
  * @internal
  */
-export declare class BaseComponentContext extends BaseContextWithModal {
+export declare class BaseComponentContext extends BaseInteractionContextWithModal {
     responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`>;
     /**
      * Component data.
@@ -149,6 +164,8 @@ export declare class BaseComponentContext extends BaseContextWithModal {
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction, logCallback?: LogCallback, logThisArg?: any);
     /**
@@ -161,4 +178,37 @@ export declare class BaseComponentContext extends BaseContextWithModal {
      * @param components Components to add to the message.
      */
     editParent(message: FactoryMessage, components?: FactoryComponents): Promise<`editparent`>;
+}
+/**
+ * Base component expire context.
+ */
+export declare class BaseComponentExpireContext extends BaseContext {
+    /**
+     * Component data.
+     */
+    readonly component: {
+        /**
+         * The component's custom ID.
+         */
+        customId: string;
+        /**
+         * The component's type.
+         */
+        type: DiscordTypes.ComponentType;
+    };
+    /**
+     * Create component expire context.
+     * @param commandHandler The command handler that invoked the context.
+     * @param customId The component's custom ID.
+     * @param type The component's type.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(commandHandler: CommandHandler, customId: string, type: DiscordTypes.ComponentType, logCallback?: LogCallback, logThisArg?: any);
+    /**
+     * Calls the command handler's expire error callback.
+     * Note that this does not stop the execution of the command's execute method; you must also call `return`.
+     * @param error The error encountered.
+     */
+    error(error: string | Error): void;
 }

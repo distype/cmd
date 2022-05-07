@@ -45,10 +45,25 @@ var ButtonStyle;
  */
 class Button {
     /**
+     * The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @internal
+     */
+    expireTime = null;
+    /**
+     * A timeout for the button to expire.
+     * @internal
+     */
+    expireTimeout = null;
+    /**
      * The button's execute method.
      * @internal
      */
     run = null;
+    /**
+     * The button's expire method.
+     * @internal
+     */
+    runExpire = null;
     /**
      * The raw button.
      */
@@ -128,6 +143,20 @@ class Button {
         this._raw.disabled = disabled;
         return this;
     }
+    /**
+     * Set the button's expire properties.
+     * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
+     * @param callback A callback that is called when the button expires.
+     */
+    setExpire(time, callback) {
+        this.expireTime = time;
+        this.runExpire = callback;
+        return this;
+    }
+    /**
+     * Sets the button's execute method.
+     * @param exec The callback to execute when an interaction is received.
+     */
     setExecute(exec) {
         this.run = exec;
         return this;

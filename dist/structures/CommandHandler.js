@@ -55,12 +55,23 @@ class CommandHandler {
      */
     modals = new node_utils_1.ExtendedMap();
     /**
-     * Called when a command encounters an error.
+     * Called when an interaction encounters an error.
+     * @param ctx The command context.
      * @param error The error encountered.
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    runError = (error, ctx, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+    runError = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+        level: `ERROR`, system: this.system
+    });
+    /**
+     * Called when a component expire context encounters an error.
+     * @param ctx The command context.
+     * @param error The error encountered.
+     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
+     * @internal
+     */
+    runExpireError = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
         level: `ERROR`, system: this.system
     });
     /**
@@ -248,11 +259,19 @@ class CommandHandler {
         });
     }
     /**
-     * Set the error callback function to run when a command's execution fails
+     * Set the error callback function to run when an interaction's execution fails.
      * @param errorCallback The callback to use.
      */
     setError(errorCallback) {
         this.runError = errorCallback;
+        return this;
+    }
+    /**
+     * Set the error callback function to run when a component's expire callback fails.
+     * @param errorCallback The callback to use.
+     */
+    setExpireError(errorCallback) {
+        this.runExpireError = errorCallback;
         return this;
     }
     /**
@@ -361,7 +380,7 @@ class CommandHandler {
             }
             catch (error) {
                 try {
-                    const call = this.runError(error instanceof Error ? error : new Error(error), ctx, true);
+                    const call = this.runError(ctx, error instanceof Error ? error : new Error(error), true);
                     if (call instanceof Promise) {
                         const reject = await call.then(() => { }).catch((error) => error);
                         if (reject instanceof Error)

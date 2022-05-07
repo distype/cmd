@@ -1,4 +1,4 @@
-import { BaseContext } from './BaseContext';
+import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -88,7 +88,7 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
      * Sets the command's execute method.
      * @param exec The callback to execute when an interaction is received.
      */
-    setExecute(exec: (ctx: ModalContext<PR, PA>) => (void | Promise<void>)): this;
+    setExecute(exec: this[`run`]): this;
     /**
      * Converts a modal to a Discord API compatible object.
      * @returns The raw modal.
@@ -98,7 +98,7 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
 /**
  * Modal context.
  */
-export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseContext {
+export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */
