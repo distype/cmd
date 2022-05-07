@@ -155,4 +155,9 @@ export declare class CommandHandler {
      * @param interaction The received interaction.
      */
     private _onInteraction;
+    /**
+     * Set the expire timeout for a button.
+     * @param button The button to set the timeout for.
+     */
+    _setButtonExpireTimeout(button: Button): void;
 }

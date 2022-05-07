@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandHandler = void 0;
+const BaseContext_1 = require("./BaseContext");
 const Button_1 = require("./Button");
 const ChatCommand_1 = require("./ChatCommand");
 const ContextMenuCommand_1 = require("./ContextMenuCommand");
@@ -176,6 +177,7 @@ class CommandHandler {
                 level: `DEBUG`, system: this.system
             });
         this.buttons.set(raw.custom_id, button);
+        this._setButtonExpireTimeout(button);
         this._log(`Bound button with custom ID ${raw.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
@@ -338,6 +340,7 @@ class CommandHandler {
                         middleware = this._runButtonMiddleware;
                         run = button.runExecute;
                         ctx = new Button_1.ButtonContext(this, interaction, this._log, this._logThisArg);
+                        this._setButtonExpireTimeout(button);
                     }
                 }
                 break;
@@ -394,6 +397,47 @@ class CommandHandler {
                 }
             }
         }
+    }
+    /**
+     * Set the expire timeout for a button.
+     * @param button The button to set the timeout for.
+     */
+    _setButtonExpireTimeout(button) {
+        if (button.expireTime === null)
+            return;
+        if (button.expireTimeout)
+            clearTimeout(button.expireTimeout);
+        if (typeof button.runExecuteExpire === `function`)
+            button.expireTimeout = setTimeout(async () => {
+                const raw = button.getRaw();
+                const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
+                this._log(`Running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
+                    level: `DEBUG`, system: this.system
+                });
+                try {
+                    const call = button.runExecuteExpire(ctx);
+                    if (call instanceof Promise) {
+                        const reject = await call.then(() => { }).catch((error) => error);
+                        if (reject instanceof Error)
+                            throw reject;
+                    }
+                }
+                catch (error) {
+                    try {
+                        const call = this.runExpireError(ctx, error instanceof Error ? error : new Error(error), true);
+                        if (call instanceof Promise) {
+                            const reject = await call.then(() => { }).catch((error) => error);
+                            if (reject instanceof Error)
+                                throw reject;
+                        }
+                    }
+                    catch (eError) {
+                        this._log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                            level: `ERROR`, system: this.system
+                        });
+                    }
+                }
+            }, button.expireTime);
     }
 }
 exports.CommandHandler = CommandHandler;
