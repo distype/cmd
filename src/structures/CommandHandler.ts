@@ -124,8 +124,11 @@ export class CommandHandler {
         const files = await readdir(directory, { withFileTypes: true });
 
         for (const file in files) {
-            if (files[file].isDirectory()) return this.load(resolve(directory, files[file].name));
-            if (!files[file].name.endsWith(`.js`)) return;
+            if (files[file].isDirectory()) {
+                await this.load(resolve(directory, files[file].name));
+                continue;
+            }
+            if (!files[file].name.endsWith(`.js`)) continue;
 
             delete require.cache[require.resolve(resolve(directory, files[file].name))];
             const imported = await import(resolve(directory, files[file].name));
