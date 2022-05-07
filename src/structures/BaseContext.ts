@@ -10,6 +10,7 @@ import { Client, Snowflake } from 'distype';
 
 /**
  * Base context.
+ * @internal
  */
 export class BaseContext {
     /**
@@ -185,6 +186,7 @@ export class BaseContext {
 
 /**
  * Base context with a modal.
+ * @internal
  */
 export class BaseContextWithModal extends BaseContext {
     public override responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
@@ -213,6 +215,7 @@ export class BaseContextWithModal extends BaseContext {
 
 /**
  * Base context for components.
+ * @internal
  */
 export class BaseComponentContext extends BaseContextWithModal {
     public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`> = [];
