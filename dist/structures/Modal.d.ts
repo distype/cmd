@@ -45,10 +45,12 @@ export declare type ModalProps = Omit<DiscordTypes.APIModalInteractionResponseCa
 export declare class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA extends DiscordTypes.APIModalActionRowComponent[] = []> {
     /**
      * The modal's props.
+     * @internal
      */
     props: PR;
     /**
      * The modal's parameters.
+     * @internal
      */
     parameters: PA;
     /**

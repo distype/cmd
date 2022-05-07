@@ -47,10 +47,12 @@ const distype_1 = require("distype");
 class ChatCommand {
     /**
      * The command's props.
+     * @internal
      */
     props = { type: DiscordTypes.ApplicationCommandType.ChatInput };
     /**
      * The command's parameters.
+     * @internal
      */
     parameters = [];
     /**

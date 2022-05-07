@@ -89,10 +89,12 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 }, PA extends DiscordTypes.APIApplicationCommandBasicOption[] = []> {
     /**
      * The command's props.
+     * @internal
      */
     props: PR;
     /**
      * The command's parameters.
+     * @internal
      */
     parameters: PA;
     /**

@@ -45,6 +45,7 @@ const distype_1 = require("distype");
 class ContextMenuCommand {
     /**
      * The command's props.
+     * @internal
      */
     props = {};
     /**

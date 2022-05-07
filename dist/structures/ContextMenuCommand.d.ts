@@ -33,6 +33,7 @@ export declare type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIConte
 export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Record<string, never>> {
     /**
      * The command's props.
+     * @internal
      */
     props: PR;
     /**

@@ -46,10 +46,12 @@ const distype_1 = require("distype");
 class Modal {
     /**
      * The modal's props.
+     * @internal
      */
     props = {};
     /**
      * The modal's parameters.
+     * @internal
      */
     parameters = [];
     /**
