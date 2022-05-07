@@ -131,9 +131,9 @@ export class Button {
      * @param time The amount of time in milliseconds for the button to be inactive for it to be considered expired and unbound from the command handler.
      * @param expireCallback A callback that is called when the button expires.
      */
-    public setExpire (time: number, expireCallback: this[`runExecuteExpire`]): this {
+    public setExpire (time: number, expireCallback?: this[`runExecuteExpire`]): this {
         this.expireTime = time;
-        this.runExecuteExpire = expireCallback;
+        if (typeof expireCallback === `function`) this.runExecuteExpire = expireCallback;
         return this;
     }
 
