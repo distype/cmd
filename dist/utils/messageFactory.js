@@ -22,7 +22,7 @@ function messageFactory(message, components) {
         if (!Array.isArray(components))
             componentMap = [[components]];
         else if (!Array.isArray(components[0]))
-            componentMap = [components];
+            componentMap = components.reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((buttons, i) => i !== p.length - 1 ? buttons : [...buttons, c]), [[]]);
         else
             componentMap = components;
         res.components = componentMap.map((row) => ({
