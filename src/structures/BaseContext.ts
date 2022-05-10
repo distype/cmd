@@ -236,7 +236,7 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
  * @internal
  */
 export class BaseComponentContext extends BaseInteractionContextWithModal {
-    public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`> = [];
+    public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit`> = [];
 
     /**
      * Component data.
@@ -285,13 +285,18 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<`editparent`> {
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.UpdateMessage,
-            data: messageFactory(message, components)
-        });
+    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<`@original`> {
+        if (this.responses.length) {
+            await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, messageFactory(message, components));
+        } else {
+            await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+                type: DiscordTypes.InteractionResponseType.UpdateMessage,
+                data: messageFactory(message, components)
+            });
+        }
 
-        return `editparent`;
+        this.responses.push(`@original`);
+        return `@original`;
     }
 }
 
