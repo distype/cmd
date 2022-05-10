@@ -256,11 +256,17 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      * @param components Components to add to the message.
      */
     async editParent(message, components) {
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.UpdateMessage,
-            data: (0, messageFactory_1.messageFactory)(message, components)
-        });
-        return `editparent`;
+        if (this.responses.length) {
+            await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, (0, messageFactory_1.messageFactory)(message, components));
+        }
+        else {
+            await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+                type: DiscordTypes.InteractionResponseType.UpdateMessage,
+                data: (0, messageFactory_1.messageFactory)(message, components)
+            });
+        }
+        this.responses.push(`@original`);
+        return `@original`;
     }
 }
 exports.BaseComponentContext = BaseComponentContext;

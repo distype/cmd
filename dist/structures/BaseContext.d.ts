@@ -146,7 +146,7 @@ export declare class BaseInteractionContextWithModal extends BaseInteractionCont
  * @internal
  */
 export declare class BaseComponentContext extends BaseInteractionContextWithModal {
-    responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit` | `editparent`>;
+    responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit`>;
     /**
      * Component data.
      */
@@ -177,7 +177,7 @@ export declare class BaseComponentContext extends BaseInteractionContextWithModa
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<`editparent`>;
+    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<`@original`>;
 }
 /**
  * Base component expire context.
