@@ -34,10 +34,10 @@ export function messageFactory (message: FactoryMessage, components?: FactoryCom
     if (components) {
         let componentMap: Button[][];
         if (!Array.isArray(components)) componentMap = [[components]];
-        else if (!Array.isArray(components[0])) componentMap = (components as Button[]).reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((buttons, i) => i !== p.length - 1 ? buttons : [...buttons, c]), [[]] as Button[][]);
+        else if (!Array.isArray(components[0])) componentMap = (components as any[]).reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((components: any, i: number) => i !== p.length - 1 ? components : [...components, c]), [[]] as any[][]);
         else componentMap = components as any;
 
-        res.components = componentMap.map((row) => ({
+        res.components = componentMap.filter((row) => row.length).map((row) => ({
             type: ComponentType.ActionRow,
             components: row.map((component) => component.getRaw())
         }));
