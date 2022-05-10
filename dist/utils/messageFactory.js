@@ -22,10 +22,10 @@ function messageFactory(message, components) {
         if (!Array.isArray(components))
             componentMap = [[components]];
         else if (!Array.isArray(components[0]))
-            componentMap = components.reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((buttons, i) => i !== p.length - 1 ? buttons : [...buttons, c]), [[]]);
+            componentMap = components.reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((components, i) => i !== p.length - 1 ? components : [...components, c]), [[]]);
         else
             componentMap = components;
-        res.components = componentMap.map((row) => ({
+        res.components = componentMap.filter((row) => row.length).map((row) => ({
             type: v10_1.ComponentType.ActionRow,
             components: row.map((component) => component.getRaw())
         }));
