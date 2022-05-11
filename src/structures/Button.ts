@@ -59,7 +59,7 @@ export class Button {
      */
     public setStyle (style: ButtonStyle): this {
         this._raw.style = style as any;
-        return this as any;
+        return this;
     }
 
     /**
