@@ -1,12 +1,11 @@
 import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LogCallback } from '../types/Log';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { DiscordConstants, Snowflake } from 'distype';
+import { Snowflake } from 'distype';
 
 /**
  * Adds a prop to a command.
@@ -66,7 +65,6 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * @returns The command.
      */
     public setName <T extends ContextMenuCommandProp<`name`>> (name: T): AddProp<`name`, T, PR> {
-        if (name.length > DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_VALUE);
         this.props.name = name;
         return this as any;
     }
@@ -105,9 +103,6 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * @returns The converted command.
      */
     public getRaw (): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody> {
-        if (typeof this.props.type !== `number`) throw new DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
-        if (typeof this.props.name !== `string`) throw new DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
-
         return sanitizeCommand(this.props as any);
     }
 }

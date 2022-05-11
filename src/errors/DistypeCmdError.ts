@@ -7,61 +7,9 @@ export enum DistypeCmdErrorType {
      */
     APPLICATION_ID_UNDEFINED = `APPLICATION_ID_UNDEFINED`,
     /**
-     * A defer was called after a response was already created.
-     */
-    CANNOT_DEFER = `CANNOT_DEFER`,
-    /**
-     * A modal open was called after a response was already created.
-     */
-    CANNOT_OPEN_MODAL = `CANNOT_OPEN_MODAL`,
-    /**
      * Duplicate command names were found.
      */
     DUPLICATE_COMMAND_NAME = `DUPLICATE_COMMAND_NAME`,
-    /**
-     * An invalid value was used while modifying a button.
-     */
-    INVALID_BUTTON_VALUE = `INVALID_BUTTON_VALUE`,
-    /**
-     * While converting a button to raw, invalid parameters were found.
-     */
-    INVALID_BUTTON_PARAMETERS_FOR_RAW = `INVALID_BUTTON_PARAMETERS_FOR_RAW`,
-    /**
-     * An invalid value was used while modifying a chat command.
-     */
-    INVALID_CHAT_COMMAND_VALUE = `INVALID_CHAT_COMMAND_VALUE`,
-    /**
-     * While converting a chat command to raw, invalid parameters were found.
-     */
-    INVALID_CHAT_COMMAND_PARAMETERS_FOR_RAW = `INVALID_CHAT_COMMAND_PARAMETERS_FOR_RAW`,
-    /**
-     * An invalid value was used while modifying a context menu command.
-     */
-    INVALID_CONTEXT_MENU_COMMAND_VALUE = `INVALID_CONTEXT_MENU_COMMAND_VALUE`,
-    /**
-     * While converting a context menu command to raw, invalid parameters were found.
-     */
-    INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW = `INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW`,
-    /**
-     * An invalid value was used while modifying an embed.
-     */
-    INVALID_EMBED_VALUE = `INVALID_EMBED_VALUE`,
-    /**
-     * While converting an embed to raw, invalid parameters were found.
-     */
-    INVALID_EMBED_PARAMETERS_FOR_RAW = `INVALID_EMBED_PARAMETERS_FOR_RAW`,
-    /**
-     * An invalid value was used while modifying a modal.
-     */
-    INVALID_MODAL_VALUE = `INVALID_MODAL_VALUE`,
-    /**
-     * While converting a modal to raw, invalid parameters were found.
-     */
-    INVALID_MODAL_PARAMETERS_FOR_RAW = `INVALID_MODAL_PARAMETERS_FOR_RAW`,
-    /**
-     * An interaction response was not found.
-     */
-    RESPONSE_NOT_FOUND = `RESPONSE_NOT_FOUND`
 }
 
 /**

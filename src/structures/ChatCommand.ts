@@ -1,13 +1,12 @@
 import { BaseInteractionContextWithModal } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LocalizedText } from '../types/LocalizedText';
 import { LogCallback } from '../types/Log';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { DiscordConstants, Snowflake } from 'distype';
+import { Snowflake } from 'distype';
 
 /**
  * Adds a prop to a command.
@@ -125,7 +124,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * @returns The command.
      */
     public setName <T extends ChatCommandProp<`name`>> (name: T): AddProp<`name`, T, PR, PA> {
-        if (name.length > DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
         this.props.name = name;
         return this as any;
     }
@@ -146,7 +144,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * @returns The command.
      */
     public setDescription <T extends ChatCommandProp<`description`>> (description: T): AddProp<`description`, T, PR, PA> {
-        if (description.length > DiscordConstants.APPLICATION_COMMAND_LIMITS.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
         this.props.description = description;
         return this as any;
     }
@@ -193,13 +190,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         description: D
         choices: RS
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((restraints ?? []).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES) throw new DistypeCmdError(`Maximum number of choices exceeded (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.String,
             required,
@@ -236,13 +226,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         min_value: RS extends ParameterLimits ? RS[`min`] extends number ? RS[`min`] : undefined : undefined
         max_value: RS extends ParameterLimits ? RS[`max`] extends number ? RS[`max`] : undefined : undefined
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((Array.isArray(restraints) ? restraints : []).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES) throw new DistypeCmdError(`Maximum number of choices exceeded (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Integer,
             required,
@@ -276,12 +259,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Boolean,
             required,
@@ -312,12 +289,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.User,
             required,
@@ -351,12 +322,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         description: D
         channel_types: RS
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Channel,
             required,
@@ -388,12 +353,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Role,
             required,
@@ -424,12 +383,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Mentionable,
             required,
@@ -465,13 +418,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         min_value: RS extends ParameterLimits ? RS[`min`] extends number ? RS[`min`] : undefined : undefined
         max_value: RS extends ParameterLimits ? RS[`max`] extends number ? RS[`max`] : undefined : undefined
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((Array.isArray(restraints) ? restraints : []).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES) throw new DistypeCmdError(`Maximum number of choices exceeded (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.CHOICES})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Number,
             required,
@@ -505,12 +451,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
         name: N
         description: D
     }, PR, PA> {
-        if ((typeof name === `string` ? name : name.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME) throw new DistypeCmdError(`Specified name is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.NAME}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if ((typeof description === `string` ? description : description.default).length > DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION) throw new DistypeCmdError(`Specified description is longer than maximum length ${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTION.DESCRIPTION}`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
-        if (this.parameters.length === DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS) throw new DistypeCmdError(`Command already contains maximum number of options (${DiscordConstants.APPLICATION_COMMAND_LIMITS.OPTIONS})`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-        if (this.parameters.find((parameter) => parameter.name === name)) throw new DistypeCmdError(`A parameter already exists with the name "${name}"`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_VALUE);
-
         this.parameters.push({
             type: DiscordTypes.ApplicationCommandOptionType.Attachment,
             required,
@@ -536,10 +476,6 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
      * @returns The converted command.
      */
     public getRaw (): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody> {
-        if (typeof this.props.type !== `number`) throw new DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_PARAMETERS_FOR_RAW);
-        if (typeof this.props.name !== `string`) throw new DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_PARAMETERS_FOR_RAW);
-        if (typeof this.props.description !== `string`) throw new DistypeCmdError(`Cannot convert a command with a missing "description" parameter to raw`, DistypeCmdErrorType.INVALID_CHAT_COMMAND_PARAMETERS_FOR_RAW);
-
         return sanitizeCommand({
             ...this.props as any,
             options: this.parameters ?? []

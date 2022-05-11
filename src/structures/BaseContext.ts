@@ -1,7 +1,6 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { LogCallback } from '../types/Log';
 import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
@@ -131,8 +130,6 @@ export class BaseInteractionContext extends BaseContext {
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
     public async defer (flags?: DiscordTypes.MessageFlags | number | true): Promise<`defer`> {
-        if (this.responses.length) throw new DistypeCmdError(`Cannot defer, a response has already been created`, DistypeCmdErrorType.CANNOT_DEFER);
-
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
             data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
@@ -187,7 +184,6 @@ export class BaseInteractionContext extends BaseContext {
      * @returns The new created response.
      */
     public async edit (id: Snowflake | `@original`, message: FactoryMessage, components?: FactoryComponents): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        if (!this.responses.includes(id)) throw new DistypeCmdError(`No response found matching the ID "${id}"`, DistypeCmdErrorType.RESPONSE_NOT_FOUND);
         return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, messageFactory(message, components));
     }
 
@@ -196,7 +192,6 @@ export class BaseInteractionContext extends BaseContext {
      * @param id The ID of the response to delete.
      */
     public async delete (id: Snowflake | `@original`): Promise<void> {
-        if (!this.responses.includes(id)) throw new DistypeCmdError(`No response found matching the ID "${id}"`, DistypeCmdErrorType.RESPONSE_NOT_FOUND);
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
         this.responses = this.responses.filter((response) => response !== id);
     }
@@ -217,8 +212,6 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
      * @param modal The modal to respond with.
      */
     public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<`modal`> {
-        if (this.responses.length) throw new DistypeCmdError(`Cannot open a modal, a response has already been created`, DistypeCmdErrorType.CANNOT_OPEN_MODAL);
-
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
@@ -272,8 +265,6 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
     public async editParentDefer (): Promise<`deferedit`> {
-        if (this.responses.length) throw new DistypeCmdError(`Cannot defer, a response has already been created`, DistypeCmdErrorType.CANNOT_DEFER);
-
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
 
         this.responses.push(`deferedit`);
