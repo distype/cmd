@@ -146,12 +146,8 @@ export declare class BaseInteractionContextWithModal extends BaseInteractionCont
  */
 export declare class BaseComponentContext extends BaseInteractionContextWithModal {
     /**
-     * If a deferred message update was sent.
-     */
-    private _deferredMessageUpdate;
-    /**
-     * Component data.
-     */
+         * Component data.
+         */
     readonly component: {
         /**
          * The component's custom ID.
@@ -162,6 +158,14 @@ export declare class BaseComponentContext extends BaseInteractionContextWithModa
          */
         type: DiscordTypes.ComponentType;
     };
+    /**
+     * The message the component is attached to.
+     */
+    readonly message: DiscordTypes.APIMessage;
+    /**
+     * If a deferred message update was sent.
+     */
+    private _deferredMessageUpdate;
     /**
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.

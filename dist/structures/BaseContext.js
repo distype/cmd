@@ -213,13 +213,17 @@ exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
  */
 class BaseComponentContext extends BaseInteractionContextWithModal {
     /**
+         * Component data.
+         */
+    component;
+    /**
+     * The message the component is attached to.
+     */
+    message;
+    /**
      * If a deferred message update was sent.
      */
     _deferredMessageUpdate = false;
-    /**
-     * Component data.
-     */
-    component;
     /**
      * Create interaction context.
      * @param commandHandler The command handler that invoked the context.
@@ -233,6 +237,7 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type
         };
+        this.message = interaction.message;
     }
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
