@@ -37,14 +37,14 @@
     "url": "git+https://github.com/distype/cmd.git"
   },
   "dependencies": {
-    "@br88c/node-utils": "^1.2.0",  
+    "@br88c/node-utils": "^1.2.1",  
     "discord-api-types": "^0.32.1",
-    "distype": "^0.12.2"
+    "distype": "^0.13.1"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.4.0",
-    "@types/node": "^16.11.33",
-    "eslint": "^8.14.0",
+    "@types/node": "^16.11.34",
+    "eslint": "^8.15.0",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
   },
