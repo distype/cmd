@@ -41,6 +41,8 @@ export function messageFactory (message: FactoryMessage, components?: FactoryCom
             type: ComponentType.ActionRow,
             components: row.map((component) => component.getRaw())
         }));
+    } else {
+        res.components ??= [];
     }
 
     return res;
