@@ -7,6 +7,7 @@ import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/mess
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
+import { Button } from './Button';
 
 /**
  * Base context.
@@ -145,22 +146,26 @@ export class BaseInteractionContext extends BaseContext {
      * Sends a message.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    public async send (message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`> {
-        let id: Snowflake | `@original`;
+    public async send (message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<`@original` | Snowflake> {
+        const factoryMessage = messageFactory(message, components);
 
+        let id: `@original` | Snowflake;
         if (this.responded) {
-            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, messageFactory(message))).id;
+            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, factoryMessage)).id;
         } else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
                 type: DiscordTypes.InteractionResponseType.ChannelMessageWithSource,
-                data: messageFactory(message, components)
+                data: factoryMessage
             });
             id = `@original`;
 
             this.responded = true;
         }
+
+        if (components && bindComponents) this._bindComponents(components);
 
         return id;
     }
@@ -169,14 +174,20 @@ export class BaseInteractionContext extends BaseContext {
      * A shorthand for sending messages with the ephemeral flag.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    public async sendEphemeral (message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`> {
-        const data = messageFactory(message, components);
-        return await this.send({
-            ...data,
-            flags: (data.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
+    public async sendEphemeral (message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<`@original` | Snowflake> {
+        const factoryMessage = messageFactory(message, components);
+
+        const id = await this.send({
+            ...factoryMessage,
+            flags: (factoryMessage.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
         });
+
+        if (components && bindComponents) this._bindComponents(components);
+
+        return id;
     }
 
     /**
@@ -184,18 +195,39 @@ export class BaseInteractionContext extends BaseContext {
      * @param id The ID of the response to edit (`@original` if it is the original response).
      * @param message The new response.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The new created response.
      */
-    public async edit (id: Snowflake | `@original`, message: FactoryMessage, components?: FactoryComponents): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, messageFactory(message, components));
+    public async edit (id: `@original` | Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+        const factoryMessage = messageFactory(message, components);
+
+        const edit = await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, factoryMessage);
+
+        if (components && bindComponents) this._bindComponents(components);
+
+        return edit;
     }
 
     /**
      * Delete a response.
      * @param id The ID of the response to delete.
      */
-    public async delete (id: Snowflake | `@original`): Promise<void> {
+    public async delete (id: `@original` | Snowflake): Promise<void> {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
+    }
+
+    /**
+     * Binds components to the command handler.
+     * @param components The components to bind.
+     */
+    protected _bindComponents (components: FactoryComponents): void {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button) this.commandHandler.bindButton(components);
+        } else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button) this.commandHandler.bindButton(component);
+            });
+        }
     }
 }
 
@@ -283,8 +315,9 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
      * Edits the parent message of the component.
      * @param message The new parent message.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      */
-    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<void> {
+    public async editParent (message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<void> {
         if (this.responded && !this._deferredMessageUpdate) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
 
         if (this.responded) {
@@ -297,6 +330,8 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
 
             this.responded = true;
         }
+
+        if (components && bindComponents) this._bindComponents(components);
     }
 }
 
