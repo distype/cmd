@@ -35,9 +35,9 @@ export declare class BaseContext {
  */
 export declare class BaseInteractionContext extends BaseContext {
     /**
-     * Message IDs of sent responses.
+     * If the interaction has been responded to yet.
      */
-    responses: Array<Snowflake | `@original` | `defer`>;
+    responded: boolean;
     /**
      * The ID of the guild that the interaction was ran in.
      */
@@ -97,7 +97,7 @@ export declare class BaseInteractionContext extends BaseContext {
      * Defers the interaction (displays a loading state to the user).
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
-    defer(flags?: DiscordTypes.MessageFlags | number | true): Promise<`defer`>;
+    defer(flags?: DiscordTypes.MessageFlags | number | true): Promise<void>;
     /**
      * Sends a message.
      * @param message The message to send.
@@ -131,7 +131,6 @@ export declare class BaseInteractionContext extends BaseContext {
  * @internal
  */
 export declare class BaseInteractionContextWithModal extends BaseInteractionContext {
-    responses: Array<Snowflake | `@original` | `defer` | `modal`>;
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -139,14 +138,17 @@ export declare class BaseInteractionContextWithModal extends BaseInteractionCont
      * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
      * @param modal The modal to respond with.
      */
-    showModal(modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<`modal`>;
+    showModal(modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void>;
 }
 /**
  * Base context for components.
  * @internal
  */
 export declare class BaseComponentContext extends BaseInteractionContextWithModal {
-    responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit`>;
+    /**
+     * If a deferred message update was sent.
+     */
+    private _deferredMessageUpdate;
     /**
      * Component data.
      */
@@ -171,13 +173,13 @@ export declare class BaseComponentContext extends BaseInteractionContextWithModa
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
-    editParentDefer(): Promise<`deferedit`>;
+    editParentDefer(): Promise<void>;
     /**
      * Edits the parent message of the component.
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<`@original`>;
+    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<void>;
 }
 /**
  * Base component expire context.

@@ -7,6 +7,10 @@ exports.DistypeCmdError = exports.DistypeCmdErrorType = void 0;
 var DistypeCmdErrorType;
 (function (DistypeCmdErrorType) {
     /**
+     * An interaction already has a response.
+     */
+    DistypeCmdErrorType["ALREADY_RESPONDED"] = "ALREADY_RESPONDED";
+    /**
      * The bot's application ID is undefined.
      */
     DistypeCmdErrorType["APPLICATION_ID_UNDEFINED"] = "APPLICATION_ID_UNDEFINED";

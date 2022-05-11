@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.BaseInteractionContextWithModal = exports.BaseInteractionContext = exports.BaseContext = void 0;
+const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -62,9 +63,9 @@ exports.BaseContext = BaseContext;
  */
 class BaseInteractionContext extends BaseContext {
     /**
-     * Message IDs of sent responses.
+     * If the interaction has been responded to yet.
      */
-    responses = [];
+    responded = false;
     /**
      * The ID of the guild that the interaction was ran in.
      */
@@ -122,12 +123,13 @@ class BaseInteractionContext extends BaseContext {
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
     async defer(flags) {
+        if (this.responded)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
             data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
         });
-        this.responses.push(`defer`);
-        return `defer`;
+        this.responded = true;
     }
     /**
      * Sends a message.
@@ -137,7 +139,7 @@ class BaseInteractionContext extends BaseContext {
      */
     async send(message, components) {
         let id;
-        if (this.responses.length) {
+        if (this.responded) {
             id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, (0, messageFactory_1.messageFactory)(message))).id;
         }
         else {
@@ -146,8 +148,8 @@ class BaseInteractionContext extends BaseContext {
                 data: (0, messageFactory_1.messageFactory)(message, components)
             });
             id = `@original`;
+            this.responded = true;
         }
-        this.responses.push(id);
         return id;
     }
     /**
@@ -179,7 +181,6 @@ class BaseInteractionContext extends BaseContext {
      */
     async delete(id) {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
-        this.responses = this.responses.filter((response) => response !== id);
     }
 }
 exports.BaseInteractionContext = BaseInteractionContext;
@@ -188,7 +189,6 @@ exports.BaseInteractionContext = BaseInteractionContext;
  * @internal
  */
 class BaseInteractionContextWithModal extends BaseInteractionContext {
-    responses = [];
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -197,13 +197,13 @@ class BaseInteractionContextWithModal extends BaseInteractionContext {
      * @param modal The modal to respond with.
      */
     async showModal(modal) {
+        if (this.responded)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
         });
         this.commandHandler.bindModal(modal);
-        this.responses.push(`modal`);
-        return `modal`;
     }
 }
 exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
@@ -212,7 +212,10 @@ exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
  * @internal
  */
 class BaseComponentContext extends BaseInteractionContextWithModal {
-    responses = [];
+    /**
+     * If a deferred message update was sent.
+     */
+    _deferredMessageUpdate = false;
     /**
      * Component data.
      */
@@ -235,9 +238,10 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
     async editParentDefer() {
+        if (this.responded)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
-        this.responses.push(`deferedit`);
-        return `deferedit`;
+        this._deferredMessageUpdate = true;
     }
     /**
      * Edits the parent message of the component.
@@ -245,7 +249,9 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      * @param components Components to add to the message.
      */
     async editParent(message, components) {
-        if (this.responses.length) {
+        if (this.responded && !this._deferredMessageUpdate)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded) {
             await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, (0, messageFactory_1.messageFactory)(message, components));
         }
         else {
@@ -253,9 +259,8 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
                 type: DiscordTypes.InteractionResponseType.UpdateMessage,
                 data: (0, messageFactory_1.messageFactory)(message, components)
             });
+            this.responded = true;
         }
-        this.responses.push(`@original`);
-        return `@original`;
     }
 }
 exports.BaseComponentContext = BaseComponentContext;
