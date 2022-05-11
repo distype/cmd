@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageFactory = void 0;
 const Embed_1 = require("../structures/Embed");
+const node_utils_1 = require("@br88c/node-utils");
 const v10_1 = require("discord-api-types/v10");
 /**
  * Converts a message sent through a command to a Discord API compatible object.
@@ -22,7 +23,7 @@ function messageFactory(message, components) {
         if (!Array.isArray(components))
             componentMap = [[components]];
         else if (!Array.isArray(components[0]))
-            componentMap = components.reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((components, i) => i !== p.length - 1 ? components : [...components, c]), [[]]);
+            componentMap = (0, node_utils_1.to2dArray)(components, 5);
         else
             componentMap = components;
         res.components = componentMap.filter((row) => row.length).map((row) => ({

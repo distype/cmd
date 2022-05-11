@@ -156,7 +156,6 @@ class CommandHandler {
      * @param command The command to add.
      */
     bindCommand(command) {
-        command.getRaw();
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type))
             throw new DistypeCmdError_1.DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdError_1.DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
         this.commands.set(`unknown${this._unknownCommandIdNonce}`, command);
@@ -203,7 +202,6 @@ class CommandHandler {
     bindModal(modal) {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id))
             return this;
-        modal.getRaw();
         if (this.modals.find((_, customId) => customId === modal.props.custom_id))
             this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
                 level: `DEBUG`, system: this.system

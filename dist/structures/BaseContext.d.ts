@@ -102,29 +102,37 @@ export declare class BaseInteractionContext extends BaseContext {
      * Sends a message.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    send(message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`>;
+    send(message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<`@original` | Snowflake>;
     /**
      * A shorthand for sending messages with the ephemeral flag.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    sendEphemeral(message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`>;
+    sendEphemeral(message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<`@original` | Snowflake>;
     /**
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
      * @param message The new response.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The new created response.
      */
-    edit(id: Snowflake | `@original`, message: FactoryMessage, components?: FactoryComponents): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
+    edit(id: `@original` | Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
     /**
      * Delete a response.
      * @param id The ID of the response to delete.
      */
-    delete(id: Snowflake | `@original`): Promise<void>;
+    delete(id: `@original` | Snowflake): Promise<void>;
+    /**
+     * Binds components to the command handler.
+     * @param components The components to bind.
+     */
+    protected _bindComponents(components: FactoryComponents): void;
 }
 /**
  * Base interaction context with a modal.
@@ -182,8 +190,9 @@ export declare class BaseComponentContext extends BaseInteractionContextWithModa
      * Edits the parent message of the component.
      * @param message The new parent message.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      */
-    editParent(message: FactoryMessage, components?: FactoryComponents): Promise<void>;
+    editParent(message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<void>;
 }
 /**
  * Base component expire context.

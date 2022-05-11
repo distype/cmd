@@ -27,6 +27,7 @@ exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.Base
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const Button_1 = require("./Button");
 /**
  * Base context.
  * @internal
@@ -135,45 +136,58 @@ class BaseInteractionContext extends BaseContext {
      * Sends a message.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    async send(message, components) {
+    async send(message, components, bindComponents = true) {
+        const factoryMessage = (0, messageFactory_1.messageFactory)(message, components);
         let id;
         if (this.responded) {
-            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, (0, messageFactory_1.messageFactory)(message))).id;
+            id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, factoryMessage)).id;
         }
         else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
                 type: DiscordTypes.InteractionResponseType.ChannelMessageWithSource,
-                data: (0, messageFactory_1.messageFactory)(message, components)
+                data: factoryMessage
             });
             id = `@original`;
             this.responded = true;
         }
+        if (components && bindComponents)
+            this._bindComponents(components);
         return id;
     }
     /**
      * A shorthand for sending messages with the ephemeral flag.
      * @param message The message to send.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The ID of the created message, or `@original`.
      */
-    async sendEphemeral(message, components) {
-        const data = (0, messageFactory_1.messageFactory)(message, components);
-        return await this.send({
-            ...data,
-            flags: (data.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
+    async sendEphemeral(message, components, bindComponents = true) {
+        const factoryMessage = (0, messageFactory_1.messageFactory)(message, components);
+        const id = await this.send({
+            ...factoryMessage,
+            flags: (factoryMessage.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
         });
+        if (components && bindComponents)
+            this._bindComponents(components);
+        return id;
     }
     /**
      * Edit a response.
      * @param id The ID of the response to edit (`@original` if it is the original response).
      * @param message The new response.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      * @returns The new created response.
      */
-    async edit(id, message, components) {
-        return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message, components));
+    async edit(id, message, components, bindComponents = true) {
+        const factoryMessage = (0, messageFactory_1.messageFactory)(message, components);
+        const edit = await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, factoryMessage);
+        if (components && bindComponents)
+            this._bindComponents(components);
+        return edit;
     }
     /**
      * Delete a response.
@@ -181,6 +195,22 @@ class BaseInteractionContext extends BaseContext {
      */
     async delete(id) {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
+    }
+    /**
+     * Binds components to the command handler.
+     * @param components The components to bind.
+     */
+    _bindComponents(components) {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button_1.Button)
+                this.commandHandler.bindButton(components);
+        }
+        else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button_1.Button)
+                    this.commandHandler.bindButton(component);
+            });
+        }
     }
 }
 exports.BaseInteractionContext = BaseInteractionContext;
@@ -252,8 +282,9 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      * Edits the parent message of the component.
      * @param message The new parent message.
      * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      */
-    async editParent(message, components) {
+    async editParent(message, components, bindComponents = true) {
         if (this.responded && !this._deferredMessageUpdate)
             throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
         if (this.responded) {
@@ -266,6 +297,8 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
             });
             this.responded = true;
         }
+        if (components && bindComponents)
+            this._bindComponents(components);
     }
 }
 exports.BaseComponentContext = BaseComponentContext;
