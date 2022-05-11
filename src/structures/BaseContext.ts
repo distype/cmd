@@ -1,6 +1,7 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
+import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { LogCallback } from '../types/Log';
 import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
@@ -44,9 +45,9 @@ export class BaseContext {
  */
 export class BaseInteractionContext extends BaseContext {
     /**
-     * Message IDs of sent responses.
+     * If the interaction has been responded to yet.
      */
-    public responses: Array<Snowflake | `@original` | `defer`> = [];
+    public responded = false;
 
     /**
      * The ID of the guild that the interaction was ran in.
@@ -129,14 +130,15 @@ export class BaseInteractionContext extends BaseContext {
      * Defers the interaction (displays a loading state to the user).
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
-    public async defer (flags?: DiscordTypes.MessageFlags | number | true): Promise<`defer`> {
+    public async defer (flags?: DiscordTypes.MessageFlags | number | true): Promise<void> {
+        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
             data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
         });
 
-        this.responses.push(`defer`);
-        return `defer`;
+        this.responded = true;
     }
 
     /**
@@ -148,7 +150,7 @@ export class BaseInteractionContext extends BaseContext {
     public async send (message: FactoryMessage, components?: FactoryComponents): Promise<Snowflake | `@original`> {
         let id: Snowflake | `@original`;
 
-        if (this.responses.length) {
+        if (this.responded) {
             id = (await this.client.rest.createFollowupMessage(this.interaction.applicationId, this.interaction.token, messageFactory(message))).id;
         } else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
@@ -156,9 +158,10 @@ export class BaseInteractionContext extends BaseContext {
                 data: messageFactory(message, components)
             });
             id = `@original`;
+
+            this.responded = true;
         }
 
-        this.responses.push(id);
         return id;
     }
 
@@ -193,7 +196,6 @@ export class BaseInteractionContext extends BaseContext {
      */
     public async delete (id: Snowflake | `@original`): Promise<void> {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
-        this.responses = this.responses.filter((response) => response !== id);
     }
 }
 
@@ -202,8 +204,6 @@ export class BaseInteractionContext extends BaseContext {
  * @internal
  */
 export class BaseInteractionContextWithModal extends BaseInteractionContext {
-    public override responses: Array<Snowflake | `@original` | `defer` | `modal`> = [];
-
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -211,16 +211,15 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
      * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
      * @param modal The modal to respond with.
      */
-    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<`modal`> {
+    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
+        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
         });
 
         this.commandHandler.bindModal(modal);
-
-        this.responses.push(`modal`);
-        return `modal`;
     }
 }
 
@@ -229,7 +228,10 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
  * @internal
  */
 export class BaseComponentContext extends BaseInteractionContextWithModal {
-    public override responses: Array<Snowflake | `@original` | `defer` | `modal` | `deferedit`> = [];
+    /**
+     * If a deferred message update was sent.
+     */
+    private _deferredMessageUpdate = false;
 
     /**
      * Component data.
@@ -264,11 +266,12 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
-    public async editParentDefer (): Promise<`deferedit`> {
+    public async editParentDefer (): Promise<void> {
+        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
 
-        this.responses.push(`deferedit`);
-        return `deferedit`;
+        this._deferredMessageUpdate = true;
     }
 
     /**
@@ -276,18 +279,19 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
      * @param message The new parent message.
      * @param components Components to add to the message.
      */
-    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<`@original`> {
-        if (this.responses.length) {
+    public async editParent (message: FactoryMessage, components?: FactoryComponents): Promise<void> {
+        if (this.responded && !this._deferredMessageUpdate) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
+        if (this.responded) {
             await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, messageFactory(message, components));
         } else {
             await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
                 type: DiscordTypes.InteractionResponseType.UpdateMessage,
                 data: messageFactory(message, components)
             });
-        }
 
-        this.responses.push(`@original`);
-        return `@original`;
+            this.responded = true;
+        }
     }
 }
 

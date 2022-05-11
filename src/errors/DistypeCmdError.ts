@@ -3,6 +3,10 @@
  */
 export enum DistypeCmdErrorType {
     /**
+     * An interaction already has a response.
+     */
+    ALREADY_RESPONDED = `ALREADY_RESPONDED`,
+    /**
      * The bot's application ID is undefined.
      */
     APPLICATION_ID_UNDEFINED = `APPLICATION_ID_UNDEFINED`,
