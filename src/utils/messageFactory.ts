@@ -1,6 +1,7 @@
 import { Button } from '../structures/Button';
 import { Embed } from '../structures/Embed';
 
+import { to2dArray } from '@br88c/node-utils';
 import { APIInteractionResponseCallbackData, ComponentType } from 'discord-api-types/v10';
 
 /**
@@ -32,10 +33,10 @@ export function messageFactory (message: FactoryMessage, components?: FactoryCom
     else res = message;
 
     if (components) {
-        let componentMap: Button[][];
+        let componentMap: FactoryComponent[][];
         if (!Array.isArray(components)) componentMap = [[components]];
-        else if (!Array.isArray(components[0])) componentMap = (components as any[]).reduce((p, c) => p[p.length - 1].length === 5 ? p.concat([[c]]) : p.map((components: any, i: number) => i !== p.length - 1 ? components : [...components, c]), [[]] as any[][]);
-        else componentMap = components as any;
+        else if (!Array.isArray(components[0])) componentMap = to2dArray(components as FactoryComponent[], 5);
+        else componentMap = components as FactoryComponent[][];
 
         res.components = componentMap.filter((row) => row.length).map((row) => ({
             type: ComponentType.ActionRow,
