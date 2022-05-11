@@ -228,12 +228,7 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
  * @internal
  */
 export class BaseComponentContext extends BaseInteractionContextWithModal {
-    /**
-     * If a deferred message update was sent.
-     */
-    private _deferredMessageUpdate = false;
-
-    /**
+/**
      * Component data.
      */
     public readonly component: {
@@ -246,6 +241,15 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
          */
         type: DiscordTypes.ComponentType
     };
+    /**
+     * The message the component is attached to.
+     */
+    public readonly message: DiscordTypes.APIMessage;
+
+    /**
+     * If a deferred message update was sent.
+     */
+    private _deferredMessageUpdate = false;
 
     /**
      * Create interaction context.
@@ -261,6 +265,7 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type
         };
+        this.message = interaction.message;
     }
 
     /**
