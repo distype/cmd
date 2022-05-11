@@ -25,9 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ButtonContext = exports.Button = exports.ButtonStyle = void 0;
 const BaseContext_1 = require("./BaseContext");
-const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
-const distype_1 = require("distype");
 /**
  * A button's style.
  */
@@ -81,10 +79,6 @@ class Button {
      * @returns The button.
      */
     setStyle(style) {
-        if (typeof this._raw.label === `string` && style === ButtonStyle.LINK)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot use style "LINK" when the button has a "label" property assigned`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_VALUE);
-        if (typeof this._raw.url === `string` && style !== ButtonStyle.LINK)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot use style "${ButtonStyle[style]}" when the button has a "url" property assigned`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_VALUE);
         this._raw.style = style;
         return this;
     }
@@ -95,10 +89,6 @@ class Button {
      * @returns The button.
      */
     setId(id) {
-        if (id.length > distype_1.DiscordConstants.COMPONENT_LIMITS.BUTTON.CUSTOM_ID)
-            throw new DistypeCmdError_1.DistypeCmdError(`Specified ID is longer than maximum length ${distype_1.DiscordConstants.COMPONENT_LIMITS.BUTTON.CUSTOM_ID}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
-        if (this._raw.style === DiscordTypes.ButtonStyle.Link)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot set custom_id when the button has the "LINK" style`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_VALUE);
         this._raw.custom_id = id;
         return this;
     }
@@ -109,8 +99,6 @@ class Button {
      * @returns The button.
      */
     setURL(url) {
-        if (this._raw.style !== undefined && this._raw.style !== DiscordTypes.ButtonStyle.Link)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot set URL when the button has the "${ButtonStyle[this._raw.style]}" style`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_VALUE);
         this._raw.url = url;
         return this;
     }
@@ -120,8 +108,6 @@ class Button {
      * @returns The button.
      */
     setLabel(label) {
-        if (label.length > distype_1.DiscordConstants.COMPONENT_LIMITS.BUTTON.LABEL)
-            throw new DistypeCmdError_1.DistypeCmdError(`Specified label is longer than maximum length ${distype_1.DiscordConstants.COMPONENT_LIMITS.BUTTON.LABEL}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_MODAL_VALUE);
         this._raw.label = label;
         return this;
     }
@@ -167,16 +153,6 @@ class Button {
      * Note that the returned button is immutable.
      */
     getRaw() {
-        if (typeof this._raw.style !== `number`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a button with a missing "style" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_PARAMETERS_FOR_RAW);
-        if (typeof this._raw.custom_id !== `string` && typeof this._raw.url !== `string`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a button with a missing "custom_id" or "url" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_PARAMETERS_FOR_RAW);
-        if (typeof this._raw.custom_id === `string` && typeof this._raw.url === `string`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a button with both "custom_id" and "url" parameters defined to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_PARAMETERS_FOR_RAW);
-        if (this._raw.custom_id !== undefined && this._raw.style === DiscordTypes.ButtonStyle.Link)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a button to raw when the button has the "LINK" style with a "custom_id" parameter`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_PARAMETERS_FOR_RAW);
-        if (this._raw.url !== undefined && this._raw.style !== DiscordTypes.ButtonStyle.Link)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a button to raw when the button has the "${ButtonStyle[this._raw.style]}" style with a "url" parameter`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_BUTTON_PARAMETERS_FOR_RAW);
         return {
             type: DiscordTypes.ComponentType.Button,
             ...this._raw

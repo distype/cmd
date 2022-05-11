@@ -24,7 +24,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.BaseInteractionContextWithModal = exports.BaseInteractionContext = exports.BaseContext = void 0;
-const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -123,8 +122,6 @@ class BaseInteractionContext extends BaseContext {
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
     async defer(flags) {
-        if (this.responses.length)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot defer, a response has already been created`, DistypeCmdError_1.DistypeCmdErrorType.CANNOT_DEFER);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
             data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
@@ -174,8 +171,6 @@ class BaseInteractionContext extends BaseContext {
      * @returns The new created response.
      */
     async edit(id, message, components) {
-        if (!this.responses.includes(id))
-            throw new DistypeCmdError_1.DistypeCmdError(`No response found matching the ID "${id}"`, DistypeCmdError_1.DistypeCmdErrorType.RESPONSE_NOT_FOUND);
         return await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, (0, messageFactory_1.messageFactory)(message, components));
     }
     /**
@@ -183,8 +178,6 @@ class BaseInteractionContext extends BaseContext {
      * @param id The ID of the response to delete.
      */
     async delete(id) {
-        if (!this.responses.includes(id))
-            throw new DistypeCmdError_1.DistypeCmdError(`No response found matching the ID "${id}"`, DistypeCmdError_1.DistypeCmdErrorType.RESPONSE_NOT_FOUND);
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
         this.responses = this.responses.filter((response) => response !== id);
     }
@@ -204,8 +197,6 @@ class BaseInteractionContextWithModal extends BaseInteractionContext {
      * @param modal The modal to respond with.
      */
     async showModal(modal) {
-        if (this.responses.length)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot open a modal, a response has already been created`, DistypeCmdError_1.DistypeCmdErrorType.CANNOT_OPEN_MODAL);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
@@ -244,8 +235,6 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
     async editParentDefer() {
-        if (this.responses.length)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot defer, a response has already been created`, DistypeCmdError_1.DistypeCmdErrorType.CANNOT_DEFER);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
         this.responses.push(`deferedit`);
         return `deferedit`;

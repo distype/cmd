@@ -25,10 +25,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContextMenuCommandContext = exports.ContextMenuCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
-const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
-const distype_1 = require("distype");
 /**
  * The context command command builder.
  *
@@ -68,8 +66,6 @@ class ContextMenuCommand {
      * @returns The command.
      */
     setName(name) {
-        if (name.length > distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME)
-            throw new DistypeCmdError_1.DistypeCmdError(`Specified name is longer than maximum length ${distype_1.DiscordConstants.APPLICATION_COMMAND_LIMITS.NAME}`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_VALUE);
         this.props.name = name;
         return this;
     }
@@ -104,10 +100,6 @@ class ContextMenuCommand {
      * @returns The converted command.
      */
     getRaw() {
-        if (typeof this.props.type !== `number`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "type" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
-        if (typeof this.props.name !== `string`)
-            throw new DistypeCmdError_1.DistypeCmdError(`Cannot convert a command with a missing "name" parameter to raw`, DistypeCmdError_1.DistypeCmdErrorType.INVALID_CONTEXT_MENU_COMMAND_PARAMETERS_FOR_RAW);
         return (0, sanitizeCommand_1.sanitizeCommand)(this.props);
     }
 }
