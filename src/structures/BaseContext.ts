@@ -113,8 +113,8 @@ export class BaseInteractionContext extends BaseContext {
         };
         this.member = interaction.member;
         this.user = {
-            ...(interaction.member?.user ?? interaction.user!),
-            locale: interaction.locale ?? interaction.locale
+            locale: interaction.locale,
+            ...(interaction.member?.user ?? interaction.user!)
         };
     }
 
