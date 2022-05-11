@@ -149,8 +149,6 @@ export class CommandHandler {
      * @param command The command to add.
      */
     public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
-        command.getRaw();
-
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
 
         this.commands.set(`unknown${this._unknownCommandIdNonce}`, command);
@@ -201,8 +199,6 @@ export class CommandHandler {
      */
     public bindModal (modal: Modal<any, any>): this {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
-
-        modal.getRaw();
 
         if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
