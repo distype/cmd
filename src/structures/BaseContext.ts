@@ -81,7 +81,7 @@ export class BaseInteractionContext extends BaseContext {
         /**
          * The interaction's version.
          */
-        version: 1
+        version: number
     };
     /**
      * The invoking user's member data.
