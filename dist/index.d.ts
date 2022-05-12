@@ -9,3 +9,4 @@ export { LocalizedText } from './types/LocalizedText';
 export { LogCallback, LogLevel, LogMessageOptions } from './types/Log';
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
 export { FactoryComponent, FactoryComponents, FactoryMessage, messageFactory } from './utils/messageFactory';
+export { WebColors } from './utils/WebColors';
