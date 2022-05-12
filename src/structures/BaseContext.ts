@@ -308,6 +308,7 @@ export abstract class BaseComponentContext extends BaseInteractionContextWithMod
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
 
+        this.responded = true;
         this._deferredMessageUpdate = true;
     }
 
