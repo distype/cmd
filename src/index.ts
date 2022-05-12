@@ -4,6 +4,12 @@ export {
 } from './errors/DistypeCmdError';
 
 export {
+    Button,
+    ButtonContext,
+    ButtonExpireContext,
+    ButtonStyle
+} from './structures/Button';
+export {
     ChatCommand,
     ChatCommandContext,
     ChatCommandProps,
@@ -19,11 +25,6 @@ export {
     ContextMenuCommandContext,
     ContextMenuCommandProps
 } from './structures/ContextMenuCommand';
-export {
-    Button,
-    ButtonContext,
-    ButtonStyle
-} from './structures/Button';
 export { Embed } from './structures/Embed';
 export {
     Modal,
