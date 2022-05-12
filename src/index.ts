@@ -46,3 +46,4 @@ export {
     FactoryMessage,
     messageFactory
 } from './utils/messageFactory';
+export { WebColors } from './utils/WebColors';
