@@ -24,7 +24,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandHandler = void 0;
-const BaseContext_1 = require("./BaseContext");
 const Button_1 = require("./Button");
 const ChatCommand_1 = require("./ChatCommand");
 const ContextMenuCommand_1 = require("./ContextMenuCommand");
@@ -40,7 +39,7 @@ const node_path_1 = require("node:path");
  */
 class CommandHandler {
     /**
-     * The command handler's buttons.
+     * The command handler's {@link Button buttons}.
      */
     buttons = new node_utils_1.ExtendedMap();
     /**
@@ -48,11 +47,11 @@ class CommandHandler {
      */
     client;
     /**
-     * The command handler's commands.
+     * The command handler's {@link CommandHandlerCommand commands}.
      */
     commands = new node_utils_1.ExtendedMap();
     /**
-     * The command handler's modals.
+     * The command handler's {@link Modal modals}.
      */
     modals = new node_utils_1.ExtendedMap();
     /**
@@ -109,7 +108,7 @@ class CommandHandler {
     _unknownCommandIdNonce = 0;
     /**
      * Create the command handler.
-     * @param client The client to bind the command handler to.
+     * @param client The Distype client to bind the command handler to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -123,7 +122,7 @@ class CommandHandler {
         });
     }
     /**
-     * Load commands / components / modals from a directory.
+     * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
      * @param directory The directory to load from.
      */
     async load(directory) {
@@ -152,8 +151,8 @@ class CommandHandler {
         }
     }
     /**
-     * Bind a command to the command handler.
-     * @param command The command to add.
+     * Bind a {@link CommandHandlerCommand command} to the command handler.
+     * @param command The {@link CommandHandlerCommand command} to add.
      */
     bindCommand(command) {
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type))
@@ -166,8 +165,8 @@ class CommandHandler {
         return this;
     }
     /**
-     * Bind a button to the command handler.
-     * @param button The button to bind.
+     * Bind a {@link Button button} to the command handler.
+     * @param button The {@link Button button} to bind.
      */
     bindButton(button) {
         const raw = button.getRaw();
@@ -185,8 +184,8 @@ class CommandHandler {
         return this;
     }
     /**
-     * Unbind a button from the command handler.
-     * @param id The button's custom ID.
+     * Unbind a {@link Button button} from the command handler.
+     * @param id The {@link Button button}'s custom ID.
      */
     unbindButton(id) {
         const button = this.buttons.get(id);
@@ -196,8 +195,8 @@ class CommandHandler {
         return this;
     }
     /**
-     * Bind a modal to the command handler.
-     * @param modal The modal to bind.
+     * Bind a {@link Modal modal} to the command handler.
+     * @param modal The {@link Modal modal} to bind.
      */
     bindModal(modal) {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id))
@@ -213,15 +212,15 @@ class CommandHandler {
         return this;
     }
     /**
-     * Unbind a modal from the command handler.
-     * @param id The modal's custom ID.
+     * Unbind a {@link Modal modal} from the command handler.
+     * @param id The {@link Modal modal}'s custom ID.
      */
     unbindModal(id) {
         this.modals.delete(id);
         return this;
     }
     /**
-     * Pushes added / changed / deleted slash commands to Discord.
+     * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
      */
     async push(applicationId = this.client.gateway.user?.id ?? undefined) {
         if (!applicationId)
@@ -280,32 +279,32 @@ class CommandHandler {
         return this;
     }
     /**
-     * Set middleware for buttons.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Button buttons}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Button button} will not be executed.
      */
     setButtonMiddleware(middleware) {
         this._runButtonMiddleware = middleware;
         return this;
     }
     /**
-     * Set middleware for chat commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ChatCommand chat command}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ChatCommand chat command} will not be executed.
      */
     setChatCommandMiddleware(middleware) {
         this._runChatCommandMiddleware = middleware;
         return this;
     }
     /**
-     * Set middleware for context menu commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ContextMenuCommand context menu commands}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ContextMenuCommand context menu command} will not be executed.
      */
     setContextMenuCommandMiddleware(middleware) {
         this._runContextMenuCommandMiddleware = middleware;
         return this;
     }
     /**
-     * Set middleware for modals.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Modal modals}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Modal modal} will not be executed.
      */
     setModalMiddleware(middleware) {
         this._runModalMiddleware = middleware;
@@ -326,12 +325,12 @@ class CommandHandler {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ChatCommand_1.ChatCommandContext(this, command, interaction, this._log, this._logThisArg);
+                        ctx = new ChatCommand_1.ChatCommandContext(interaction, command, this, this._log, this._logThisArg);
                     }
                     else {
                         middleware = this._runContextMenuCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(this, command, interaction, this._log, this._logThisArg);
+                        ctx = new ContextMenuCommand_1.ContextMenuCommandContext(interaction, command, this, this._log, this._logThisArg);
                     }
                 }
                 break;
@@ -342,7 +341,7 @@ class CommandHandler {
                     if (button) {
                         middleware = this._runButtonMiddleware;
                         run = button.runExecute;
-                        ctx = new Button_1.ButtonContext(this, interaction, this._log, this._logThisArg);
+                        ctx = new Button_1.ButtonContext(interaction, button, this, this._log, this._logThisArg);
                         this._setButtonExpireTimeout(button);
                     }
                 }
@@ -353,7 +352,7 @@ class CommandHandler {
                 if (modal) {
                     middleware = this._runModalMiddleware;
                     run = modal.runExecute;
-                    ctx = new Modal_1.ModalContext(this, modal, interaction, this._log, this._logThisArg);
+                    ctx = new Modal_1.ModalContext(interaction, modal, this, this._log, this._logThisArg);
                 }
                 break;
             }
@@ -412,7 +411,7 @@ class CommandHandler {
             return;
         button.expireTimeout = setTimeout(async () => {
             const raw = button.getRaw();
-            const ctx = new BaseContext_1.BaseComponentExpireContext(this, raw.custom_id, raw.type);
+            const ctx = new Button_1.ButtonExpireContext(raw.custom_id, raw.type, button, this, this._log, this._logThisArg);
             try {
                 if (typeof button.runExecuteExpire === `function`) {
                     const call = button.runExecuteExpire(ctx);

@@ -47,7 +47,7 @@ class BaseContext {
     log;
     /**
      * Create context.
-     * @param commandHandler The command handler that invoked the context.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -89,12 +89,12 @@ class BaseInteractionContext extends BaseContext {
     user;
     /**
      * Create interaction context.
-     * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
+    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
         super(commandHandler, logCallback, logThisArg);
         this.guildId = interaction.guild_id ?? interaction.data?.guild_id;
         this.guildLocale = interaction.guild_locale;
@@ -215,7 +215,7 @@ class BaseInteractionContext extends BaseContext {
 }
 exports.BaseInteractionContext = BaseInteractionContext;
 /**
- * Base interaction context with a modal.
+ * Base interaction context with support for a modal response.
  * @internal
  */
 class BaseInteractionContextWithModal extends BaseInteractionContext {
@@ -238,13 +238,13 @@ class BaseInteractionContextWithModal extends BaseInteractionContext {
 }
 exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
 /**
- * Base context for components.
+ * Base component context.
  * @internal
  */
 class BaseComponentContext extends BaseInteractionContextWithModal {
     /**
-         * Component data.
-         */
+     * Component data.
+     */
     component;
     /**
      * The message the component is attached to.
@@ -255,14 +255,14 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
      */
     _deferredMessageUpdate = false;
     /**
-     * Create interaction context.
-     * @param commandHandler The command handler that invoked the context.
+     * Create component context.
      * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, interaction, logCallback = () => { }, logThisArg) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
         this.component = {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type
@@ -304,6 +304,7 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
 exports.BaseComponentContext = BaseComponentContext;
 /**
  * Base component expire context.
+ * @internal
  */
 class BaseComponentExpireContext extends BaseContext {
     /**
@@ -312,13 +313,13 @@ class BaseComponentExpireContext extends BaseContext {
     component;
     /**
      * Create component expire context.
-     * @param commandHandler The command handler that invoked the context.
      * @param customId The component's custom ID.
      * @param type The component's type.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, customId, type, logCallback = () => { }, logThisArg) {
+    constructor(customId, type, commandHandler, logCallback = () => { }, logThisArg) {
         super(commandHandler, logCallback, logThisArg);
         this.component = {
             customId, type

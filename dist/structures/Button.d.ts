@@ -1,5 +1,7 @@
 /// <reference types="node" />
 import { BaseComponentContext, BaseComponentExpireContext } from './BaseContext';
+import { CommandHandler } from './CommandHandler';
+import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * A button's style.
@@ -35,7 +37,7 @@ export declare class Button {
      * The button's expire execute method.
      * @internal
      */
-    runExecuteExpire: ((ctx: BaseComponentExpireContext) => (boolean | Promise<boolean>)) | null;
+    runExecuteExpire: ((ctx: ButtonExpireContext) => (boolean | Promise<boolean>)) | null;
     /**
      * The raw button.
      */
@@ -101,12 +103,44 @@ export declare class Button {
     getRaw(): DiscordTypes.APIButtonComponent;
 }
 /**
- * Button context.
+ * {@link Button} context.
  */
 export declare class ButtonContext extends BaseComponentContext {
+    /**
+     * The {@link Button button} the context originates from.
+     */
+    readonly contextParent: Button;
+    /**
+     * Create {@link Button button} context.
+     * @param interaction Interaction data.
+     * @param button The {@link Button button} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(interaction: DiscordTypes.APIMessageComponentInteraction, button: Button, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Unbinds the button's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive buttons.
      */
     unbind(): void;
+}
+/**
+ * {@link Button} expire context.
+ */
+export declare class ButtonExpireContext extends BaseComponentExpireContext {
+    /**
+     * The {@link Button button} the expire context originates from.
+     */
+    readonly contextParent: Button;
+    /**
+     * Create {@link Button button} expire context.
+     * @param customId The component's custom ID.
+     * @param type The component's type.
+     * @param button The {@link Button button} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(customId: string, type: DiscordTypes.ComponentType, button: Button, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
 }

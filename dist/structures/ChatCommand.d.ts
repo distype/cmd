@@ -273,7 +273,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
     getRaw(): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
 }
 /**
- * Chat command context.
+ * {@link ChatCommand Chat command} context.
  */
 export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal {
     /**
@@ -287,6 +287,10 @@ export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA
         id: Snowflake;
     };
     /**
+     * The {@link ChatCommand chat command} the context originates from.
+     */
+    readonly contextParent: ChatCommand<PR, PA>;
+    /**
      * Parameter values from the user.
      */
     readonly parameters: {
@@ -297,11 +301,13 @@ export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA
         }>[`required`]>;
     };
     /**
-     * Create a chat command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ChatCommand chat command} context.
      * @param interaction Interaction data.
+     * @param chatCommand The {@link ChatCommand chat command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, chatCommand: ChatCommand<PR, PA>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
 }
 export {};

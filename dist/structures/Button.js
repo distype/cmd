@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ButtonContext = exports.Button = exports.ButtonStyle = void 0;
+exports.ButtonExpireContext = exports.ButtonContext = exports.Button = exports.ButtonStyle = void 0;
 const BaseContext_1 = require("./BaseContext");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -161,9 +161,25 @@ class Button {
 }
 exports.Button = Button;
 /**
- * Button context.
+ * {@link Button} context.
  */
 class ButtonContext extends BaseContext_1.BaseComponentContext {
+    /**
+     * The {@link Button button} the context originates from.
+     */
+    contextParent;
+    /**
+     * Create {@link Button button} context.
+     * @param interaction Interaction data.
+     * @param button The {@link Button button} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(interaction, button, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
+        this.contextParent = button;
+    }
     /**
      * Unbinds the button's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive buttons.
@@ -173,3 +189,26 @@ class ButtonContext extends BaseContext_1.BaseComponentContext {
     }
 }
 exports.ButtonContext = ButtonContext;
+/**
+ * {@link Button} expire context.
+ */
+class ButtonExpireContext extends BaseContext_1.BaseComponentExpireContext {
+    /**
+     * The {@link Button button} the expire context originates from.
+     */
+    contextParent;
+    /**
+     * Create {@link Button button} expire context.
+     * @param customId The component's custom ID.
+     * @param type The component's type.
+     * @param button The {@link Button button} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(customId, type, button, commandHandler, logCallback = () => { }, logThisArg) {
+        super(customId, type, commandHandler, logCallback, logThisArg);
+        this.contextParent = button;
+    }
+}
+exports.ButtonExpireContext = ButtonExpireContext;

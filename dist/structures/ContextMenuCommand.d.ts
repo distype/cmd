@@ -77,7 +77,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
     getRaw(): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
 }
 /**
- * Context menu command context.
+ * {@link ContextMenuCommand Context menu command} context.
  */
 export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal {
     /**
@@ -91,6 +91,10 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
         id: Snowflake;
     };
     /**
+     * The {@link ContextMenuCommand context menu command} the context originates from.
+     */
+    readonly contextParent: ContextMenuCommand<PR>;
+    /**
      * The executed command's target.
      */
     readonly target: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessage : {
@@ -102,11 +106,13 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
      */
     readonly targetId: Snowflake;
     /**
-     * Create a context menu command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ContextMenuCommand context menu command} context.
      * @param interaction Interaction data.
+     * @param contextMenuCommand The {@link ContextMenuCommand context menu command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
 }
 export {};

@@ -112,13 +112,17 @@ class Modal {
 }
 exports.Modal = Modal;
 /**
- * Modal context.
+ * {@link Modal} context.
  */
 class ModalContext extends BaseContext_1.BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */
     channelId;
+    /**
+     * The {@link Modal modal} the context originates from.
+     */
+    contextParent;
     /**
      * Modal data.
      */
@@ -128,14 +132,17 @@ class ModalContext extends BaseContext_1.BaseInteractionContext {
      */
     parameters;
     /**
-     * Create a modal's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param modal The modal that invoked the context.
+     * Create {@link Modal modal} context.
      * @param interaction Interaction data.
+     * @param modal The {@link Modal modal} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, modal, interaction, logCallback = () => { }, logThisArg) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor(interaction, modal, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
         this.channelId = interaction.channel_id;
+        this.contextParent = modal;
         this.modal = {
             customId: modal.props.custom_id,
             title: modal.props.title

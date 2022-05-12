@@ -105,7 +105,7 @@ class ContextMenuCommand {
 }
 exports.ContextMenuCommand = ContextMenuCommand;
 /**
- * Context menu command context.
+ * {@link ContextMenuCommand Context menu command} context.
  */
 class ContextMenuCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
     /**
@@ -117,6 +117,10 @@ class ContextMenuCommandContext extends BaseContext_1.BaseInteractionContextWith
      */
     command;
     /**
+     * The {@link ContextMenuCommand context menu command} the context originates from.
+     */
+    contextParent;
+    /**
      * The executed command's target.
      */
     target;
@@ -125,19 +129,22 @@ class ContextMenuCommandContext extends BaseContext_1.BaseInteractionContextWith
      */
     targetId;
     /**
-     * Create a context menu command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ContextMenuCommand context menu command} context.
      * @param interaction Interaction data.
+     * @param contextMenuCommand The {@link ContextMenuCommand context menu command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, command, interaction, logCallback = () => { }, logThisArg) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor(interaction, contextMenuCommand, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
         this.channelId = interaction.channel_id;
         this.command = {
-            ...command.props,
+            ...contextMenuCommand.props,
             id: interaction.data.id
         };
-        this.target = command.props.type === DiscordTypes.ApplicationCommandType.Message
+        this.contextParent = contextMenuCommand;
+        this.target = contextMenuCommand.props.type === DiscordTypes.ApplicationCommandType.Message
             ? interaction.data.resolved.messages[interaction.data.target_id]
             : {
                 user: interaction.data.resolved.users[interaction.data.target_id],

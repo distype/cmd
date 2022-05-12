@@ -96,13 +96,17 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
     getRaw(): DiscordTypes.APIModalInteractionResponseCallbackData;
 }
 /**
- * Modal context.
+ * {@link Modal} context.
  */
 export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */
     readonly channelId?: Snowflake;
+    /**
+     * The {@link Modal modal} the context originates from.
+     */
+    readonly contextParent: Modal<PR, PA>;
     /**
      * Modal data.
      */
@@ -119,12 +123,14 @@ export declare class ModalContext<PR extends Partial<ModalProps>, PA extends Dis
         }>[`required`]>;
     };
     /**
-     * Create a modal's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param modal The modal that invoked the context.
+     * Create {@link Modal modal} context.
      * @param interaction Interaction data.
+     * @param modal The {@link Modal modal} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Unbinds the modal's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive modals.

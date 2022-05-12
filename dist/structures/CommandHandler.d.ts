@@ -16,7 +16,7 @@ export declare type CommandHandlerCommand = ChatCommand<ChatCommandProps, Discor
  */
 export declare class CommandHandler {
     /**
-     * The command handler's buttons.
+     * The command handler's {@link Button buttons}.
      */
     buttons: ExtendedMap<string, Button>;
     /**
@@ -24,11 +24,11 @@ export declare class CommandHandler {
      */
     client: Client;
     /**
-     * The command handler's commands.
+     * The command handler's {@link CommandHandlerCommand commands}.
      */
     commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand>;
     /**
-     * The command handler's modals.
+     * The command handler's {@link Modal modals}.
      */
     modals: ExtendedMap<string, Modal<ModalProps>>;
     /**
@@ -81,43 +81,43 @@ export declare class CommandHandler {
     private _unknownCommandIdNonce;
     /**
      * Create the command handler.
-     * @param client The client to bind the command handler to.
+     * @param client The Distype client to bind the command handler to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(client: Client, logCallback?: LogCallback, logThisArg?: any);
     /**
-     * Load commands / components / modals from a directory.
+     * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
      * @param directory The directory to load from.
      */
     load(directory: string): Promise<void>;
     /**
-     * Bind a command to the command handler.
-     * @param command The command to add.
+     * Bind a {@link CommandHandlerCommand command} to the command handler.
+     * @param command The {@link CommandHandlerCommand command} to add.
      */
     bindCommand(command: ChatCommand<any, any> | ContextMenuCommand<any>): this;
     /**
-     * Bind a button to the command handler.
-     * @param button The button to bind.
+     * Bind a {@link Button button} to the command handler.
+     * @param button The {@link Button button} to bind.
      */
     bindButton(button: Button): this;
     /**
-     * Unbind a button from the command handler.
-     * @param id The button's custom ID.
+     * Unbind a {@link Button button} from the command handler.
+     * @param id The {@link Button button}'s custom ID.
      */
     unbindButton(id: string): this;
     /**
-     * Bind a modal to the command handler.
-     * @param modal The modal to bind.
+     * Bind a {@link Modal modal} to the command handler.
+     * @param modal The {@link Modal modal} to bind.
      */
     bindModal(modal: Modal<any, any>): this;
     /**
-     * Unbind a modal from the command handler.
-     * @param id The modal's custom ID.
+     * Unbind a {@link Modal modal} from the command handler.
+     * @param id The {@link Modal modal}'s custom ID.
      */
     unbindModal(id: string): this;
     /**
-     * Pushes added / changed / deleted slash commands to Discord.
+     * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
      */
     push(applicationId?: Snowflake | undefined): Promise<void>;
     /**
@@ -131,23 +131,23 @@ export declare class CommandHandler {
      */
     setExpireError(errorCallback: CommandHandler[`runExpireError`]): this;
     /**
-     * Set middleware for buttons.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Button buttons}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Button button} will not be executed.
      */
     setButtonMiddleware(middleware: (ctx: ButtonContext) => boolean): this;
     /**
-     * Set middleware for chat commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ChatCommand chat command}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ChatCommand chat command} will not be executed.
      */
     setChatCommandMiddleware(middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this;
     /**
-     * Set middleware for context menu commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ContextMenuCommand context menu commands}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ContextMenuCommand context menu command} will not be executed.
      */
     setContextMenuCommandMiddleware(middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this;
     /**
-     * Set middleware for modals.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Modal modals}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Modal modal} will not be executed.
      */
     setModalMiddleware(middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this;
     /**

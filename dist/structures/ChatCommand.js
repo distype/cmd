@@ -298,7 +298,7 @@ class ChatCommand {
 }
 exports.ChatCommand = ChatCommand;
 /**
- * Chat command context.
+ * {@link ChatCommand Chat command} context.
  */
 class ChatCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
     /**
@@ -310,22 +310,29 @@ class ChatCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
      */
     command;
     /**
+     * The {@link ChatCommand chat command} the context originates from.
+     */
+    contextParent;
+    /**
      * Parameter values from the user.
      */
     parameters;
     /**
-     * Create a chat command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ChatCommand chat command} context.
      * @param interaction Interaction data.
+     * @param chatCommand The {@link ChatCommand chat command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, command, interaction, logCallback = () => { }, logThisArg) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor(interaction, chatCommand, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
         this.channelId = interaction.channel_id;
         this.command = {
-            ...command.props,
+            ...chatCommand.props,
             id: interaction.data.id
         };
+        this.contextParent = chatCommand;
         this.parameters = interaction.data?.options?.reduce((p, c) => {
             let newParam;
             switch (c.type) {
