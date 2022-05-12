@@ -1,3 +1,6 @@
+export { DiscordColors } from './colors/DiscordColors';
+export { WebColors } from './colors/WebColors';
+
 export {
     DistypeCmdError,
     DistypeCmdErrorType
@@ -46,4 +49,3 @@ export {
     FactoryMessage,
     messageFactory
 } from './utils/messageFactory';
-export { WebColors } from './utils/WebColors';
