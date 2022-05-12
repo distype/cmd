@@ -1,5 +1,5 @@
 import { BaseComponentExpireContext, BaseInteractionContext } from './BaseContext';
-import { Button, ButtonContext } from './Button';
+import { Button, ButtonContext, ButtonExpireContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
@@ -24,7 +24,7 @@ export type CommandHandlerCommand = ChatCommand<ChatCommandProps, DiscordTypes.A
  */
 export class CommandHandler {
     /**
-     * The command handler's buttons.
+     * The command handler's {@link Button buttons}.
      */
     public buttons: ExtendedMap<string, Button> = new ExtendedMap();
     /**
@@ -32,11 +32,11 @@ export class CommandHandler {
      */
     public client: Client;
     /**
-     * The command handler's commands.
+     * The command handler's {@link CommandHandlerCommand commands}.
      */
     public commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand> = new ExtendedMap();
     /**
-     * The command handler's modals.
+     * The command handler's {@link Modal modals}.
      */
     public modals: ExtendedMap<string, Modal<ModalProps>> = new ExtendedMap();
     /**
@@ -98,7 +98,7 @@ export class CommandHandler {
 
     /**
      * Create the command handler.
-     * @param client The client to bind the command handler to.
+     * @param client The Distype client to bind the command handler to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -115,7 +115,7 @@ export class CommandHandler {
     }
 
     /**
-     * Load commands / components / modals from a directory.
+     * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
      * @param directory The directory to load from.
      */
     public async load (directory: string): Promise<void> {
@@ -145,8 +145,8 @@ export class CommandHandler {
     }
 
     /**
-     * Bind a command to the command handler.
-     * @param command The command to add.
+     * Bind a {@link CommandHandlerCommand command} to the command handler.
+     * @param command The {@link CommandHandlerCommand command} to add.
      */
     public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
         if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
@@ -161,8 +161,8 @@ export class CommandHandler {
     }
 
     /**
-     * Bind a button to the command handler.
-     * @param button The button to bind.
+     * Bind a {@link Button button} to the command handler.
+     * @param button The {@link Button button} to bind.
      */
     public bindButton (button: Button): this {
         const raw: DiscordTypes.APIButtonComponentWithCustomId = button.getRaw() as any;
@@ -183,8 +183,8 @@ export class CommandHandler {
     }
 
     /**
-     * Unbind a button from the command handler.
-     * @param id The button's custom ID.
+     * Unbind a {@link Button button} from the command handler.
+     * @param id The {@link Button button}'s custom ID.
      */
     public unbindButton (id: string): this {
         const button = this.buttons.get(id);
@@ -194,8 +194,8 @@ export class CommandHandler {
     }
 
     /**
-     * Bind a modal to the command handler.
-     * @param modal The modal to bind.
+     * Bind a {@link Modal modal} to the command handler.
+     * @param modal The {@link Modal modal} to bind.
      */
     public bindModal (modal: Modal<any, any>): this {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
@@ -213,8 +213,8 @@ export class CommandHandler {
     }
 
     /**
-     * Unbind a modal from the command handler.
-     * @param id The modal's custom ID.
+     * Unbind a {@link Modal modal} from the command handler.
+     * @param id The {@link Modal modal}'s custom ID.
      */
     public unbindModal (id: string): this {
         this.modals.delete(id);
@@ -222,7 +222,7 @@ export class CommandHandler {
     }
 
     /**
-     * Pushes added / changed / deleted slash commands to Discord.
+     * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
      */
     public async push (applicationId: Snowflake | undefined = this.client.gateway.user?.id ?? undefined): Promise<void> {
         if (!applicationId) throw new DistypeCmdError(`Application ID is undefined`, DistypeCmdErrorType.APPLICATION_ID_UNDEFINED);
@@ -290,8 +290,8 @@ export class CommandHandler {
     }
 
     /**
-     * Set middleware for buttons.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Button buttons}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Button button} will not be executed.
      */
     public setButtonMiddleware (middleware: (ctx: ButtonContext) => boolean): this {
         this._runButtonMiddleware = middleware;
@@ -299,8 +299,8 @@ export class CommandHandler {
     }
 
     /**
-     * Set middleware for chat commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ChatCommand chat command}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ChatCommand chat command} will not be executed.
      */
     public setChatCommandMiddleware (middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this {
         this._runChatCommandMiddleware = middleware;
@@ -308,8 +308,8 @@ export class CommandHandler {
     }
 
     /**
-     * Set middleware for context menu commands.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link ContextMenuCommand context menu commands}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link ContextMenuCommand context menu command} will not be executed.
      */
     public setContextMenuCommandMiddleware (middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this {
         this._runContextMenuCommandMiddleware = middleware;
@@ -317,8 +317,8 @@ export class CommandHandler {
     }
 
     /**
-     * Set middleware for modals.
-     * @param middleware The middleware callback. If it returns `false`, the button will not be executed.
+     * Set middleware for {@link Modal modals}.
+     * @param middleware The middleware callback. If it returns `false`, the {@link Modal modal} will not be executed.
      */
     public setModalMiddleware (middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this {
         this._runModalMiddleware = middleware;
@@ -341,11 +341,11 @@ export class CommandHandler {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ChatCommandContext(this, command as any, interaction as any, this._log, this._logThisArg);
+                        ctx = new ChatCommandContext(interaction as any, command as any, this, this._log, this._logThisArg);
                     } else {
                         middleware = this._runContextMenuCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ContextMenuCommandContext(this, command as any, interaction as any, this._log, this._logThisArg);
+                        ctx = new ContextMenuCommandContext(interaction as any, command as any, this, this._log, this._logThisArg);
                     }
                 }
 
@@ -358,7 +358,7 @@ export class CommandHandler {
                     if (button) {
                         middleware = this._runButtonMiddleware;
                         run = button.runExecute;
-                        ctx = new ButtonContext(this, interaction, this._log, this._logThisArg);
+                        ctx = new ButtonContext(interaction, button, this, this._log, this._logThisArg);
 
                         this._setButtonExpireTimeout(button);
                     }
@@ -372,7 +372,7 @@ export class CommandHandler {
                 if (modal) {
                     middleware = this._runModalMiddleware;
                     run = modal.runExecute;
-                    ctx = new ModalContext(this, modal, interaction, this._log, this._logThisArg);
+                    ctx = new ModalContext(interaction, modal, this, this._log, this._logThisArg);
                 }
 
                 break;
@@ -427,7 +427,7 @@ export class CommandHandler {
 
         button.expireTimeout = setTimeout(async () => {
             const raw = button.getRaw();
-            const ctx = new BaseComponentExpireContext(this, (raw as any).custom_id, raw.type);
+            const ctx = new ButtonExpireContext((raw as any).custom_id, raw.type, button, this, this._log, this._logThisArg);
 
             try {
                 if (typeof button.runExecuteExpire === `function`) {

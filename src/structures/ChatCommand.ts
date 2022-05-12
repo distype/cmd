@@ -484,7 +484,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 }
 
 /**
- * Chat command context.
+ * {@link ChatCommand Chat command} context.
  */
 export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal {
     /**
@@ -496,24 +496,31 @@ export class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends
      */
     public readonly command: ChatCommand<PR, PA>[`props`] & { id: Snowflake };
     /**
+     * The {@link ChatCommand chat command} the context originates from.
+     */
+    public readonly contextParent: ChatCommand<PR, PA>;
+    /**
      * Parameter values from the user.
      */
     public readonly parameters: { [K in PA[number][`name`]]: ParameterValue<Extract<PA[number], { name: K }>[`type`], Extract<PA[number], { name: K }>[`required`]> };
 
     /**
-     * Create a chat command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ChatCommand chat command} context.
      * @param interaction Interaction data.
+     * @param chatCommand The {@link ChatCommand chat command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, command: ChatCommand<PR, PA>, interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, chatCommand: ChatCommand<PR, PA>, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(interaction, commandHandler, logCallback, logThisArg);
 
         this.channelId = interaction.channel_id;
         this.command = {
-            ...command.props,
+            ...chatCommand.props,
             id: interaction.data.id
         };
+        this.contextParent = chatCommand;
         this.parameters = interaction.data?.options?.reduce((p, c) => {
             let newParam;
 

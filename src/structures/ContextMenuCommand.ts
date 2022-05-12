@@ -108,7 +108,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 }
 
 /**
- * Context menu command context.
+ * {@link ContextMenuCommand Context menu command} context.
  */
 export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal {
     /**
@@ -119,6 +119,10 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
      * Command data.
      */
     public readonly command: ContextMenuCommand<PR>[`props`] & { id: Snowflake };
+    /**
+     * The {@link ContextMenuCommand context menu command} the context originates from.
+     */
+    public readonly contextParent: ContextMenuCommand<PR>;
     /**
      * The executed command's target.
      */
@@ -132,20 +136,23 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
     public readonly targetId: Snowflake;
 
     /**
-     * Create a context menu command's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param command The command that invoked the context.
+     * Create {@link ContextMenuCommand context menu command} context.
      * @param interaction Interaction data.
+     * @param contextMenuCommand The {@link ContextMenuCommand context menu command} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, command: ContextMenuCommand<PR>, interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor (interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(interaction, commandHandler, logCallback, logThisArg);
 
         this.channelId = interaction.channel_id;
         this.command = {
-            ...command.props,
+            ...contextMenuCommand.props,
             id: interaction.data.id
         };
-        this.target = command.props.type === DiscordTypes.ApplicationCommandType.Message
+        this.contextParent = contextMenuCommand;
+        this.target = contextMenuCommand.props.type === DiscordTypes.ApplicationCommandType.Message
             ? (interaction.data.resolved as DiscordTypes.APIMessageApplicationCommandInteractionDataResolved).messages[interaction.data.target_id]
             : {
                 user: (interaction.data.resolved as DiscordTypes.APIUserApplicationCommandInteractionDataResolved).users[interaction.data.target_id],

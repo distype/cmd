@@ -148,13 +148,17 @@ export class Modal<PR extends Partial<ModalProps> = Record<string, never>, PA ex
 }
 
 /**
- * Modal context.
+ * {@link Modal} context.
  */
 export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext {
     /**
      * The ID of the channel that the modal was submitted in.
      */
     public readonly channelId?: Snowflake;
+    /**
+     * The {@link Modal modal} the context originates from.
+     */
+    public readonly contextParent: Modal<PR, PA>;
     /**
      * Modal data.
      */
@@ -168,15 +172,18 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
     public readonly parameters: { [K in PA[number][`custom_id`]]: ParameterValue<Extract<PA[number], { custom_id: K }>[`required`]> };
 
     /**
-     * Create a modal's context.
-     * @param commandHandler The command handler that invoked the context.
-     * @param modal The modal that invoked the context.
+     * Create {@link Modal modal} context.
      * @param interaction Interaction data.
+     * @param modal The {@link Modal modal} the context originates from.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, modal: Modal<PR, PA>, interaction: DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(interaction, commandHandler, logCallback, logThisArg);
 
         this.channelId = interaction.channel_id;
+        this.contextParent = modal;
         this.modal = {
             customId: modal.props.custom_id,
             title: modal.props.title

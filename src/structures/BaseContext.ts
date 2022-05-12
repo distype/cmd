@@ -13,7 +13,7 @@ import { Button } from './Button';
  * Base context.
  * @internal
  */
-export class BaseContext {
+export abstract class BaseContext {
     /**
      * The {@link Client client} the context is bound to.
      */
@@ -29,7 +29,7 @@ export class BaseContext {
 
     /**
      * Create context.
-     * @param commandHandler The command handler that invoked the context.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -44,7 +44,7 @@ export class BaseContext {
  * Base interaction context.
  * @internal
  */
-export class BaseInteractionContext extends BaseContext {
+export abstract class BaseInteractionContext extends BaseContext {
     /**
      * If the interaction has been responded to yet.
      */
@@ -94,12 +94,12 @@ export class BaseInteractionContext extends BaseContext {
 
     /**
      * Create interaction context.
-     * @param commandHandler The command handler that invoked the context.
      * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor (interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super(commandHandler, logCallback, logThisArg);
 
         this.guildId = interaction.guild_id ?? (interaction.data as any)?.guild_id;
@@ -232,10 +232,10 @@ export class BaseInteractionContext extends BaseContext {
 }
 
 /**
- * Base interaction context with a modal.
+ * Base interaction context with support for a modal response.
  * @internal
  */
-export class BaseInteractionContextWithModal extends BaseInteractionContext {
+export abstract class BaseInteractionContextWithModal extends BaseInteractionContext {
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -256,11 +256,11 @@ export class BaseInteractionContextWithModal extends BaseInteractionContext {
 }
 
 /**
- * Base context for components.
+ * Base component context.
  * @internal
  */
-export class BaseComponentContext extends BaseInteractionContextWithModal {
-/**
+export abstract class BaseComponentContext extends BaseInteractionContextWithModal {
+    /**
      * Component data.
      */
     public readonly component: {
@@ -284,14 +284,14 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
     private _deferredMessageUpdate = false;
 
     /**
-     * Create interaction context.
-     * @param commandHandler The command handler that invoked the context.
+     * Create component context.
      * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, interaction: DiscordTypes.APIMessageComponentInteraction, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, interaction, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(interaction, commandHandler, logCallback, logThisArg);
 
         this.component = {
             customId: interaction.data.custom_id,
@@ -337,8 +337,9 @@ export class BaseComponentContext extends BaseInteractionContextWithModal {
 
 /**
  * Base component expire context.
+ * @internal
  */
-export class BaseComponentExpireContext extends BaseContext {
+export abstract class BaseComponentExpireContext extends BaseContext {
     /**
      * Component data.
      */
@@ -355,13 +356,13 @@ export class BaseComponentExpireContext extends BaseContext {
 
     /**
      * Create component expire context.
-     * @param commandHandler The command handler that invoked the context.
      * @param customId The component's custom ID.
      * @param type The component's type.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, customId: string, type: DiscordTypes.ComponentType, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor (customId: string, type: DiscordTypes.ComponentType, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super(commandHandler, logCallback, logThisArg);
 
         this.component = {
