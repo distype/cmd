@@ -1,0 +1,43 @@
+/**
+ * Discord colors.
+ */
+export declare const DiscordColors: {
+    readonly BLURPLE: 5793266;
+    readonly BLURPLE_OLD: 7506394;
+    readonly BRANDING_BLACK: 0;
+    readonly BRANDING_FUCHSIA: 15418782;
+    readonly BRANDING_GREEN: 5763719;
+    readonly BRANDING_RED: 15548997;
+    readonly BRANDING_WHITE: 16777215;
+    readonly BRANDING_YELLOW: 16705372;
+    readonly DARK_MODE_BACKGROUND_ACCENT: 5198940;
+    readonly DARK_MODE_BACKGROUND_FLOATING: 1579292;
+    readonly DARK_MODE_BACKGROUND_PRIMARY: 3553599;
+    readonly DARK_MODE_BACKGROUND_SECONDARY: 3092790;
+    readonly DARK_MODE_BACKGROUND_TERTIARY: 2105893;
+    readonly LIGHT_MODE_BACKGROUND_ACCENT: 6976640;
+    readonly LIGHT_MODE_BACKGROUND_FLOATING: 16777215;
+    readonly LIGHT_MODE_BACKGROUND_PRIMARY: 16777215;
+    readonly LIGHT_MODE_BACKGROUND_SECONDARY: 15922165;
+    readonly LIGHT_MODE_BACKGROUND_TERTIARY: 14935528;
+    readonly ROLE_COLOR_0_0: 1752220;
+    readonly ROLE_COLOR_0_1: 3066993;
+    readonly ROLE_COLOR_0_2: 3447003;
+    readonly ROLE_COLOR_0_3: 10181046;
+    readonly ROLE_COLOR_0_4: 15277667;
+    readonly ROLE_COLOR_0_5: 15844367;
+    readonly ROLE_COLOR_0_6: 15105570;
+    readonly ROLE_COLOR_0_7: 15158332;
+    readonly ROLE_COLOR_0_8: 9807270;
+    readonly ROLE_COLOR_0_9: 6323595;
+    readonly ROLE_COLOR_1_0: 1146986;
+    readonly ROLE_COLOR_1_1: 2067276;
+    readonly ROLE_COLOR_1_2: 2123412;
+    readonly ROLE_COLOR_1_3: 7419530;
+    readonly ROLE_COLOR_1_4: 11342935;
+    readonly ROLE_COLOR_1_5: 12745742;
+    readonly ROLE_COLOR_1_6: 11027200;
+    readonly ROLE_COLOR_1_7: 10038562;
+    readonly ROLE_COLOR_1_8: 9936031;
+    readonly ROLE_COLOR_1_9: 5533306;
+};

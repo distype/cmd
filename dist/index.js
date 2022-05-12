@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WebColors = exports.messageFactory = exports.cleanseMarkdown = exports.ModalContext = exports.Modal = exports.Embed = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = exports.ButtonStyle = exports.ButtonExpireContext = exports.ButtonContext = exports.Button = exports.DistypeCmdErrorType = exports.DistypeCmdError = void 0;
+exports.messageFactory = exports.cleanseMarkdown = exports.ModalContext = exports.Modal = exports.Embed = exports.ContextMenuCommandContext = exports.ContextMenuCommand = exports.CommandHandler = exports.ChatCommandContext = exports.ChatCommand = exports.ButtonStyle = exports.ButtonExpireContext = exports.ButtonContext = exports.Button = exports.DistypeCmdErrorType = exports.DistypeCmdError = exports.WebColors = exports.DiscordColors = void 0;
+var DiscordColors_1 = require("./colors/DiscordColors");
+Object.defineProperty(exports, "DiscordColors", { enumerable: true, get: function () { return DiscordColors_1.DiscordColors; } });
+var WebColors_1 = require("./colors/WebColors");
+Object.defineProperty(exports, "WebColors", { enumerable: true, get: function () { return WebColors_1.WebColors; } });
 var DistypeCmdError_1 = require("./errors/DistypeCmdError");
 Object.defineProperty(exports, "DistypeCmdError", { enumerable: true, get: function () { return DistypeCmdError_1.DistypeCmdError; } });
 Object.defineProperty(exports, "DistypeCmdErrorType", { enumerable: true, get: function () { return DistypeCmdError_1.DistypeCmdErrorType; } });
@@ -26,5 +30,3 @@ var cleanseMarkdown_1 = require("./utils/cleanseMarkdown");
 Object.defineProperty(exports, "cleanseMarkdown", { enumerable: true, get: function () { return cleanseMarkdown_1.cleanseMarkdown; } });
 var messageFactory_1 = require("./utils/messageFactory");
 Object.defineProperty(exports, "messageFactory", { enumerable: true, get: function () { return messageFactory_1.messageFactory; } });
-var WebColors_1 = require("./utils/WebColors");
-Object.defineProperty(exports, "WebColors", { enumerable: true, get: function () { return WebColors_1.WebColors; } });
