@@ -276,6 +276,7 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
         if (this.responded)
             throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
+        this.responded = true;
         this._deferredMessageUpdate = true;
     }
     /**
