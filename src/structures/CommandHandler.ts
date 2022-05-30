@@ -446,15 +446,13 @@ export class CommandHandler {
                         } else {
                             this._setButtonExpireTimeout(button);
                         }
+                    } else if (call) {
+                        this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                            level: `DEBUG`, system: this.system
+                        });
+                        this.buttons.delete((raw as any).custom_id);
                     } else {
-                        if (call) {
-                            this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                                level: `DEBUG`, system: this.system
-                            });
-                            this.buttons.delete((raw as any).custom_id);
-                        } else {
-                            this._setButtonExpireTimeout(button);
-                        }
+                        this._setButtonExpireTimeout(button);
                     }
                 } else {
                     this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
