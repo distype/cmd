@@ -79,15 +79,6 @@ class ContextMenuCommand {
         return this;
     }
     /**
-     * Set the command's default permission.
-     * @param defaultPermission The default permission to use.
-     * @returns The command.
-     */
-    setDefaultPermission(defaultPermission) {
-        this.props.default_permission = defaultPermission;
-        return this;
-    }
-    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */

@@ -34,9 +34,10 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  */
 function sanitizeCommand(command) {
     const raw = (0, node_utils_1.deepClone)({
-        default_permission: command.default_permission ?? true,
         description: command.description ?? ``,
+        default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
+        dm_permission: command.dm_permission ?? true,
         name: command.name,
         name_localizations: command.name_localizations ?? {},
         options: command.options ?? [],

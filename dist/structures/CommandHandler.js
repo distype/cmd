@@ -34,6 +34,7 @@ const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
+const node_util_1 = require("node:util");
 /**
  * The command handler.
  */
@@ -233,8 +234,8 @@ class CommandHandler {
         this._log(`Found ${applicationCommands.length} registered commands`, {
             level: `DEBUG`, system: this.system
         });
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_utils_1.deepEquals)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
-        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => (0, node_utils_1.deepEquals)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_util_1.isDeepStrictEqual)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
+        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => (0, node_util_1.isDeepStrictEqual)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
         if (newCommands.length)
             this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
                 level: `DEBUG`, system: this.system
@@ -251,7 +252,7 @@ class CommandHandler {
         }
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
-            const matchingCommandKey = this.commands.findKey((command) => (0, node_utils_1.deepEquals)(command.getRaw(), (0, sanitizeCommand_1.sanitizeCommand)(pushedCommand)));
+            const matchingCommandKey = this.commands.findKey((command) => (0, node_util_1.isDeepStrictEqual)(command.getRaw(), (0, sanitizeCommand_1.sanitizeCommand)(pushedCommand)));
             const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
             if (matchingCommandKey && matchingCommand) {
                 this.commands.delete(matchingCommandKey);

@@ -95,15 +95,6 @@ class ChatCommand {
         return this;
     }
     /**
-     * Set the command's default permission.
-     * @param defaultPermission The default permission to use.
-     * @returns The command.
-     */
-    setDefaultPermission(defaultPermission) {
-        this.props.default_permission = defaultPermission;
-        return this;
-    }
-    /**
      * Add a string parameter to the command.
      * @param required If the parameter is required.
      * @param name The parameter's name.

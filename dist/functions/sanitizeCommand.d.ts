@@ -5,4 +5,4 @@ import * as DiscordTypes from 'discord-api-types/v10';
  * @returns The sanitized command.
  * @internal
  */
-export declare function sanitizeCommand(command: DiscordTypes.RESTPostAPIApplicationCommandsJSONBody): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
+export declare function sanitizeCommand(command: Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>>;

@@ -38,7 +38,7 @@ declare type ChatCommandProp<K extends keyof Required<ChatCommandProps>> = Requi
 /**
  * A chat command's props.
  */
-export declare type ChatCommandProps = Omit<DiscordTypes.RESTPostAPIChatInputApplicationCommandsJSONBody, `options`>;
+export declare type ChatCommandProps = Omit<DiscordTypes.RESTPostAPIChatInputApplicationCommandsJSONBody, `default_permission` | `options`>;
 /**
  * A parameter's choice.
  */
@@ -126,12 +126,6 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
      * @returns The command.
      */
     setDescriptionLocalizations<T extends ChatCommandProp<`description_localizations`>>(descriptionLocalizations: T): AddProp<`description_localizations`, T, PR, PA>;
-    /**
-     * Set the command's default permission.
-     * @param defaultPermission The default permission to use.
-     * @returns The command.
-     */
-    setDefaultPermission<T extends ChatCommandProp<`default_permission`>>(defaultPermission: T): AddProp<`default_permission`, T, PR, PA>;
     /**
      * Add a string parameter to the command.
      * @param required If the parameter is required.
@@ -270,7 +264,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.
      */
-    getRaw(): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
+    getRaw(): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>>;
 }
 /**
  * {@link ChatCommand Chat command} context.

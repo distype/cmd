@@ -16,7 +16,7 @@ declare type ContextMenuCommandProp<K extends keyof Required<ContextMenuCommandP
 /**
  * A chat command's props.
  */
-export declare type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody, `options` | `description_localizations`>;
+export declare type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody, `default_permission` | `description_localizations` | `options`>;
 /**
  * The context command command builder.
  *
@@ -60,12 +60,6 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      */
     setNameLocalizations<T extends ContextMenuCommandProp<`name_localizations`>>(nameLocalizations: T): AddProp<`name_localizations`, T, PR>;
     /**
-     * Set the command's default permission.
-     * @param defaultPermission The default permission to use.
-     * @returns The command.
-     */
-    setDefaultPermission<T extends ContextMenuCommandProp<`default_permission`>>(defaultPermission: T): AddProp<`default_permission`, T, PR>;
-    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */
@@ -74,7 +68,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.
      */
-    getRaw(): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>;
+    getRaw(): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>>;
 }
 /**
  * {@link ContextMenuCommand Context menu command} context.
