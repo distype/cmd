@@ -85,7 +85,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
 /**
  * {@link ContextMenuCommand Context menu command} context.
  */
-export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : boolean> {
+export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends never ? boolean : PR[`dm_permission`] extends false ? true : boolean> {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -105,7 +105,7 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
      */
     readonly target: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessage : {
         user: DiscordTypes.APIUser;
-        member?: DiscordTypes.APIInteractionDataResolvedGuildMember;
+        member: PR[`dm_permission`] extends never ? DiscordTypes.APIInteractionDataResolvedGuildMember | undefined : PR[`dm_permission`] extends false ? DiscordTypes.APIInteractionDataResolvedGuildMember : DiscordTypes.APIInteractionDataResolvedGuildMember | undefined;
     };
     /**
      * The ID of the executed command's target.
