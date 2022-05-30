@@ -60,6 +60,18 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
      */
     setNameLocalizations<T extends ContextMenuCommandProp<`name_localizations`>>(nameLocalizations: T): AddProp<`name_localizations`, T, PR>;
     /**
+     * Set the command's default member permissions.
+     * @param defaultMemberPermissions The permissions a guild member must have to run the command.
+     * @returns The command.
+     */
+    setDefaultMemberPermissions<T extends ContextMenuCommandProp<`default_member_permissions`>>(defaultMemberPermissions: T): AddProp<`default_member_permissions`, T, PR>;
+    /**
+     * Set the command's DM permission.
+     * @param dmPermission If the command should be enabled in DMs.
+     * @returns The command.
+     */
+    setDmPermission<T extends ContextMenuCommandProp<`dm_permission`>>(dmPermission: T): AddProp<`dm_permission`, T, PR>;
+    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */
@@ -73,7 +85,7 @@ export declare class ContextMenuCommand<PR extends Partial<ContextMenuCommandPro
 /**
  * {@link ContextMenuCommand Context menu command} context.
  */
-export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal {
+export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : false> {
     /**
      * The ID of the channel that the command was ran in.
      */

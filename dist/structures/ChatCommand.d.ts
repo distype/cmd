@@ -127,6 +127,18 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
      */
     setDescriptionLocalizations<T extends ChatCommandProp<`description_localizations`>>(descriptionLocalizations: T): AddProp<`description_localizations`, T, PR, PA>;
     /**
+     * Set the command's default member permissions.
+     * @param defaultMemberPermissions The permissions a guild member must have to run the command.
+     * @returns The command.
+     */
+    setDefaultMemberPermissions<T extends ChatCommandProp<`default_member_permissions`>>(defaultMemberPermissions: T): AddProp<`default_member_permissions`, T, PR, PA>;
+    /**
+     * Set the command's DM permission.
+     * @param dmPermission If the command should be enabled in DMs.
+     * @returns The command.
+     */
+    setDmPermission<T extends ChatCommandProp<`dm_permission`>>(dmPermission: T): AddProp<`dm_permission`, T, PR, PA>;
+    /**
      * Add a string parameter to the command.
      * @param required If the parameter is required.
      * @param name The parameter's name.
@@ -269,7 +281,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 /**
  * {@link ChatCommand Chat command} context.
  */
-export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal {
+export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : false> {
     /**
      * The ID of the channel that the command was ran in.
      */

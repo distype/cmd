@@ -98,7 +98,7 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
 /**
  * {@link Modal} context.
  */
-export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext {
+export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext<boolean> {
     /**
      * The ID of the channel that the modal was submitted in.
      */

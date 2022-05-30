@@ -38,7 +38,7 @@ export declare class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    runError: (ctx: BaseInteractionContext, error: Error, unexpected: boolean) => (void | Promise<void>);
+    runError: (ctx: BaseInteractionContext<boolean>, error: Error, unexpected: boolean) => (void | Promise<void>);
     /**
      * Called when a component expire context encounters an error.
      * @param ctx The command context.

@@ -79,6 +79,24 @@ class ContextMenuCommand {
         return this;
     }
     /**
+     * Set the command's default member permissions.
+     * @param defaultMemberPermissions The permissions a guild member must have to run the command.
+     * @returns The command.
+     */
+    setDefaultMemberPermissions(defaultMemberPermissions) {
+        this.props.default_member_permissions = defaultMemberPermissions;
+        return this;
+    }
+    /**
+     * Set the command's DM permission.
+     * @param dmPermission If the command should be enabled in DMs.
+     * @returns The command.
+     */
+    setDmPermission(dmPermission) {
+        this.props.dm_permission = dmPermission;
+        return this;
+    }
+    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */

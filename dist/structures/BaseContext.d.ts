@@ -33,7 +33,7 @@ export declare abstract class BaseContext {
  * Base interaction context.
  * @internal
  */
-export declare abstract class BaseInteractionContext extends BaseContext {
+export declare abstract class BaseInteractionContext<Guild extends boolean> extends BaseContext {
     /**
      * If the interaction has been responded to yet.
      */
@@ -41,11 +41,11 @@ export declare abstract class BaseInteractionContext extends BaseContext {
     /**
      * The ID of the guild that the interaction was ran in.
      */
-    readonly guildId?: Snowflake;
+    readonly guildId: Guild extends true ? Snowflake : undefined;
     /**
      * The guild's preferred locale, if the interaction was invoked in a guild.
      */
-    readonly guildLocale?: DiscordTypes.LocaleString;
+    readonly guildLocale: Guild extends true ? DiscordTypes.LocaleString : undefined;
     /**
      * Interaction data.
      */
@@ -74,7 +74,7 @@ export declare abstract class BaseInteractionContext extends BaseContext {
     /**
      * The invoking user's member data.
      */
-    readonly member?: DiscordTypes.APIInteractionGuildMember;
+    readonly member: Guild extends true ? DiscordTypes.APIInteractionGuildMember : undefined;
     /**
      * The invoking user.
      */
@@ -138,7 +138,7 @@ export declare abstract class BaseInteractionContext extends BaseContext {
  * Base interaction context with support for a modal response.
  * @internal
  */
-export declare abstract class BaseInteractionContextWithModal extends BaseInteractionContext {
+export declare abstract class BaseInteractionContextWithModal<Guild extends boolean> extends BaseInteractionContext<Guild> {
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -152,7 +152,7 @@ export declare abstract class BaseInteractionContextWithModal extends BaseIntera
  * Base component context.
  * @internal
  */
-export declare abstract class BaseComponentContext extends BaseInteractionContextWithModal {
+export declare abstract class BaseComponentContext<Guild extends boolean> extends BaseInteractionContextWithModal<Guild> {
     /**
      * Component data.
      */

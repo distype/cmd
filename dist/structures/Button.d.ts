@@ -105,7 +105,7 @@ export declare class Button {
 /**
  * {@link Button} context.
  */
-export declare class ButtonContext extends BaseComponentContext {
+export declare class ButtonContext extends BaseComponentContext<boolean> {
     /**
      * The {@link Button button} the context originates from.
      */
