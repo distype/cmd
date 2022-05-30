@@ -152,7 +152,7 @@ export class Button {
 /**
  * {@link Button} context.
  */
-export class ButtonContext extends BaseComponentContext {
+export class ButtonContext extends BaseComponentContext<boolean> {
     /**
      * The {@link Button button} the context originates from.
      */

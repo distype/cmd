@@ -44,7 +44,7 @@ export abstract class BaseContext {
  * Base interaction context.
  * @internal
  */
-export abstract class BaseInteractionContext extends BaseContext {
+export abstract class BaseInteractionContext<Guild extends boolean> extends BaseContext {
     /**
      * If the interaction has been responded to yet.
      */
@@ -53,11 +53,11 @@ export abstract class BaseInteractionContext extends BaseContext {
     /**
      * The ID of the guild that the interaction was ran in.
      */
-    public readonly guildId?: Snowflake;
+    public readonly guildId: Guild extends true ? Snowflake : undefined;
     /**
      * The guild's preferred locale, if the interaction was invoked in a guild.
      */
-    public readonly guildLocale?: DiscordTypes.LocaleString;
+    public readonly guildLocale: Guild extends true ? DiscordTypes.LocaleString : undefined;
     /**
      * Interaction data.
      */
@@ -86,7 +86,7 @@ export abstract class BaseInteractionContext extends BaseContext {
     /**
      * The invoking user's member data.
      */
-    public readonly member?: DiscordTypes.APIInteractionGuildMember;
+    public readonly member: Guild extends true ? DiscordTypes.APIInteractionGuildMember : undefined;
     /**
      * The invoking user.
      */
@@ -103,7 +103,7 @@ export abstract class BaseInteractionContext extends BaseContext {
         super(commandHandler, logCallback, logThisArg);
 
         this.guildId = interaction.guild_id ?? (interaction.data as any)?.guild_id;
-        this.guildLocale = interaction.guild_locale;
+        this.guildLocale = interaction.guild_locale as any;
         this.interaction = {
             applicationId: interaction.application_id,
             id: interaction.id,
@@ -111,7 +111,7 @@ export abstract class BaseInteractionContext extends BaseContext {
             type: interaction.type,
             version: interaction.version
         };
-        this.member = interaction.member;
+        this.member = interaction.member as any;
         this.user = {
             locale: interaction.locale,
             ...(interaction.member?.user ?? interaction.user!)
@@ -235,7 +235,7 @@ export abstract class BaseInteractionContext extends BaseContext {
  * Base interaction context with support for a modal response.
  * @internal
  */
-export abstract class BaseInteractionContextWithModal extends BaseInteractionContext {
+export abstract class BaseInteractionContextWithModal<Guild extends boolean> extends BaseInteractionContext<Guild> {
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -259,7 +259,7 @@ export abstract class BaseInteractionContextWithModal extends BaseInteractionCon
  * Base component context.
  * @internal
  */
-export abstract class BaseComponentContext extends BaseInteractionContextWithModal {
+export abstract class BaseComponentContext<Guild extends boolean> extends BaseInteractionContextWithModal<Guild> {
     /**
      * Component data.
      */

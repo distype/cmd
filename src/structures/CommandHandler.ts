@@ -47,7 +47,7 @@ export class CommandHandler {
      * @param unexpected If the error was unexpected (not called via `ctx.error()`).
      * @internal
      */
-    public runError: (ctx: BaseInteractionContext, error: Error, unexpected: boolean) => (void | Promise<void>)
+    public runError: (ctx: BaseInteractionContext<boolean>, error: Error, unexpected: boolean) => (void | Promise<void>)
         = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
             level: `ERROR`, system: this.system
         });
