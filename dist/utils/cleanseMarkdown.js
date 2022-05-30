@@ -8,10 +8,10 @@ exports.cleanseMarkdown = void 0;
  */
 function cleanseMarkdown(str) {
     return str
-        .replace(/`/g, `\\\``)
-        .replace(/~/g, `\\~`)
-        .replace(/\*/g, `\\*`)
-        .replace(/_/g, `\\_`)
-        .replace(/\|/g, `\\|`);
+        .replaceAll(`\``, `\\\``)
+        .replaceAll(`~`, `\\~`)
+        .replaceAll(`*`, `\\*`)
+        .replaceAll(`_`, `\\_`)
+        .replaceAll(`|`, `\\|`);
 }
 exports.cleanseMarkdown = cleanseMarkdown;
