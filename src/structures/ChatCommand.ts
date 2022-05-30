@@ -160,7 +160,7 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
 
     /**
      * Set the command's default member permissions.
-     * @param dmPermission The permissions a guild member must have to run the command.
+     * @param defaultMemberPermissions The permissions a guild member must have to run the command.
      * @returns The command.
      */
     public setDefaultMemberPermissions <T extends ChatCommandProp<`default_member_permissions`>> (defaultMemberPermissions: T): AddProp<`default_member_permissions`, T, PR, PA> {
