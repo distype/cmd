@@ -5,9 +5,9 @@
  */
 export function cleanseMarkdown (str: string): string {
     return str
-        .replace(/`/g, `\\\``)
-        .replace(/~/g, `\\~`)
-        .replace(/\*/g, `\\*`)
-        .replace(/_/g, `\\_`)
-        .replace(/\|/g, `\\|`);
+        .replaceAll(`\``, `\\\``)
+        .replaceAll(`~`, `\\~`)
+        .replaceAll(`*`, `\\*`)
+        .replaceAll(`_`, `\\_`)
+        .replaceAll(`|`, `\\|`);
 }
