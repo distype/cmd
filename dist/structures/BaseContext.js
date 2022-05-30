@@ -27,7 +27,6 @@ exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.Base
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
-const Button_1 = require("./Button");
 /**
  * Base context.
  * @internal
@@ -154,7 +153,7 @@ class BaseInteractionContext extends BaseContext {
             this.responded = true;
         }
         if (components && bindComponents)
-            this._bindComponents(components);
+            this.commandHandler.bindComponents(components);
         return id;
     }
     /**
@@ -171,7 +170,7 @@ class BaseInteractionContext extends BaseContext {
             flags: (factoryMessage.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
         });
         if (components && bindComponents)
-            this._bindComponents(components);
+            this.commandHandler.bindComponents(components);
         return id;
     }
     /**
@@ -186,7 +185,7 @@ class BaseInteractionContext extends BaseContext {
         const factoryMessage = (0, messageFactory_1.messageFactory)(message, components);
         const edit = await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, factoryMessage);
         if (components && bindComponents)
-            this._bindComponents(components);
+            this.commandHandler.bindComponents(components);
         return edit;
     }
     /**
@@ -195,22 +194,6 @@ class BaseInteractionContext extends BaseContext {
      */
     async delete(id) {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
-    }
-    /**
-     * Binds components to the command handler.
-     * @param components The components to bind.
-     */
-    _bindComponents(components) {
-        if (!Array.isArray(components)) {
-            if (components instanceof Button_1.Button)
-                this.commandHandler.bindButton(components);
-        }
-        else {
-            components.flat().forEach((component) => {
-                if (component instanceof Button_1.Button)
-                    this.commandHandler.bindButton(component);
-            });
-        }
     }
 }
 exports.BaseInteractionContext = BaseInteractionContext;
@@ -299,7 +282,7 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
             this.responded = true;
         }
         if (components && bindComponents)
-            this._bindComponents(components);
+            this.commandHandler.bindComponents(components);
     }
 }
 exports.BaseComponentContext = BaseComponentContext;

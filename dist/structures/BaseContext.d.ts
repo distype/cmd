@@ -128,11 +128,6 @@ export declare abstract class BaseInteractionContext<Guild extends boolean> exte
      * @param id The ID of the response to delete.
      */
     delete(id: `@original` | Snowflake): Promise<void>;
-    /**
-     * Binds components to the command handler.
-     * @param components The components to bind.
-     */
-    protected _bindComponents(components: FactoryComponents): void;
 }
 /**
  * Base interaction context with support for a modal response.

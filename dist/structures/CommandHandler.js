@@ -30,6 +30,7 @@ const ContextMenuCommand_1 = require("./ContextMenuCommand");
 const Modal_1 = require("./Modal");
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
+const messageFactory_1 = require("../utils/messageFactory");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const promises_1 = require("node:fs/promises");
@@ -121,6 +122,33 @@ class CommandHandler {
         this._log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
+    }
+    /**
+     * Sends a message.
+     * @param channelId The channel to send the message in.
+     * @param message The message to send.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    async sendMessage(channelId, message, components, bindComponents = true) {
+        const sent = await this.client.rest.createMessage(channelId, (0, messageFactory_1.messageFactory)(message, components));
+        if (components && bindComponents)
+            this.bindComponents(components);
+        return sent;
+    }
+    /**
+     * Edits a message.
+     * @param channelId The channel the message was sent in.
+     * @param messageId The ID of the message to edit.
+     * @param message The new message.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    async editMessage(channelId, messageId, message, components, bindComponents = true) {
+        const edited = await this.client.rest.editMessage(channelId, messageId, (0, messageFactory_1.messageFactory)(message, components));
+        if (components && bindComponents)
+            this.bindComponents(components);
+        return edited;
     }
     /**
      * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
@@ -219,6 +247,38 @@ class CommandHandler {
     unbindModal(id) {
         this.modals.delete(id);
         return this;
+    }
+    /**
+     * Binds message components to the command handler.
+     * @param components The components to bind.
+     */
+    bindComponents(components) {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button_1.Button)
+                this.bindButton(components);
+        }
+        else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button_1.Button)
+                    this.bindButton(component);
+            });
+        }
+    }
+    /**
+     * Unbinds message components to the command handler.
+     * @param components The components to unbind.
+     */
+    unbindComponents(components) {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button_1.Button)
+                this.unbindButton(components.getRaw().custom_id);
+        }
+        else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button_1.Button)
+                    this.unbindButton(component.getRaw().custom_id);
+            });
+        }
     }
     /**
      * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.

@@ -4,6 +4,7 @@ import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
 import { LogCallback } from '../types/Log';
+import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
@@ -87,6 +88,23 @@ export declare class CommandHandler {
      */
     constructor(client: Client, logCallback?: LogCallback, logThisArg?: any);
     /**
+     * Sends a message.
+     * @param channelId The channel to send the message in.
+     * @param message The message to send.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    sendMessage(channelId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<DiscordTypes.RESTPostAPIChannelMessageResult>;
+    /**
+     * Edits a message.
+     * @param channelId The channel the message was sent in.
+     * @param messageId The ID of the message to edit.
+     * @param message The new message.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    editMessage(channelId: Snowflake, messageId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult>;
+    /**
      * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
      * @param directory The directory to load from.
      */
@@ -116,6 +134,16 @@ export declare class CommandHandler {
      * @param id The {@link Modal modal}'s custom ID.
      */
     unbindModal(id: string): this;
+    /**
+     * Binds message components to the command handler.
+     * @param components The components to bind.
+     */
+    bindComponents(components: FactoryComponents): void;
+    /**
+     * Unbinds message components to the command handler.
+     * @param components The components to unbind.
+     */
+    unbindComponents(components: FactoryComponents): void;
     /**
      * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
      */
