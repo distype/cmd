@@ -8,11 +8,12 @@ import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError'
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LogCallback } from '../types/Log';
 
-import { deepEquals, ExtendedMap } from '@br88c/node-utils';
+import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
 import { readdir } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 
 /**
  * A command owned by the command handler.
@@ -237,8 +238,8 @@ export class CommandHandler {
             level: `DEBUG`, system: this.system
         });
 
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => deepEquals(command, sanitizeCommand(applicationCommand))));
-        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => deepEquals(command, sanitizeCommand(applicationCommand))));
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
+        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
 
         if (newCommands.length) this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
@@ -248,7 +249,7 @@ export class CommandHandler {
         });
 
         for (const command of newCommands) {
-            await this.client.rest.createGlobalApplicationCommand(applicationId, command);
+            await this.client.rest.createGlobalApplicationCommand(applicationId, command as any);
         }
 
         for (const command of deletedCommands) {
@@ -257,7 +258,7 @@ export class CommandHandler {
 
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
-            const matchingCommandKey = this.commands.findKey((command) => deepEquals(command.getRaw(), sanitizeCommand(pushedCommand)));
+            const matchingCommandKey = this.commands.findKey((command) => isDeepStrictEqual(command.getRaw(), sanitizeCommand(pushedCommand)));
             const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
 
             if (matchingCommandKey && matchingCommand) {

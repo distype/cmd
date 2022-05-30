@@ -22,7 +22,7 @@ type ContextMenuCommandProp<K extends keyof Required<ContextMenuCommandProps>> =
 /**
  * A chat command's props.
  */
-export type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody, `options` | `description_localizations`>;
+export type ContextMenuCommandProps = Omit<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody, `default_permission` | `description_localizations` | `options`>;
 
 /**
  * The context command command builder.
@@ -80,16 +80,6 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
     }
 
     /**
-     * Set the command's default permission.
-     * @param defaultPermission The default permission to use.
-     * @returns The command.
-     */
-    public setDefaultPermission <T extends ContextMenuCommandProp<`default_permission`>> (defaultPermission: T): AddProp<`default_permission`, T, PR> {
-        this.props.default_permission = defaultPermission;
-        return this as any;
-    }
-
-    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */
@@ -102,7 +92,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
      * Converts a command to a Discord API compatible object.
      * @returns The converted command.
      */
-    public getRaw (): Required<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody> {
+    public getRaw (): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> {
         return sanitizeCommand(this.props as any);
     }
 }
