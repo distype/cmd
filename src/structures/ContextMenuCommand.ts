@@ -120,7 +120,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 /**
  * {@link ContextMenuCommand Context menu command} context.
  */
-export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : false> {
+export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : boolean> {
     /**
      * The ID of the channel that the command was ran in.
      */
