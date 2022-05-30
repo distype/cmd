@@ -281,7 +281,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 /**
  * {@link ChatCommand Chat command} context.
  */
-export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : false> {
+export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : boolean> {
     /**
      * The ID of the channel that the command was ran in.
      */
