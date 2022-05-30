@@ -159,6 +159,26 @@ export class ChatCommand<PR extends Partial<ChatCommandProps> = { type: DiscordT
     }
 
     /**
+     * Set the command's default member permissions.
+     * @param dmPermission The permissions a guild member must have to run the command.
+     * @returns The command.
+     */
+    public setDefaultMemberPermissions <T extends ChatCommandProp<`default_member_permissions`>> (defaultMemberPermissions: T): AddProp<`default_member_permissions`, T, PR, PA> {
+        this.props.default_member_permissions = defaultMemberPermissions;
+        return this as any;
+    }
+
+    /**
+     * Set the command's DM permission.
+     * @param dmPermission If the command should be enabled in DMs.
+     * @returns The command.
+     */
+    public setDmPermission <T extends ChatCommandProp<`dm_permission`>> (dmPermission: T): AddProp<`dm_permission`, T, PR, PA> {
+        this.props.dm_permission = dmPermission;
+        return this as any;
+    }
+
+    /**
      * Add a string parameter to the command.
      * @param required If the parameter is required.
      * @param name The parameter's name.

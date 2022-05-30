@@ -80,6 +80,26 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
     }
 
     /**
+     * Set the command's default member permissions.
+     * @param defaultMemberPermissions The permissions a guild member must have to run the command.
+     * @returns The command.
+     */
+    public setDefaultMemberPermissions <T extends ContextMenuCommandProp<`default_member_permissions`>> (defaultMemberPermissions: T): AddProp<`default_member_permissions`, T, PR> {
+        this.props.default_member_permissions = defaultMemberPermissions;
+        return this as any;
+    }
+
+    /**
+     * Set the command's DM permission.
+     * @param dmPermission If the command should be enabled in DMs.
+     * @returns The command.
+     */
+    public setDmPermission <T extends ContextMenuCommandProp<`dm_permission`>> (dmPermission: T): AddProp<`dm_permission`, T, PR> {
+        this.props.dm_permission = dmPermission;
+        return this as any;
+    }
+
+    /**
      * Sets the command's execute method.
      * @param executeCallback The callback to execute when an interaction is received.
      */
