@@ -7,6 +7,7 @@ import { Modal, ModalContext, ModalProps } from './Modal';
 import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LogCallback } from '../types/Log';
+import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -116,6 +117,37 @@ export class CommandHandler {
     }
 
     /**
+     * Sends a message.
+     * @param channelId The channel to send the message in.
+     * @param message The message to send.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    public async sendMessage (channelId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
+        const sent = await this.client.rest.createMessage(channelId, messageFactory(message, components));
+
+        if (components && bindComponents) this.bindComponents(components);
+
+        return sent;
+    }
+
+    /**
+     * Edits a message.
+     * @param channelId The channel the message was sent in.
+     * @param messageId The ID of the message to edit.
+     * @param message The new message.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    public async editMessage (channelId: Snowflake, messageId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult> {
+        const edited = await this.client.rest.editMessage(channelId, messageId, messageFactory(message, components));
+
+        if (components && bindComponents) this.bindComponents(components);
+
+        return edited;
+    }
+
+    /**
      * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
      * @param directory The directory to load from.
      */
@@ -220,6 +252,34 @@ export class CommandHandler {
     public unbindModal (id: string): this {
         this.modals.delete(id);
         return this;
+    }
+
+    /**
+     * Binds message components to the command handler.
+     * @param components The components to bind.
+     */
+    public bindComponents (components: FactoryComponents): void {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button) this.bindButton(components);
+        } else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button) this.bindButton(component);
+            });
+        }
+    }
+
+    /**
+     * Unbinds message components to the command handler.
+     * @param components The components to unbind.
+     */
+    public unbindComponents (components: FactoryComponents): void {
+        if (!Array.isArray(components)) {
+            if (components instanceof Button) this.unbindButton((components.getRaw() as any).custom_id);
+        } else {
+            components.flat().forEach((component) => {
+                if (component instanceof Button) this.unbindButton((component.getRaw() as any).custom_id);
+            });
+        }
     }
 
     /**

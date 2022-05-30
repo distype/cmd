@@ -7,7 +7,6 @@ import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/mess
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
-import { Button } from './Button';
 
 /**
  * Base context.
@@ -165,7 +164,7 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
             this.responded = true;
         }
 
-        if (components && bindComponents) this._bindComponents(components);
+        if (components && bindComponents) this.commandHandler.bindComponents(components);
 
         return id;
     }
@@ -185,7 +184,7 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
             flags: (factoryMessage.flags ?? 0) | DiscordTypes.MessageFlags.Ephemeral
         });
 
-        if (components && bindComponents) this._bindComponents(components);
+        if (components && bindComponents) this.commandHandler.bindComponents(components);
 
         return id;
     }
@@ -203,7 +202,7 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
 
         const edit = await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, id, factoryMessage);
 
-        if (components && bindComponents) this._bindComponents(components);
+        if (components && bindComponents) this.commandHandler.bindComponents(components);
 
         return edit;
     }
@@ -214,20 +213,6 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
      */
     public async delete (id: `@original` | Snowflake): Promise<void> {
         await this.client.rest.deleteFollowupMessage(this.interaction.applicationId, this.interaction.token, id);
-    }
-
-    /**
-     * Binds components to the command handler.
-     * @param components The components to bind.
-     */
-    protected _bindComponents (components: FactoryComponents): void {
-        if (!Array.isArray(components)) {
-            if (components instanceof Button) this.commandHandler.bindButton(components);
-        } else {
-            components.flat().forEach((component) => {
-                if (component instanceof Button) this.commandHandler.bindButton(component);
-            });
-        }
     }
 }
 
@@ -332,7 +317,7 @@ export abstract class BaseComponentContext<Guild extends boolean> extends BaseIn
             this.responded = true;
         }
 
-        if (components && bindComponents) this._bindComponents(components);
+        if (components && bindComponents) this.commandHandler.bindComponents(components);
     }
 }
 
