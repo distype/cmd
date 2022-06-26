@@ -298,22 +298,22 @@ export class CommandHandler {
             level: `DEBUG`, system: this.system
         });
 
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
         const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
 
-        if (newCommands.length) this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-            level: `DEBUG`, system: this.system
-        });
         if (deletedCommands.length) this._log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
         });
-
-        for (const command of newCommands) {
-            await this.client.rest.createGlobalApplicationCommand(applicationId, command as any);
-        }
+        if (newCommands.length) this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+            level: `DEBUG`, system: this.system
+        });
 
         for (const command of deletedCommands) {
             await this.client.rest.deleteGlobalApplicationCommand(applicationId, command.id);
+        }
+
+        for (const command of newCommands) {
+            await this.client.rest.createGlobalApplicationCommand(applicationId, command as any);
         }
 
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
