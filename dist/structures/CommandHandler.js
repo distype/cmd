@@ -294,21 +294,21 @@ class CommandHandler {
         this._log(`Found ${applicationCommands.length} registered commands`, {
             level: `DEBUG`, system: this.system
         });
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_util_1.isDeepStrictEqual)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
         const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => (0, node_util_1.isDeepStrictEqual)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
-        if (newCommands.length)
-            this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-                level: `DEBUG`, system: this.system
-            });
+        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => (0, node_util_1.isDeepStrictEqual)(command, (0, sanitizeCommand_1.sanitizeCommand)(applicationCommand))));
         if (deletedCommands.length)
             this._log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
                 level: `DEBUG`, system: this.system
             });
-        for (const command of newCommands) {
-            await this.client.rest.createGlobalApplicationCommand(applicationId, command);
-        }
+        if (newCommands.length)
+            this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+                level: `DEBUG`, system: this.system
+            });
         for (const command of deletedCommands) {
             await this.client.rest.deleteGlobalApplicationCommand(applicationId, command.id);
+        }
+        for (const command of newCommands) {
+            await this.client.rest.createGlobalApplicationCommand(applicationId, command);
         }
         const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
         pushedCommands.forEach((pushedCommand) => {
