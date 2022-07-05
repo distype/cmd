@@ -220,70 +220,11 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
  * Base interaction context with support for a modal response.
  * @internal
  */
-export abstract class BaseInteractionContextWithModal<Guild extends boolean> extends BaseInteractionContext<Guild> {
-    /**
-     * Respond with a modal.
-     * The modal's execute method is automatically bound to the command handler.
-     * If the command handler already has a bound modal with the same ID, it will be overwritten.
-     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
-     * @param modal The modal to respond with.
-     */
-    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
-        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
-
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.Modal,
-            data: modal.getRaw()
-        });
-
-        this.commandHandler.bindModal(modal);
-    }
-}
-
-/**
- * Base component context.
- * @internal
- */
-export abstract class BaseComponentContext<Guild extends boolean> extends BaseInteractionContextWithModal<Guild> {
-    /**
-     * Component data.
-     */
-    public readonly component: {
-        /**
-         * The component's custom ID.
-         */
-        customId: string
-        /**
-         * The component's type.
-         */
-        type: DiscordTypes.ComponentType
-    };
-    /**
-     * The message the component is attached to.
-     */
-    public readonly message: DiscordTypes.APIMessage;
-
+export abstract class BaseInteractionContextWithEditParent<Guild extends boolean> extends BaseInteractionContext<Guild> {
     /**
      * If a deferred message update was sent.
      */
     private _deferredMessageUpdate = false;
-
-    /**
-     * Create component context.
-     * @param interaction Interaction data.
-     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
-     */
-    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(interaction, commandHandler, logCallback, logThisArg);
-
-        this.component = {
-            customId: interaction.data.custom_id,
-            type: interaction.data.component_type
-        };
-        this.message = interaction.message;
-    }
 
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
@@ -318,6 +259,65 @@ export abstract class BaseComponentContext<Guild extends boolean> extends BaseIn
         }
 
         if (components && bindComponents) this.commandHandler.bindComponents(components);
+    }
+}
+
+/**
+ * Base message component context.
+ * @internal
+ */
+export abstract class BaseMessageComponentContext<Guild extends boolean> extends BaseInteractionContextWithEditParent<Guild> {
+    /**
+     * Component data.
+     */
+    public readonly component: {
+        /**
+         * The component's custom ID.
+         */
+        customId: string
+        /**
+         * The component's type.
+         */
+        type: DiscordTypes.ComponentType
+    };
+    /**
+     * The message the component is attached to.
+     */
+    public readonly message: DiscordTypes.APIMessage;
+
+    /**
+     * Create component context.
+     * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        super(interaction, commandHandler, logCallback, logThisArg);
+
+        this.component = {
+            customId: interaction.data.custom_id,
+            type: interaction.data.component_type
+        };
+        this.message = interaction.message;
+    }
+
+    /**
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
+     */
+    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
+        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.Modal,
+            data: modal.getRaw()
+        });
+
+        this.commandHandler.bindModal(modal);
     }
 }
 

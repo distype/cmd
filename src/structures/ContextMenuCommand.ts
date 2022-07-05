@@ -1,6 +1,8 @@
-import { BaseInteractionContextWithModal } from './BaseContext';
+import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
+import { Modal } from './Modal';
 
+import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
 import { sanitizeCommand } from '../functions/sanitizeCommand';
 import { LogCallback } from '../types/Log';
 
@@ -120,7 +122,7 @@ export class ContextMenuCommand<PR extends Partial<ContextMenuCommandProps> = Re
 /**
  * {@link ContextMenuCommand Context menu command} context.
  */
-export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends never ? boolean : PR[`dm_permission`] extends false ? true : boolean> {
+export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProps>> extends BaseInteractionContext<PR[`dm_permission`] extends never ? boolean : PR[`dm_permission`] extends false ? true : boolean> {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -169,5 +171,23 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
                 member: (interaction.data.resolved as DiscordTypes.APIUserApplicationCommandInteractionDataResolved).members?.[interaction.data.target_id]
             } as any;
         this.targetId = interaction.data.target_id;
+    }
+
+    /**
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
+     */
+    public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
+        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.Modal,
+            data: modal.getRaw()
+        });
+
+        this.commandHandler.bindModal(modal);
     }
 }

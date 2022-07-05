@@ -1,4 +1,4 @@
-import { BaseComponentContext, BaseComponentExpireContext } from './BaseContext';
+import { BaseMessageComponentContext, BaseComponentExpireContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
 import { LogCallback } from '../types/Log';
@@ -152,7 +152,7 @@ export class Button {
 /**
  * {@link Button} context.
  */
-export class ButtonContext extends BaseComponentContext<boolean> {
+export class ButtonContext extends BaseMessageComponentContext<boolean> {
     /**
      * The {@link Button button} the context originates from.
      */
