@@ -31,9 +31,10 @@ function messageFactory(message, components) {
             components: row.map((component) => component.getRaw())
         }));
     }
-    else {
-        res.components ??= [];
-    }
-    return res;
+    return {
+        embeds: [],
+        components: [],
+        ...res
+    };
 }
 exports.messageFactory = messageFactory;

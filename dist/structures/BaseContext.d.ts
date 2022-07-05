@@ -133,21 +133,28 @@ export declare abstract class BaseInteractionContext<Guild extends boolean> exte
  * Base interaction context with support for a modal response.
  * @internal
  */
-export declare abstract class BaseInteractionContextWithModal<Guild extends boolean> extends BaseInteractionContext<Guild> {
+export declare abstract class BaseInteractionContextWithEditParent<Guild extends boolean> extends BaseInteractionContext<Guild> {
     /**
-     * Respond with a modal.
-     * The modal's execute method is automatically bound to the command handler.
-     * If the command handler already has a bound modal with the same ID, it will be overwritten.
-     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
-     * @param modal The modal to respond with.
+     * If a deferred message update was sent.
      */
-    showModal(modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void>;
+    private _deferredMessageUpdate;
+    /**
+     * The same as defer, except the expected followup response is an edit to the parent message of the component.
+     */
+    editParentDefer(): Promise<void>;
+    /**
+     * Edits the parent message of the component.
+     * @param message The new parent message.
+     * @param components Components to add to the message.
+     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     */
+    editParent(message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<void>;
 }
 /**
- * Base component context.
+ * Base message component context.
  * @internal
  */
-export declare abstract class BaseComponentContext<Guild extends boolean> extends BaseInteractionContextWithModal<Guild> {
+export declare abstract class BaseMessageComponentContext<Guild extends boolean> extends BaseInteractionContextWithEditParent<Guild> {
     /**
      * Component data.
      */
@@ -166,10 +173,6 @@ export declare abstract class BaseComponentContext<Guild extends boolean> extend
      */
     readonly message: DiscordTypes.APIMessage;
     /**
-     * If a deferred message update was sent.
-     */
-    private _deferredMessageUpdate;
-    /**
      * Create component context.
      * @param interaction Interaction data.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
@@ -178,16 +181,13 @@ export declare abstract class BaseComponentContext<Guild extends boolean> extend
      */
     constructor(interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
     /**
-     * The same as defer, except the expected followup response is an edit to the parent message of the component.
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
      */
-    editParentDefer(): Promise<void>;
-    /**
-     * Edits the parent message of the component.
-     * @param message The new parent message.
-     * @param components Components to add to the message.
-     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
-     */
-    editParent(message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<void>;
+    showModal(modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void>;
 }
 /**
  * Base component expire context.

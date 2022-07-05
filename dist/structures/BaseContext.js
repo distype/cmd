@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseComponentExpireContext = exports.BaseComponentContext = exports.BaseInteractionContextWithModal = exports.BaseInteractionContext = exports.BaseContext = void 0;
+exports.BaseComponentExpireContext = exports.BaseMessageComponentContext = exports.BaseInteractionContextWithEditParent = exports.BaseInteractionContext = exports.BaseContext = void 0;
 const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
@@ -201,57 +201,11 @@ exports.BaseInteractionContext = BaseInteractionContext;
  * Base interaction context with support for a modal response.
  * @internal
  */
-class BaseInteractionContextWithModal extends BaseInteractionContext {
-    /**
-     * Respond with a modal.
-     * The modal's execute method is automatically bound to the command handler.
-     * If the command handler already has a bound modal with the same ID, it will be overwritten.
-     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
-     * @param modal The modal to respond with.
-     */
-    async showModal(modal) {
-        if (this.responded)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
-        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
-            type: DiscordTypes.InteractionResponseType.Modal,
-            data: modal.getRaw()
-        });
-        this.commandHandler.bindModal(modal);
-    }
-}
-exports.BaseInteractionContextWithModal = BaseInteractionContextWithModal;
-/**
- * Base component context.
- * @internal
- */
-class BaseComponentContext extends BaseInteractionContextWithModal {
-    /**
-     * Component data.
-     */
-    component;
-    /**
-     * The message the component is attached to.
-     */
-    message;
+class BaseInteractionContextWithEditParent extends BaseInteractionContext {
     /**
      * If a deferred message update was sent.
      */
     _deferredMessageUpdate = false;
-    /**
-     * Create component context.
-     * @param interaction Interaction data.
-     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
-     */
-    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
-        super(interaction, commandHandler, logCallback, logThisArg);
-        this.component = {
-            customId: interaction.data.custom_id,
-            type: interaction.data.component_type
-        };
-        this.message = interaction.message;
-    }
     /**
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
@@ -285,7 +239,53 @@ class BaseComponentContext extends BaseInteractionContextWithModal {
             this.commandHandler.bindComponents(components);
     }
 }
-exports.BaseComponentContext = BaseComponentContext;
+exports.BaseInteractionContextWithEditParent = BaseInteractionContextWithEditParent;
+/**
+ * Base message component context.
+ * @internal
+ */
+class BaseMessageComponentContext extends BaseInteractionContextWithEditParent {
+    /**
+     * Component data.
+     */
+    component;
+    /**
+     * The message the component is attached to.
+     */
+    message;
+    /**
+     * Create component context.
+     * @param interaction Interaction data.
+     * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
+     * @param logCallback A {@link LogCallback callback}.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
+     */
+    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
+        super(interaction, commandHandler, logCallback, logThisArg);
+        this.component = {
+            customId: interaction.data.custom_id,
+            type: interaction.data.component_type
+        };
+        this.message = interaction.message;
+    }
+    /**
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
+     */
+    async showModal(modal) {
+        if (this.responded)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.Modal,
+            data: modal.getRaw()
+        });
+        this.commandHandler.bindModal(modal);
+    }
+}
+exports.BaseMessageComponentContext = BaseMessageComponentContext;
 /**
  * Base component expire context.
  * @internal

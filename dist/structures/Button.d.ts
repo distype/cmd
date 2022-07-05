@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { BaseComponentContext, BaseComponentExpireContext } from './BaseContext';
+import { BaseMessageComponentContext, BaseComponentExpireContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -105,7 +105,7 @@ export declare class Button {
 /**
  * {@link Button} context.
  */
-export declare class ButtonContext extends BaseComponentContext<boolean> {
+export declare class ButtonContext extends BaseMessageComponentContext<boolean> {
     /**
      * The {@link Button button} the context originates from.
      */

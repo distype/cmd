@@ -163,7 +163,7 @@ exports.Button = Button;
 /**
  * {@link Button} context.
  */
-class ButtonContext extends BaseContext_1.BaseComponentContext {
+class ButtonContext extends BaseContext_1.BaseMessageComponentContext {
     /**
      * The {@link Button button} the context originates from.
      */

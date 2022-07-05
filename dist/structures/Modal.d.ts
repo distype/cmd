@@ -1,4 +1,4 @@
-import { BaseInteractionContext } from './BaseContext';
+import { BaseInteractionContextWithEditParent } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -98,7 +98,7 @@ export declare class Modal<PR extends Partial<ModalProps> = Record<string, never
 /**
  * {@link Modal} context.
  */
-export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContext<boolean> {
+export declare class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordTypes.APIModalActionRowComponent[]> extends BaseInteractionContextWithEditParent<boolean> {
     /**
      * The ID of the channel that the modal was submitted in.
      */

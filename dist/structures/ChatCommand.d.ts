@@ -1,5 +1,6 @@
-import { BaseInteractionContextWithModal } from './BaseContext';
+import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
+import { Modal } from './Modal';
 import { LocalizedText } from '../types/LocalizedText';
 import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -281,7 +282,7 @@ export declare class ChatCommand<PR extends Partial<ChatCommandProps> = {
 /**
  * {@link ChatCommand Chat command} context.
  */
-export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContextWithModal<PR[`dm_permission`] extends false ? true : boolean> {
+export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA extends DiscordTypes.APIApplicationCommandBasicOption[]> extends BaseInteractionContext<PR[`dm_permission`] extends false ? true : boolean> {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -315,5 +316,13 @@ export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, chatCommand: ChatCommand<PR, PA>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    /**
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
+     */
+    showModal(modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void>;
 }
 export {};

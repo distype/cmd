@@ -25,6 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatCommandContext = exports.ChatCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
+const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const sanitizeCommand_1 = require("../functions/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -309,7 +310,7 @@ exports.ChatCommand = ChatCommand;
 /**
  * {@link ChatCommand Chat command} context.
  */
-class ChatCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
+class ChatCommandContext extends BaseContext_1.BaseInteractionContext {
     /**
      * The ID of the channel that the command was ran in.
      */
@@ -375,6 +376,22 @@ class ChatCommandContext extends BaseContext_1.BaseInteractionContextWithModal {
             newParam ??= c.value;
             return Object.assign(p, { [c.name]: newParam });
         }, {}) ?? {};
+    }
+    /**
+     * Respond with a modal.
+     * The modal's execute method is automatically bound to the command handler.
+     * If the command handler already has a bound modal with the same ID, it will be overwritten.
+     * A modal will stay bound to the command handler until it's execution context's "unbind()" method is called.
+     * @param modal The modal to respond with.
+     */
+    async showModal(modal) {
+        if (this.responded)
+            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+        await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
+            type: DiscordTypes.InteractionResponseType.Modal,
+            data: modal.getRaw()
+        });
+        this.commandHandler.bindModal(modal);
     }
 }
 exports.ChatCommandContext = ChatCommandContext;
