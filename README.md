@@ -1,7 +1,6 @@
 <div align="center">
     <br>
     <h1>@distype/cmd</h1>
-    <br><br>
     <p>
         <a href="https://www.npmjs.com/package/@distype/cmd"><img src="https://img.shields.io/npm/v/@distype/cmd.svg?color=5162F&style=for-the-badge&logo=npm"></a>
         <a href="https://github.com/distype/cmd/actions/workflows/build.yml"><img src="https://img.shields.io/github/workflow/status/distype/cmd/Build?style=for-the-badge&logo=github"><a>
