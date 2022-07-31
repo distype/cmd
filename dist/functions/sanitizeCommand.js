@@ -33,7 +33,7 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  * @internal
  */
 function sanitizeCommand(command) {
-    const raw = (0, node_utils_1.deepClone)({
+    const raw = {
         description: command.description ?? ``,
         default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
@@ -42,7 +42,7 @@ function sanitizeCommand(command) {
         name_localizations: command.name_localizations ?? {},
         options: command.options ?? [],
         type: command.type ?? DiscordTypes.ApplicationCommandType.ChatInput
-    });
+    };
     (0, node_utils_1.traverseObject)(raw, (obj) => {
         if (typeof obj.autocomplete === `boolean` && !obj.autocomplete)
             delete obj.autocomplete;
