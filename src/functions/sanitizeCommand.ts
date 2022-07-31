@@ -1,4 +1,4 @@
-import { deepClone, traverseObject } from '@br88c/node-utils';
+import { traverseObject } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 
 /**
@@ -8,7 +8,7 @@ import * as DiscordTypes from 'discord-api-types/v10';
  * @internal
  */
 export function sanitizeCommand (command: Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> {
-    const raw: Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> = deepClone({
+    const raw: Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> & { description: string } = {
         description: (command as any).description ?? ``,
         default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
@@ -17,7 +17,7 @@ export function sanitizeCommand (command: Omit<DiscordTypes.RESTPostAPIApplicati
         name_localizations: command.name_localizations ?? {},
         options: command.options ?? [],
         type: command.type ?? DiscordTypes.ApplicationCommandType.ChatInput
-    });
+    };
 
     traverseObject(raw, (obj) => {
         if (typeof obj.autocomplete === `boolean` && !obj.autocomplete) delete obj.autocomplete;
