@@ -48,7 +48,7 @@ export declare class CommandHandler {
      */
     runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>);
     /**
-     * The system string used for emitting errors and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     readonly system = "Command Handler";
     /**

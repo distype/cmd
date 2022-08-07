@@ -247,8 +247,6 @@ class BaseMessageComponentContext extends BaseInteractionContextWithEditParent {
      * Create component context.
      * @param interaction Interaction data.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(interaction, commandHandler) {
         super(interaction, commandHandler);

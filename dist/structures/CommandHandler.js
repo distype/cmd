@@ -76,7 +76,7 @@ class CommandHandler {
         level: `ERROR`, system: this.system
     });
     /**
-     * The system string used for emitting errors and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     system = `Command Handler`;
     /**
