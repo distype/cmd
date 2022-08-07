@@ -63,7 +63,7 @@ export class CommandHandler {
         });
 
     /**
-     * The system string used for emitting errors and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     public readonly system = `Command Handler`;
 
