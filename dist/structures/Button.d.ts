@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import { BaseMessageComponentContext, BaseComponentExpireContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
-import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * A button's style.
@@ -115,10 +114,8 @@ export declare class ButtonContext extends BaseMessageComponentContext<boolean> 
      * @param interaction Interaction data.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: DiscordTypes.APIMessageComponentInteraction, button: Button, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIMessageComponentInteraction, button: Button, commandHandler: CommandHandler);
     /**
      * Unbinds the button's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive buttons.
@@ -139,8 +136,6 @@ export declare class ButtonExpireContext extends BaseComponentExpireContext {
      * @param type The component's type.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(customId: string, type: DiscordTypes.ComponentType, button: Button, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(customId: string, type: DiscordTypes.ComponentType, button: Button, commandHandler: CommandHandler);
 }

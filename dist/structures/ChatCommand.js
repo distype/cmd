@@ -25,8 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatCommandContext = exports.ChatCommand = void 0;
 const BaseContext_1 = require("./BaseContext");
-const DistypeCmdError_1 = require("../errors/DistypeCmdError");
-const sanitizeCommand_1 = require("../functions/sanitizeCommand");
+const sanitizeCommand_1 = require("../utils/sanitizeCommand");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
  * The chat input command builder.
@@ -332,11 +331,9 @@ class ChatCommandContext extends BaseContext_1.BaseInteractionContext {
      * @param interaction Interaction data.
      * @param chatCommand The {@link ChatCommand chat command} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction, chatCommand, commandHandler, logCallback = () => { }, logThisArg) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor(interaction, chatCommand, commandHandler) {
+        super(interaction, commandHandler);
         this.channelId = interaction.channel_id;
         this.command = {
             ...chatCommand.props,
@@ -386,7 +383,7 @@ class ChatCommandContext extends BaseContext_1.BaseInteractionContext {
      */
     async showModal(modal) {
         if (this.responded)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+            throw new Error(`Already responded to interaction ${this.interaction.id}`);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()

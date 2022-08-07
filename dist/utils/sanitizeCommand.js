@@ -34,7 +34,7 @@ const DiscordTypes = __importStar(require("discord-api-types/v10"));
  */
 function sanitizeCommand(command) {
     const raw = {
-        description: command.description ?? ``,
+        description: command.description,
         default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
         dm_permission: command.dm_permission ?? true,

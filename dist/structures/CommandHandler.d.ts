@@ -3,7 +3,6 @@ import { Button, ButtonContext } from './Button';
 import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
-import { LogCallback } from '../types/Log';
 import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -53,14 +52,6 @@ export declare class CommandHandler {
      */
     readonly system = "Command Handler";
     /**
-     * The {@link LogCallback log callback} used by the command handler.
-     */
-    private _log;
-    /**
-     * A value to use as `this` in the `this#_log`.
-     */
-    private _logThisArg?;
-    /**
      * Button middleware.
      */
     private _runButtonMiddleware;
@@ -83,10 +74,8 @@ export declare class CommandHandler {
     /**
      * Create the command handler.
      * @param client The Distype client to bind the command handler to.
-     * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(client: Client, logCallback?: LogCallback, logThisArg?: any);
+    constructor(client: Client);
     /**
      * Sends a message.
      * @param channelId The channel to send the message in.

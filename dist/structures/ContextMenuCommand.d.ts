@@ -1,7 +1,6 @@
 import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
-import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 /**
@@ -117,10 +116,8 @@ export declare class ContextMenuCommandContext<PR extends Partial<ContextMenuCom
      * @param interaction Interaction data.
      * @param contextMenuCommand The {@link ContextMenuCommand context menu command} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler);
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.

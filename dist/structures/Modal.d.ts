@@ -1,6 +1,5 @@
 import { BaseInteractionContextWithEditParent } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
-import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 /**
@@ -127,10 +126,8 @@ export declare class ModalContext<PR extends Partial<ModalProps>, PA extends Dis
      * @param interaction Interaction data.
      * @param modal The {@link Modal modal} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler);
     /**
      * Unbinds the modal's execution callback from the command handler.
      * Use this method to prevent memory leaks from inactive modals.

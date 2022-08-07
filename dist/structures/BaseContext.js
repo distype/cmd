@@ -24,7 +24,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseComponentExpireContext = exports.BaseMessageComponentContext = exports.BaseInteractionContextWithEditParent = exports.BaseInteractionContext = exports.BaseContext = void 0;
-const DistypeCmdError_1 = require("../errors/DistypeCmdError");
 const messageFactory_1 = require("../utils/messageFactory");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
@@ -41,19 +40,12 @@ class BaseContext {
      */
     commandHandler;
     /**
-     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
-     */
-    log;
-    /**
      * Create context.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler, logCallback = () => { }, logThisArg) {
+    constructor(commandHandler) {
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
-        this.log = logCallback.bind(logThisArg);
     }
 }
 exports.BaseContext = BaseContext;
@@ -90,11 +82,9 @@ class BaseInteractionContext extends BaseContext {
      * Create interaction context.
      * @param interaction Interaction data.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
-        super(commandHandler, logCallback, logThisArg);
+    constructor(interaction, commandHandler) {
+        super(commandHandler);
         this.guildId = interaction.guild_id ?? interaction.data?.guild_id;
         this.guildLocale = interaction.guild_locale;
         this.interaction = {
@@ -124,7 +114,7 @@ class BaseInteractionContext extends BaseContext {
      */
     async defer(flags) {
         if (this.responded)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+            throw new Error(`Already responded to interaction ${this.interaction.id}`);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
             data: { flags: flags === true ? DiscordTypes.MessageFlags.Ephemeral : flags }
@@ -211,7 +201,7 @@ class BaseInteractionContextWithEditParent extends BaseInteractionContext {
      */
     async editParentDefer() {
         if (this.responded)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+            throw new Error(`Already responded to interaction ${this.interaction.id}`);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
         this.responded = true;
         this._deferredMessageUpdate = true;
@@ -224,7 +214,7 @@ class BaseInteractionContextWithEditParent extends BaseInteractionContext {
      */
     async editParent(message, components, bindComponents = true) {
         if (this.responded && !this._deferredMessageUpdate)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+            throw new Error(`Already responded to interaction ${this.interaction.id}`);
         if (this.responded) {
             await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, (0, messageFactory_1.messageFactory)(message, components));
         }
@@ -260,8 +250,8 @@ class BaseMessageComponentContext extends BaseInteractionContextWithEditParent {
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction, commandHandler, logCallback = () => { }, logThisArg) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor(interaction, commandHandler) {
+        super(interaction, commandHandler);
         this.component = {
             customId: interaction.data.custom_id,
             type: interaction.data.component_type
@@ -277,7 +267,7 @@ class BaseMessageComponentContext extends BaseInteractionContextWithEditParent {
      */
     async showModal(modal) {
         if (this.responded)
-            throw new DistypeCmdError_1.DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdError_1.DistypeCmdErrorType.ALREADY_RESPONDED);
+            throw new Error(`Already responded to interaction ${this.interaction.id}`);
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
@@ -300,11 +290,9 @@ class BaseComponentExpireContext extends BaseContext {
      * @param customId The component's custom ID.
      * @param type The component's type.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(customId, type, commandHandler, logCallback = () => { }, logThisArg) {
-        super(commandHandler, logCallback, logThisArg);
+    constructor(customId, type, commandHandler) {
+        super(commandHandler);
         this.component = {
             customId, type
         };

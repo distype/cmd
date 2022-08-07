@@ -173,11 +173,9 @@ class ButtonContext extends BaseContext_1.BaseMessageComponentContext {
      * @param interaction Interaction data.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction, button, commandHandler, logCallback = () => { }, logThisArg) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor(interaction, button, commandHandler) {
+        super(interaction, commandHandler);
         this.contextParent = button;
     }
     /**
@@ -203,11 +201,9 @@ class ButtonExpireContext extends BaseContext_1.BaseComponentExpireContext {
      * @param type The component's type.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(customId, type, button, commandHandler, logCallback = () => { }, logThisArg) {
-        super(customId, type, commandHandler, logCallback, logThisArg);
+    constructor(customId, type, button, commandHandler) {
+        super(customId, type, commandHandler);
         this.contextParent = button;
     }
 }

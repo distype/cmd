@@ -2,7 +2,6 @@ import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 import { LocalizedText } from '../types/LocalizedText';
-import { LogCallback } from '../types/Log';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 /**
@@ -312,10 +311,8 @@ export declare class ChatCommandContext<PR extends Partial<ChatCommandProps>, PA
      * @param interaction Interaction data.
      * @param chatCommand The {@link ChatCommand chat command} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, chatCommand: ChatCommand<PR, PA>, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIChatInputApplicationCommandInteraction, chatCommand: ChatCommand<PR, PA>, commandHandler: CommandHandler);
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.

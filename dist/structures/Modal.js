@@ -136,11 +136,9 @@ class ModalContext extends BaseContext_1.BaseInteractionContextWithEditParent {
      * @param interaction Interaction data.
      * @param modal The {@link Modal modal} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction, modal, commandHandler, logCallback = () => { }, logThisArg) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor(interaction, modal, commandHandler) {
+        super(interaction, commandHandler);
         this.channelId = interaction.channel_id;
         this.contextParent = modal;
         this.modal = {

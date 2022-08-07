@@ -1,6 +1,5 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
-import { LogCallback } from '../types/Log';
 import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Client, Snowflake } from 'distype';
@@ -18,16 +17,10 @@ export declare abstract class BaseContext {
      */
     commandHandler: CommandHandler;
     /**
-     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
-     */
-    log: LogCallback;
-    /**
      * Create context.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(commandHandler: CommandHandler);
 }
 /**
  * Base interaction context.
@@ -83,10 +76,8 @@ export declare abstract class BaseInteractionContext<Guild extends boolean> exte
      * Create interaction context.
      * @param interaction Interaction data.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, commandHandler: CommandHandler);
     /**
      * Calls the command handler's error callback.
      * Note that this does not stop the execution of the command's execute method; you must also call `return`.
@@ -179,7 +170,7 @@ export declare abstract class BaseMessageComponentContext<Guild extends boolean>
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler);
     /**
      * Respond with a modal.
      * The modal's execute method is automatically bound to the command handler.
@@ -212,10 +203,8 @@ export declare abstract class BaseComponentExpireContext extends BaseContext {
      * @param customId The component's custom ID.
      * @param type The component's type.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(customId: string, type: DiscordTypes.ComponentType, commandHandler: CommandHandler, logCallback?: LogCallback, logThisArg?: any);
+    constructor(customId: string, type: DiscordTypes.ComponentType, commandHandler: CommandHandler);
     /**
      * Calls the command handler's expire error callback.
      * Note that this does not stop the execution of the command's execute method; you must also call `return`.
