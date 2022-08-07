@@ -4,9 +4,7 @@ import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand
 import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
 import { Modal, ModalContext, ModalProps } from './Modal';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
-import { sanitizeCommand } from '../functions/sanitizeCommand';
-import { LogCallback } from '../types/Log';
+import { sanitizeCommand } from '../utils/sanitizeCommand';
 import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
 import { ExtendedMap } from '@br88c/node-utils';
@@ -49,7 +47,7 @@ export class CommandHandler {
      * @internal
      */
     public runError: (ctx: BaseInteractionContext<boolean>, error: Error, unexpected: boolean) => (void | Promise<void>)
-        = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
+        = (ctx, error, unexpected) => this.client.log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
             level: `ERROR`, system: this.system
         });
     /**
@@ -60,7 +58,7 @@ export class CommandHandler {
      * @internal
      */
     public runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>)
-        = (ctx, error, unexpected) => this._log(`${unexpected ? `Unexpected ` : ``}${error.name} when running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
+        = (ctx, error, unexpected) => this.client.log(`${unexpected ? `Unexpected ` : ``}${error.name} when running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
             level: `ERROR`, system: this.system
         });
 
@@ -69,14 +67,6 @@ export class CommandHandler {
      */
     public readonly system = `Command Handler`;
 
-    /**
-     * The {@link LogCallback log callback} used by the command handler.
-     */
-    private _log: LogCallback;
-    /**
-     * A value to use as `this` in the `this#_log`.
-     */
-    private _logThisArg?: any;
     /**
      * Button middleware.
      */
@@ -101,17 +91,13 @@ export class CommandHandler {
     /**
      * Create the command handler.
      * @param client The Distype client to bind the command handler to.
-     * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the command handler.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (client: Client, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor (client: Client) {
         this.client = client;
 
         this.client.gateway.on(`INTERACTION_CREATE`, ({ d }) => this._onInteraction(d));
 
-        this._log = logCallback.bind(logThisArg);
-        this._logThisArg = logThisArg;
-        this._log(`Initialized command handler`, {
+        this.client.log(`Initialized command handler`, {
             level: `DEBUG`, system: this.system
         });
     }
@@ -182,12 +168,12 @@ export class CommandHandler {
      * @param command The {@link CommandHandlerCommand command} to add.
      */
     public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
-        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new DistypeCmdError(`Commands of the same type cannot share names`, DistypeCmdErrorType.DUPLICATE_COMMAND_NAME);
+        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new Error(`Commands of the same type cannot share names`);
 
         this.commands.set(`unknown${this._unknownCommandIdNonce}`, command);
         this._unknownCommandIdNonce++;
 
-        this._log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
+        this.client.log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -201,7 +187,7 @@ export class CommandHandler {
         const raw: DiscordTypes.APIButtonComponentWithCustomId = button.getRaw() as any;
         if (typeof raw.custom_id !== `string` || this.buttons.find((b, customId) => b === button && customId === raw.custom_id)) return this;
 
-        if (this.buttons.find((_, customId) => customId === raw.custom_id)) this._log(`Overriding existing component with ID ${raw.custom_id}`, {
+        if (this.buttons.find((_, customId) => customId === raw.custom_id)) this.client.log(`Overriding existing component with ID ${raw.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
 
@@ -209,7 +195,7 @@ export class CommandHandler {
 
         this._setButtonExpireTimeout(button);
 
-        this._log(`Bound button with custom ID ${raw.custom_id}`, {
+        this.client.log(`Bound button with custom ID ${raw.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -233,13 +219,13 @@ export class CommandHandler {
     public bindModal (modal: Modal<any, any>): this {
         if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
 
-        if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this._log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
+        if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this.client.log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
 
         this.modals.set(modal.props.custom_id, modal);
 
-        this._log(`Bound modal with custom ID ${modal.props.custom_id}`, {
+        this.client.log(`Bound modal with custom ID ${modal.props.custom_id}`, {
             level: `DEBUG`, system: this.system
         });
         return this;
@@ -286,25 +272,25 @@ export class CommandHandler {
      * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
      */
     public async push (applicationId: Snowflake | undefined = this.client.gateway.user?.id ?? undefined): Promise<void> {
-        if (!applicationId) throw new DistypeCmdError(`Application ID is undefined`, DistypeCmdErrorType.APPLICATION_ID_UNDEFINED);
+        if (!applicationId) throw new Error(`Application ID is undefined`);
 
         const commands = this.commands.map((command) => command.getRaw());
-        this._log(`Pushing ${commands.length} commands`, {
+        this.client.log(`Pushing ${commands.length} commands`, {
             level: `INFO`, system: this.system
         });
 
         const applicationCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
-        this._log(`Found ${applicationCommands.length} registered commands`, {
+        this.client.log(`Found ${applicationCommands.length} registered commands`, {
             level: `DEBUG`, system: this.system
         });
 
         const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
         const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
 
-        if (deletedCommands.length) this._log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+        if (deletedCommands.length) this.client.log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
         });
-        if (newCommands.length) this._log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+        if (newCommands.length) this.client.log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
             level: `DEBUG`, system: this.system
         });
 
@@ -327,7 +313,7 @@ export class CommandHandler {
             }
         });
 
-        this._log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands (Application now owns ${pushedCommands.length} commands)`, {
+        this.client.log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands (Application now owns ${pushedCommands.length} commands)`, {
             level: `INFO`, system: this.system
         });
     }
@@ -402,11 +388,11 @@ export class CommandHandler {
                     if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
                         middleware = this._runChatCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ChatCommandContext(interaction as any, command as any, this, this._log, this._logThisArg);
+                        ctx = new ChatCommandContext(interaction as any, command as any, this);
                     } else {
                         middleware = this._runContextMenuCommandMiddleware;
                         run = command.runExecute;
-                        ctx = new ContextMenuCommandContext(interaction as any, command as any, this, this._log, this._logThisArg);
+                        ctx = new ContextMenuCommandContext(interaction as any, command as any, this);
                     }
                 }
 
@@ -419,7 +405,7 @@ export class CommandHandler {
                     if (button) {
                         middleware = this._runButtonMiddleware;
                         run = button.runExecute;
-                        ctx = new ButtonContext(interaction, button, this, this._log, this._logThisArg);
+                        ctx = new ButtonContext(interaction, button, this);
 
                         this._setButtonExpireTimeout(button);
                     }
@@ -433,7 +419,7 @@ export class CommandHandler {
                 if (modal) {
                     middleware = this._runModalMiddleware;
                     run = modal.runExecute;
-                    ctx = new ModalContext(interaction, modal, this, this._log, this._logThisArg);
+                    ctx = new ModalContext(interaction, modal, this);
                 }
 
                 break;
@@ -441,7 +427,7 @@ export class CommandHandler {
         }
 
         if (typeof middleware === `function` && typeof run === `function` && ctx) {
-            this._log(`Running interaction ${interaction.id}`, {
+            this.client.log(`Running interaction ${interaction.id}`, {
                 level: `DEBUG`, system: this.system
             });
 
@@ -470,7 +456,7 @@ export class CommandHandler {
                         if (reject instanceof Error) throw reject;
                     }
                 } catch (eError: any) {
-                    this._log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                    this.client.log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
                         level: `ERROR`, system: this.system
                     });
                 }
@@ -488,7 +474,7 @@ export class CommandHandler {
 
         button.expireTimeout = setTimeout(async () => {
             const raw = button.getRaw();
-            const ctx = new ButtonExpireContext((raw as any).custom_id, raw.type, button, this, this._log, this._logThisArg);
+            const ctx = new ButtonExpireContext((raw as any).custom_id, raw.type, button, this);
 
             try {
                 if (typeof button.runExecuteExpire === `function`) {
@@ -499,7 +485,7 @@ export class CommandHandler {
                         if (result instanceof Error) throw result;
 
                         if (result) {
-                            this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                            this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
                                 level: `DEBUG`, system: this.system
                             });
                             this.buttons.delete((raw as any).custom_id);
@@ -507,7 +493,7 @@ export class CommandHandler {
                             this._setButtonExpireTimeout(button);
                         }
                     } else if (call) {
-                        this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                        this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
                             level: `DEBUG`, system: this.system
                         });
                         this.buttons.delete((raw as any).custom_id);
@@ -515,7 +501,7 @@ export class CommandHandler {
                         this._setButtonExpireTimeout(button);
                     }
                 } else {
-                    this._log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
+                    this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
                         level: `DEBUG`, system: this.system
                     });
                     this.buttons.delete((raw as any).custom_id);
@@ -528,7 +514,7 @@ export class CommandHandler {
                         if (reject instanceof Error) throw reject;
                     }
                 } catch (eError: any) {
-                    this._log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                    this.client.log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
                         level: `ERROR`, system: this.system
                     });
                 }

@@ -1,8 +1,6 @@
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
-import { LogCallback } from '../types/Log';
 import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
 
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -21,21 +19,14 @@ export abstract class BaseContext {
      * The {@link CommandHandler command handler} that invoked the context.
      */
     public commandHandler: CommandHandler;
-    /**
-     * Log a message using the {@link CommandHandler command handler}'s {@link LogCallback log callback}.
-     */
-    public log: LogCallback;
 
     /**
      * Create context.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor (commandHandler: CommandHandler) {
         this.client = commandHandler.client;
         this.commandHandler = commandHandler;
-        this.log = logCallback.bind(logThisArg);
     }
 }
 
@@ -95,11 +86,9 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
      * Create interaction context.
      * @param interaction Interaction data.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIApplicationCommandInteraction | DiscordTypes.APIMessageComponentInteraction | DiscordTypes.APIModalSubmitInteraction, commandHandler: CommandHandler) {
+        super(commandHandler);
 
         this.guildId = interaction.guild_id ?? (interaction.data as any)?.guild_id;
         this.guildLocale = interaction.guild_locale as any;
@@ -131,7 +120,7 @@ export abstract class BaseInteractionContext<Guild extends boolean> extends Base
      * @param flags Message flags for the followup after the defer. Specifying `true` is a shorthand for the ephemeral flag.
      */
     public async defer (flags?: DiscordTypes.MessageFlags | number | true): Promise<void> {
-        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded) throw new Error(`Already responded to interaction ${this.interaction.id}`);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.DeferredChannelMessageWithSource,
@@ -230,7 +219,7 @@ export abstract class BaseInteractionContextWithEditParent<Guild extends boolean
      * The same as defer, except the expected followup response is an edit to the parent message of the component.
      */
     public async editParentDefer (): Promise<void> {
-        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded) throw new Error(`Already responded to interaction ${this.interaction.id}`);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, { type: DiscordTypes.InteractionResponseType.DeferredMessageUpdate });
 
@@ -245,7 +234,7 @@ export abstract class BaseInteractionContextWithEditParent<Guild extends boolean
      * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
      */
     public async editParent (message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<void> {
-        if (this.responded && !this._deferredMessageUpdate) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded && !this._deferredMessageUpdate) throw new Error(`Already responded to interaction ${this.interaction.id}`);
 
         if (this.responded) {
             await this.client.rest.editFollowupMessage(this.interaction.applicationId, this.interaction.token, `@original`, messageFactory(message, components));
@@ -292,8 +281,8 @@ export abstract class BaseMessageComponentContext<Guild extends boolean> extends
      * @param logCallback A {@link LogCallback callback}.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, commandHandler: CommandHandler) {
+        super(interaction, commandHandler);
 
         this.component = {
             customId: interaction.data.custom_id,
@@ -310,7 +299,7 @@ export abstract class BaseMessageComponentContext<Guild extends boolean> extends
      * @param modal The modal to respond with.
      */
     public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
-        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded) throw new Error(`Already responded to interaction ${this.interaction.id}`);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
@@ -345,11 +334,9 @@ export abstract class BaseComponentExpireContext extends BaseContext {
      * @param customId The component's custom ID.
      * @param type The component's type.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (customId: string, type: DiscordTypes.ComponentType, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(commandHandler, logCallback, logThisArg);
+    constructor (customId: string, type: DiscordTypes.ComponentType, commandHandler: CommandHandler) {
+        super(commandHandler);
 
         this.component = {
             customId, type

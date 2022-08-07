@@ -1,8 +1,6 @@
 import { BaseInteractionContextWithEditParent } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
-import { LogCallback } from '../types/Log';
-
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
 
@@ -176,11 +174,9 @@ export class ModalContext<PR extends Partial<ModalProps>, PA extends DiscordType
      * @param interaction Interaction data.
      * @param modal The {@link Modal modal} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIModalSubmitInteraction, modal: Modal<PR, PA>, commandHandler: CommandHandler) {
+        super(interaction, commandHandler);
 
         this.channelId = interaction.channel_id;
         this.contextParent = modal;

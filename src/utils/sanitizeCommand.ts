@@ -7,9 +7,9 @@ import * as DiscordTypes from 'discord-api-types/v10';
  * @returns The sanitized command.
  * @internal
  */
-export function sanitizeCommand (command: Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> {
-    const raw: Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> & { description: string } = {
-        description: (command as any).description ?? ``,
+export function sanitizeCommand (command: Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>): Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> & { description?: string } {
+    const raw: Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission`>> & { description?: string } = {
+        description: (command as any).description,
         default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
         dm_permission: command.dm_permission ?? true,

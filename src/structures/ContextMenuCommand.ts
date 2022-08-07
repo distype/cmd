@@ -2,9 +2,7 @@ import { BaseInteractionContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 import { Modal } from './Modal';
 
-import { DistypeCmdError, DistypeCmdErrorType } from '../errors/DistypeCmdError';
-import { sanitizeCommand } from '../functions/sanitizeCommand';
-import { LogCallback } from '../types/Log';
+import { sanitizeCommand } from '../utils/sanitizeCommand';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'distype';
@@ -152,11 +150,9 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
      * @param interaction Interaction data.
      * @param contextMenuCommand The {@link ContextMenuCommand context menu command} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor (interaction: PR[`type`] extends DiscordTypes.ApplicationCommandType.Message ? DiscordTypes.APIMessageApplicationCommandInteraction : DiscordTypes.APIUserApplicationCommandInteraction, contextMenuCommand: ContextMenuCommand<PR>, commandHandler: CommandHandler) {
+        super(interaction, commandHandler);
 
         this.channelId = interaction.channel_id;
         this.command = {
@@ -181,7 +177,7 @@ export class ContextMenuCommandContext<PR extends Partial<ContextMenuCommandProp
      * @param modal The modal to respond with.
      */
     public async showModal (modal: Modal<any, DiscordTypes.APIModalActionRowComponent[]>): Promise<void> {
-        if (this.responded) throw new DistypeCmdError(`Already responded to interaction ${this.interaction.id}`, DistypeCmdErrorType.ALREADY_RESPONDED);
+        if (this.responded) throw new Error(`Already responded to interaction ${this.interaction.id}`);
 
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,

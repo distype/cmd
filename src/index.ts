@@ -2,11 +2,6 @@ export { DiscordColors } from './colors/DiscordColors';
 export { WebColors } from './colors/WebColors';
 
 export {
-    DistypeCmdError,
-    DistypeCmdErrorType
-} from './errors/DistypeCmdError';
-
-export {
     Button,
     ButtonContext,
     ButtonExpireContext,
@@ -36,11 +31,6 @@ export {
 } from './structures/Modal';
 
 export { LocalizedText } from './types/LocalizedText';
-export {
-    LogCallback,
-    LogLevel,
-    LogMessageOptions
-} from './types/Log';
 
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
 export {
@@ -49,3 +39,4 @@ export {
     FactoryMessage,
     messageFactory
 } from './utils/messageFactory';
+export { sanitizeCommand } from './utils/sanitizeCommand';

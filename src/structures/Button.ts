@@ -1,8 +1,6 @@
 import { BaseMessageComponentContext, BaseComponentExpireContext } from './BaseContext';
 import { CommandHandler } from './CommandHandler';
 
-import { LogCallback } from '../types/Log';
-
 import * as DiscordTypes from 'discord-api-types/v10';
 
 /**
@@ -163,11 +161,9 @@ export class ButtonContext extends BaseMessageComponentContext<boolean> {
      * @param interaction Interaction data.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, button: Button, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(interaction, commandHandler, logCallback, logThisArg);
+    constructor (interaction: DiscordTypes.APIMessageComponentInteraction, button: Button, commandHandler: CommandHandler) {
+        super(interaction, commandHandler);
 
         this.contextParent = button;
     }
@@ -196,11 +192,9 @@ export class ButtonExpireContext extends BaseComponentExpireContext {
      * @param type The component's type.
      * @param button The {@link Button button} the context originates from.
      * @param commandHandler The {@link CommandHandler command handler} that invoked the context.
-     * @param logCallback A {@link LogCallback callback}.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (customId: string, type: DiscordTypes.ComponentType, button: Button, commandHandler: CommandHandler, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        super(customId, type, commandHandler, logCallback, logThisArg);
+    constructor (customId: string, type: DiscordTypes.ComponentType, button: Button, commandHandler: CommandHandler) {
+        super(customId, type, commandHandler);
 
         this.contextParent = button;
     }
