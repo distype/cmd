@@ -1,5 +1,6 @@
-import { Button } from '../structures/Button';
-import { Embed } from '../structures/Embed';
+import { Component } from '../structures/CommandHandler';
+import { Button } from '../structures/components/Button';
+import { Embed } from '../structures/extras/Embed';
 import { APIInteractionResponseCallbackData } from 'discord-api-types/v10';
 /**
  * A message body used by the message factory.
@@ -8,7 +9,7 @@ export declare type FactoryMessage = string | Embed | APIInteractionResponseCall
 /**
  * A component used by the message factory.
  */
-export declare type FactoryComponent = Button;
+export declare type FactoryComponent = Button | Component;
 /**
  * Multiple components.
  * A single component will be sent as the component alone, a component array will be sent as a component row, a 2d component array will be sent as multiple component rows.

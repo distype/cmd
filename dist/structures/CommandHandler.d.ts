@@ -1,180 +1,141 @@
-import { BaseComponentExpireContext, BaseInteractionContext } from './BaseContext';
-import { Button, ButtonContext } from './Button';
-import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
-import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
-import { Modal, ModalContext, ModalProps } from './Modal';
-import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
-import { ExtendedMap } from '@br88c/node-utils';
-import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { InteractionContext } from './InteractionContext';
+import { ChatCommand } from './commands/ChatCommand';
+import { MessageCommand } from './commands/MessageCommand';
+import { UserCommand } from './commands/UserCommand';
+import { Button } from './components/Button';
+import { ChannelSelect } from './components/ChannelSelect';
+import { MentionableSelect } from './components/MentionableSelect';
+import { RoleSelect } from './components/RoleSelect';
+import { StringSelect } from './components/StringSelect';
+import { UserSelect } from './components/UserSelect';
+import { Expire } from './extras/Expire';
+import { Modal } from './modals/Modal';
+import type { MiddlewareMeta } from '../middleware';
+import { Client } from 'distype';
 /**
- * A command owned by the command handler.
+ * A command.
  */
-export declare type CommandHandlerCommand = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
+export declare type Command = ChatCommand<any, any> | MessageCommand<any> | UserCommand<any>;
+/**
+ * A component.
+ */
+export declare type Component = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
+/**
+ * A structure compatible with the {@link CommandHandler command handler}.
+ */
+export declare type CommandHandlerStructure = Command | Component | Modal<any>;
 /**
  * The command handler.
  */
 export declare class CommandHandler {
     /**
-     * The command handler's {@link Button buttons}.
-     */
-    buttons: ExtendedMap<string, Button>;
-    /**
      * The client the command handler is bound to.
      */
     client: Client;
-    /**
-     * The command handler's {@link CommandHandlerCommand commands}.
-     */
-    commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand>;
-    /**
-     * The command handler's {@link Modal modals}.
-     */
-    modals: ExtendedMap<string, Modal<ModalProps>>;
-    /**
-     * Called when an interaction encounters an error.
-     * @param ctx The command context.
-     * @param error The error encountered.
-     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
-     * @internal
-     */
-    runError: (ctx: BaseInteractionContext<boolean>, error: Error, unexpected: boolean) => (void | Promise<void>);
-    /**
-     * Called when a component expire context encounters an error.
-     * @param ctx The command context.
-     * @param error The error encountered.
-     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
-     * @internal
-     */
-    runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>);
     /**
      * The system string used for logging.
      */
     readonly system = "Command Handler";
     /**
-     * Button middleware.
+     * Bound commands.
+     * Key is their ID.
      */
-    private _runButtonMiddleware;
+    private _boundCommands;
     /**
-     * Chat command middleware.
+     * Bound components.
      */
-    private _runChatCommandMiddleware;
+    private _boundComponents;
     /**
-     * Context menu command middleware.
+     * Bound expires.
      */
-    private _runContextMenuCommandMiddleware;
+    private _boundExpires;
     /**
-     * Modal middleware.
+     * Bound modals.
      */
-    private _runModalMiddleware;
+    private _boundModals;
     /**
-     * The nonce to use for indexing commands with an unknown ID.
+     * Error function.
      */
-    private _unknownCommandIdNonce;
+    private _error;
+    /**
+     * Middleware function.
+     */
+    private _middleware;
     /**
      * Create the command handler.
      * @param client The Distype client to bind the command handler to.
      */
     constructor(client: Client);
     /**
-     * Sends a message.
-     * @param channelId The channel to send the message in.
-     * @param message The message to send.
-     * @param components Components to add to the message.
-     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     * Returns structures found in a directory and its subdirectories.
+     * Only loads default exports.
+     * @param directories The directory to search.
+     * @returns Found structures.
      */
-    sendMessage(channelId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<DiscordTypes.RESTPostAPIChannelMessageResult>;
+    extractFromDirectories(...directories: string[]): Promise<CommandHandlerStructure[]>;
     /**
-     * Edits a message.
-     * @param channelId The channel the message was sent in.
-     * @param messageId The ID of the message to edit.
-     * @param message The new message.
-     * @param components Components to add to the message.
-     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     * Loads interaction structures from a directory and its subdirectories.
+     * Only loads default exports. Note that {@link Expire expire helpers} cannot be loaded.
+     * @param directories The directory to search.
      */
-    editMessage(channelId: Snowflake, messageId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents?: boolean): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult>;
+    loadDirectories(...directories: string[]): Promise<void>;
     /**
-     * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
-     * @param directory The directory to load from.
+     * Pushes {@link Command commands} to the API.
+     * Note that guilds that already have commands published that dont have any defined locally will not be overwritten.
+     * @param commands Commands to load.
      */
-    load(directory: string): Promise<void>;
+    pushCommands(...commands: Command[]): Promise<void>;
     /**
-     * Bind a {@link CommandHandlerCommand command} to the command handler.
-     * @param command The {@link CommandHandlerCommand command} to add.
+     * Binds structures that use custom IDs.
+     * @param structures The structures to bind.
+     * @returns The command handler.
      */
-    bindCommand(command: ChatCommand<any, any> | ContextMenuCommand<any>): this;
+    bind(...structures: Array<Component | Modal<any> | Expire>): this;
     /**
-     * Bind a {@link Button button} to the command handler.
-     * @param button The {@link Button button} to bind.
+     * Unbind structures that use custom IDs.
+     * @param structures The structures to unbind.
+     * @returns The command handler.
      */
-    bindButton(button: Button): this;
+    unbind(...structures: Array<Component | Modal<any> | Expire>): this;
     /**
-     * Unbind a {@link Button button} from the command handler.
-     * @param id The {@link Button button}'s custom ID.
+     * Set the error function for the command handler.
+     * @returns The command handler.
      */
-    unbindButton(id: string): this;
+    setError(errorFunction: (ctx: InteractionContext, error: Error) => (void | Promise<void>)): this;
     /**
-     * Bind a {@link Modal modal} to the command handler.
-     * @param modal The {@link Modal modal} to bind.
+     * Set the middleware function for the command handler.
+     * @returns The command handler.
      */
-    bindModal(modal: Modal<any, any>): this;
+    setMiddleware(middlewareFunction: (ctx: InteractionContext, meta: MiddlewareMeta | null) => (boolean | Promise<boolean>)): this;
     /**
-     * Unbind a {@link Modal modal} from the command handler.
-     * @param id The {@link Modal modal}'s custom ID.
+     * Checks if a structure is a {@link Command command}.
      */
-    unbindModal(id: string): this;
+    static isCommand(structure: any): structure is Command;
     /**
-     * Binds message components to the command handler.
-     * @param components The components to bind.
+     * Checks if a structure is a {@link Component component}.
      */
-    bindComponents(components: FactoryComponents): void;
+    static isComponent(structure: any): structure is Component;
     /**
-     * Unbinds message components to the command handler.
-     * @param components The components to unbind.
+     * Checks if a structure is a {@link Modal modal}.
      */
-    unbindComponents(components: FactoryComponents): void;
+    static isModal(structure: any): structure is Modal<any>;
     /**
-     * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
+     * Checks if a structure is compatible with the command handler.
      */
-    push(applicationId?: Snowflake | undefined): Promise<void>;
+    static isCompatableStructure(structure: any): structure is CommandHandlerStructure;
     /**
-     * Set the error callback function to run when an interaction's execution fails.
-     * @param errorCallback The callback to use.
+     * Pushes global {@link Command commands} to the API.
+     * @param commands Commands to load.
      */
-    setError(errorCallback: CommandHandler[`runError`]): this;
+    private _pushGlobalCommands;
     /**
-     * Set the error callback function to run when a component's expire callback fails.
-     * @param errorCallback The callback to use.
+     * Pushes guild {@link Command commands} to the API.
+     * @param commands Commands to load.
      */
-    setExpireError(errorCallback: CommandHandler[`runExpireError`]): this;
-    /**
-     * Set middleware for {@link Button buttons}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link Button button} will not be executed.
-     */
-    setButtonMiddleware(middleware: (ctx: ButtonContext) => boolean): this;
-    /**
-     * Set middleware for {@link ChatCommand chat command}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link ChatCommand chat command} will not be executed.
-     */
-    setChatCommandMiddleware(middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this;
-    /**
-     * Set middleware for {@link ContextMenuCommand context menu commands}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link ContextMenuCommand context menu command} will not be executed.
-     */
-    setContextMenuCommandMiddleware(middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this;
-    /**
-     * Set middleware for {@link Modal modals}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link Modal modal} will not be executed.
-     */
-    setModalMiddleware(middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this;
+    private _pushGuildCommands;
     /**
      * Callback to run when receiving an interaction.
      * @param interaction The received interaction.
      */
     private _onInteraction;
-    /**
-     * Set the expire timeout for a button.
-     * @param button The button to set the timeout for.
-     */
-    _setButtonExpireTimeout(button: Button): void;
 }

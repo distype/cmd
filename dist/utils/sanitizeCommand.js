@@ -23,27 +23,55 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sanitizeCommand = void 0;
+exports.sanitizeGuildCommand = exports.sanitizeCommand = void 0;
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 /**
- * Sanitizes a raw command.
+ * Sanitizes a raw global command.
  * @param command The command to sanitize.
  * @returns The sanitized command.
  * @internal
  */
 function sanitizeCommand(command) {
     const raw = {
-        description: command.description,
+        description: command.description ?? ``,
         default_member_permissions: command.default_member_permissions ?? null,
         description_localizations: command.description_localizations ?? {},
-        dm_permission: command.dm_permission ?? true,
+        dm_permission: command.dm_permission === false ? false : undefined,
         name: command.name,
         name_localizations: command.name_localizations ?? {},
         options: command.options ?? [],
         type: command.type ?? DiscordTypes.ApplicationCommandType.ChatInput
     };
-    (0, node_utils_1.traverseObject)(raw, (obj) => {
+    traverseCommand(raw);
+    return raw;
+}
+exports.sanitizeCommand = sanitizeCommand;
+/**
+ * Sanitizes a raw guild command.
+ * @param command The command to sanitize.
+ * @returns The sanitized command.
+ * @internal
+ */
+function sanitizeGuildCommand(command) {
+    const raw = {
+        description: command.description ?? ``,
+        default_member_permissions: command.default_member_permissions ?? null,
+        description_localizations: command.description_localizations ?? {},
+        name: command.name,
+        name_localizations: command.name_localizations ?? {},
+        options: command.options ?? [],
+        type: command.type ?? DiscordTypes.ApplicationCommandType.ChatInput
+    };
+    traverseCommand(raw);
+    return raw;
+}
+exports.sanitizeGuildCommand = sanitizeGuildCommand;
+/**
+ * Traverses a command to sanitize options.
+ */
+function traverseCommand(command) {
+    (0, node_utils_1.traverseObject)(command, (obj) => {
         if (typeof obj.autocomplete === `boolean` && !obj.autocomplete)
             delete obj.autocomplete;
         if (typeof obj.required === `boolean` && !obj.required)
@@ -53,6 +81,4 @@ function sanitizeCommand(command) {
                 delete obj[key];
         });
     });
-    return raw;
 }
-exports.sanitizeCommand = sanitizeCommand;

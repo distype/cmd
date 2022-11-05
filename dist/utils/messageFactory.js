@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageFactory = void 0;
-const Embed_1 = require("../structures/Embed");
+const Embed_1 = require("../structures/extras/Embed");
 const node_utils_1 = require("@br88c/node-utils");
 const v10_1 = require("discord-api-types/v10");
 /**
