@@ -1,66 +1,50 @@
-import { BaseComponentExpireContext, BaseInteractionContext } from './BaseContext';
-import { Button, ButtonContext, ButtonExpireContext } from './Button';
-import { ChatCommand, ChatCommandContext, ChatCommandProps } from './ChatCommand';
-import { ContextMenuCommand, ContextMenuCommandContext, ContextMenuCommandProps } from './ContextMenuCommand';
-import { Modal, ModalContext, ModalProps } from './Modal';
+import { InteractionContext } from './InteractionContext';
+import { ChatCommand, ChatCommandContext } from './commands/ChatCommand';
+import { MessageCommand, MessageCommandContext } from './commands/MessageCommand';
+import { UserCommand, UserCommandContext } from './commands/UserCommand';
+import { Button, ButtonContext } from './components/Button';
+import { ChannelSelect, ChannelSelectContext } from './components/ChannelSelect';
+import { MentionableSelect, MentionableSelectContext } from './components/MentionableSelect';
+import { RoleSelect, RoleSelectContext } from './components/RoleSelect';
+import { StringSelect, StringSelectContext } from './components/StringSelect';
+import { UserSelect, UserSelectContext } from './components/UserSelect';
+import { Expire } from './extras/Expire';
+import { Modal, ModalContext } from './modals/Modal';
 
-import { sanitizeCommand } from '../utils/sanitizeCommand';
-import { FactoryComponents, FactoryMessage, messageFactory } from '../utils/messageFactory';
+import type { MiddlewareMeta } from '../middleware';
+import { sanitizeCommand, sanitizeGuildCommand } from '../utils/sanitizeCommand';
 
 import { ExtendedMap } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { Client } from 'distype';
 import { readdir } from 'node:fs/promises';
 import { isAbsolute, resolve } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 /**
- * A command owned by the command handler.
+ * A command.
  */
-export type CommandHandlerCommand = ChatCommand<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]> | ContextMenuCommand<ContextMenuCommandProps>;
+export type Command = ChatCommand<any, any> | MessageCommand<any> | UserCommand<any>;
+
+/**
+ * A component.
+ */
+export type Component = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
+
+/**
+ * A structure compatible with the {@link CommandHandler command handler}.
+ */
+export type CommandHandlerStructure = Command | Component | Modal<any>;
+
 
 /**
  * The command handler.
  */
 export class CommandHandler {
     /**
-     * The command handler's {@link Button buttons}.
-     */
-    public buttons: ExtendedMap<string, Button> = new ExtendedMap();
-    /**
      * The client the command handler is bound to.
      */
     public client: Client;
-    /**
-     * The command handler's {@link CommandHandlerCommand commands}.
-     */
-    public commands: ExtendedMap<Snowflake | `unknown${number}`, CommandHandlerCommand> = new ExtendedMap();
-    /**
-     * The command handler's {@link Modal modals}.
-     */
-    public modals: ExtendedMap<string, Modal<ModalProps>> = new ExtendedMap();
-    /**
-     * Called when an interaction encounters an error.
-     * @param ctx The command context.
-     * @param error The error encountered.
-     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
-     * @internal
-     */
-    public runError: (ctx: BaseInteractionContext<boolean>, error: Error, unexpected: boolean) => (void | Promise<void>)
-        = (ctx, error, unexpected) => this.client.log(`${unexpected ? `Unexpected ` : ``}${error.name} when running interaction ${ctx.interaction.id}: ${error.message}`, {
-            level: `ERROR`, system: this.system
-        });
-    /**
-     * Called when a component expire context encounters an error.
-     * @param ctx The command context.
-     * @param error The error encountered.
-     * @param unexpected If the error was unexpected (not called via `ctx.error()`).
-     * @internal
-     */
-    public runExpireError: (ctx: BaseComponentExpireContext, error: Error, unexpected: boolean) => (void | Promise<void>)
-        = (ctx, error, unexpected) => this.client.log(`${unexpected ? `Unexpected ` : ``}${error.name} when running expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]})`, {
-            level: `ERROR`, system: this.system
-        });
 
     /**
      * The system string used for logging.
@@ -68,25 +52,30 @@ export class CommandHandler {
     public readonly system = `Command Handler`;
 
     /**
-     * Button middleware.
+     * Bound commands.
+     * Key is their ID.
      */
-    private _runButtonMiddleware: (ctx: ButtonContext) => (boolean | Promise<boolean>) = () => true;
+    private _boundCommands: ExtendedMap<string, Command> = new ExtendedMap();
     /**
-     * Chat command middleware.
+     * Bound components.
      */
-    private _runChatCommandMiddleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => (boolean | Promise<boolean>) = () => true;
+    private _boundComponents: Set<Component> = new Set();
     /**
-     * Context menu command middleware.
+     * Bound expires.
      */
-    private _runContextMenuCommandMiddleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => (boolean | Promise<boolean>) = () => true;
+    private _boundExpires: Set<Expire> = new Set();
     /**
-     * Modal middleware.
+     * Bound modals.
      */
-    private _runModalMiddleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => (boolean | Promise<boolean>) = () => true;
+    private _boundModals: Set<Modal<any>> = new Set();
     /**
-     * The nonce to use for indexing commands with an unknown ID.
+     * Error function.
      */
-    private _unknownCommandIdNonce = 0;
+    private _error: (ctx: InteractionContext, error: Error) => (void | Promise<void>) = () => {};
+    /**
+     * Middleware function.
+     */
+    private _middleware: (ctx: InteractionContext, meta: MiddlewareMeta | null) => (boolean | Promise<boolean>) = () => true;
 
     /**
      * Create the command handler.
@@ -103,273 +92,249 @@ export class CommandHandler {
     }
 
     /**
-     * Sends a message.
-     * @param channelId The channel to send the message in.
-     * @param message The message to send.
-     * @param components Components to add to the message.
-     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
+     * Returns structures found in a directory and its subdirectories.
+     * Only loads default exports.
+     * @param directories The directory to search.
+     * @returns Found structures.
      */
-    public async sendMessage (channelId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
-        const sent = await this.client.rest.createMessage(channelId, messageFactory(message, components));
+    public async extractFromDirectories (...directories: string[]): Promise<CommandHandlerStructure[]> {
+        const structures: CommandHandlerStructure[] = [];
 
-        if (components && bindComponents) this.bindComponents(components);
+        for (const directory of directories) {
+            const path = isAbsolute(directory) ? directory : resolve(process.cwd(), directory);
+            const files = await readdir(path, { withFileTypes: true });
 
-        return sent;
-    }
+            for (const file in files) {
+                if (files[file].isDirectory()) {
+                    structures.push(...(await this.extractFromDirectories(resolve(path, files[file].name))));
+                    continue;
+                }
+                if (!files[file].name.endsWith(`.js`)) continue;
 
-    /**
-     * Edits a message.
-     * @param channelId The channel the message was sent in.
-     * @param messageId The ID of the message to edit.
-     * @param message The new message.
-     * @param components Components to add to the message.
-     * @param bindComponents If the specified components should be bound to the command handler. Defaults to true.
-     */
-    public async editMessage (channelId: Snowflake, messageId: Snowflake, message: FactoryMessage, components?: FactoryComponents, bindComponents = true): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult> {
-        const edited = await this.client.rest.editMessage(channelId, messageId, messageFactory(message, components));
+                delete require.cache[require.resolve(resolve(path, files[file].name))];
+                const imported = await import(resolve(path, files[file].name));
+                const structure = imported.default ?? imported;
 
-        if (components && bindComponents) this.bindComponents(components);
-
-        return edited;
-    }
-
-    /**
-     * Load {@link CommandHandlerCommand commands} / {@link Button buttons} / {@link Modal modals} from a directory.
-     * @param directory The directory to load from.
-     */
-    public async load (directory: string): Promise<void> {
-        if (!isAbsolute(directory)) directory = resolve(process.cwd(), directory);
-
-        const files = await readdir(directory, { withFileTypes: true });
-
-        for (const file in files) {
-            if (files[file].isDirectory()) {
-                await this.load(resolve(directory, files[file].name));
-                continue;
-            }
-            if (!files[file].name.endsWith(`.js`)) continue;
-
-            delete require.cache[require.resolve(resolve(directory, files[file].name))];
-            const imported = await import(resolve(directory, files[file].name));
-            const structure = imported.default ?? imported;
-
-            if (structure instanceof ChatCommand || structure instanceof ContextMenuCommand) {
-                this.bindCommand(structure);
-            } else if (structure instanceof Button) {
-                this.bindButton(structure);
-            } else if (structure instanceof Modal) {
-                this.bindModal(structure);
+                if (CommandHandler.isCompatableStructure(structure)) structures.push(structure);
             }
         }
+
+        return structures;
     }
 
     /**
-     * Bind a {@link CommandHandlerCommand command} to the command handler.
-     * @param command The {@link CommandHandlerCommand command} to add.
+     * Loads interaction structures from a directory and its subdirectories.
+     * Only loads default exports. Note that {@link Expire expire helpers} cannot be loaded.
+     * @param directories The directory to search.
      */
-    public bindCommand (command: ChatCommand<any, any> | ContextMenuCommand<any>): this {
-        if (this.commands.find((c) => c.props.name === command.props.name && c.props.type === command.props.type)) throw new Error(`Commands of the same type cannot share names`);
+    public async loadDirectories (...directories: string[]): Promise<void> {
+        const structures = await this.extractFromDirectories(...directories);
 
-        this.commands.set(`unknown${this._unknownCommandIdNonce}`, command);
-        this._unknownCommandIdNonce++;
+        const commands = structures.filter((structure) => CommandHandler.isCommand(structure));
+        const customIds = structures.filter((structure) => CommandHandler.isComponent(structure) || CommandHandler.isModal(structure));
 
-        this.client.log(`Added command "${command.props.name}" (${DiscordTypes.ApplicationCommandType[command.props.type]})`, {
-            level: `DEBUG`, system: this.system
-        });
-        return this;
+        await this.pushCommands(...commands as any);
+        this.bind(...customIds as any);
     }
 
     /**
-     * Bind a {@link Button button} to the command handler.
-     * @param button The {@link Button button} to bind.
+     * Pushes {@link Command commands} to the API.
+     * Note that guilds that already have commands published that dont have any defined locally will not be overwritten.
+     * @param commands Commands to load.
      */
-    public bindButton (button: Button): this {
-        const raw: DiscordTypes.APIButtonComponentWithCustomId = button.getRaw() as any;
-        if (typeof raw.custom_id !== `string` || this.buttons.find((b, customId) => b === button && customId === raw.custom_id)) return this;
-
-        if (this.buttons.find((_, customId) => customId === raw.custom_id)) this.client.log(`Overriding existing component with ID ${raw.custom_id}`, {
-            level: `DEBUG`, system: this.system
-        });
-
-        this.buttons.set(raw.custom_id, button);
-
-        this._setButtonExpireTimeout(button);
-
-        this.client.log(`Bound button with custom ID ${raw.custom_id}`, {
-            level: `DEBUG`, system: this.system
-        });
-        return this;
-    }
-
-    /**
-     * Unbind a {@link Button button} from the command handler.
-     * @param id The {@link Button button}'s custom ID.
-     */
-    public unbindButton (id: string): this {
-        const button = this.buttons.get(id);
-        if (button?.expireTimeout) clearTimeout(button.expireTimeout);
-        this.buttons.delete(id);
-        return this;
-    }
-
-    /**
-     * Bind a {@link Modal modal} to the command handler.
-     * @param modal The {@link Modal modal} to bind.
-     */
-    public bindModal (modal: Modal<any, any>): this {
-        if (this.modals.find((m, customId) => m === modal && customId === modal.props.custom_id)) return this;
-
-        if (this.modals.find((_, customId) => customId === modal.props.custom_id)) this.client.log(`Overriding existing modal with ID ${modal.props.custom_id}`, {
-            level: `DEBUG`, system: this.system
-        });
-
-        this.modals.set(modal.props.custom_id, modal);
-
-        this.client.log(`Bound modal with custom ID ${modal.props.custom_id}`, {
-            level: `DEBUG`, system: this.system
-        });
-        return this;
-    }
-
-    /**
-     * Unbind a {@link Modal modal} from the command handler.
-     * @param id The {@link Modal modal}'s custom ID.
-     */
-    public unbindModal (id: string): this {
-        this.modals.delete(id);
-        return this;
-    }
-
-    /**
-     * Binds message components to the command handler.
-     * @param components The components to bind.
-     */
-    public bindComponents (components: FactoryComponents): void {
-        if (!Array.isArray(components)) {
-            if (components instanceof Button) this.bindButton(components);
-        } else {
-            components.flat().forEach((component) => {
-                if (component instanceof Button) this.bindButton(component);
-            });
-        }
-    }
-
-    /**
-     * Unbinds message components to the command handler.
-     * @param components The components to unbind.
-     */
-    public unbindComponents (components: FactoryComponents): void {
-        if (!Array.isArray(components)) {
-            if (components instanceof Button) this.unbindButton((components.getRaw() as any).custom_id);
-        } else {
-            components.flat().forEach((component) => {
-                if (component instanceof Button) this.unbindButton((component.getRaw() as any).custom_id);
-            });
-        }
-    }
-
-    /**
-     * Pushes added / changed / deleted {@link CommandHandlerCommand commands} to Discord.
-     */
-    public async push (applicationId: Snowflake | undefined = this.client.gateway.user?.id ?? undefined): Promise<void> {
-        if (!applicationId) throw new Error(`Application ID is undefined`);
-
-        const commands = this.commands.map((command) => command.getRaw());
+    public async pushCommands (...commands: Command[]): Promise<void> {
         this.client.log(`Pushing ${commands.length} commands`, {
             level: `INFO`, system: this.system
         });
 
-        const applicationCommands = await this.client.rest.getGlobalApplicationCommands(applicationId);
-        this.client.log(`Found ${applicationCommands.length} registered commands`, {
-            level: `DEBUG`, system: this.system
-        });
+        await this._pushGlobalCommands(commands);
+        await this._pushGuildCommands(commands);
+    }
 
-        const deletedCommands = applicationCommands.filter((applicationCommand) => !commands.find((command) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
-        const newCommands = commands.filter((command) => !applicationCommands.find((applicationCommand) => isDeepStrictEqual(command, sanitizeCommand(applicationCommand))));
-
-        if (deletedCommands.length) this.client.log(`Delete: ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-            level: `DEBUG`, system: this.system
-        });
-        if (newCommands.length) this.client.log(`New: ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-            level: `DEBUG`, system: this.system
-        });
-
-        for (const command of deletedCommands) {
-            await this.client.rest.deleteGlobalApplicationCommand(applicationId, command.id);
-        }
-
-        for (const command of newCommands) {
-            await this.client.rest.createGlobalApplicationCommand(applicationId, command as any);
-        }
-
-        const pushedCommands = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(applicationId) : applicationCommands;
-        pushedCommands.forEach((pushedCommand) => {
-            const matchingCommandKey = this.commands.findKey((command) => isDeepStrictEqual(command.getRaw(), sanitizeCommand(pushedCommand)));
-            const matchingCommand = this.commands.get(matchingCommandKey ?? ``);
-
-            if (matchingCommandKey && matchingCommand) {
-                this.commands.delete(matchingCommandKey);
-                this.commands.set(pushedCommand.id, matchingCommand);
+    /**
+     * Binds structures that use custom IDs.
+     * @param structures The structures to bind.
+     * @returns The command handler.
+     */
+    public bind (...structures: Array<Component | Modal<any> | Expire>): this {
+        structures.forEach((structure) => {
+            if (CommandHandler.isComponent(structure)) {
+                this._boundComponents.add(structure);
+            } else if (CommandHandler.isModal(structure)) {
+                this._boundModals.add(structure);
+            } else {
+                structure.commandHandler = this;
+                this._boundExpires.add(structure);
+                this.bind(...structure.structures);
+                structure.resetTimer();
             }
         });
 
-        this.client.log(`Created ${newCommands.length} commands, deleted ${deletedCommands.length} commands (Application now owns ${pushedCommands.length} commands)`, {
+        return this;
+    }
+
+    /**
+     * Unbind structures that use custom IDs.
+     * @param structures The structures to unbind.
+     * @returns The command handler.
+     */
+    public unbind (...structures: Array<Component | Modal<any> | Expire>): this {
+        structures.forEach((structure) => {
+            if (CommandHandler.isComponent(structure)) {
+                this._boundComponents.delete(structure);
+            } else if (CommandHandler.isModal(structure)) {
+                this._boundModals.delete(structure);
+            } else {
+                this._boundExpires.delete(structure);
+                this.unbind(...structure.structures);
+                structure.clearTimer();
+            }
+        });
+
+        return this;
+    }
+
+    /**
+     * Set the error function for the command handler.
+     * @returns The command handler.
+     */
+    public setError (errorFunction: (ctx: InteractionContext, error: Error) => (void | Promise<void>)): this {
+        this._error = errorFunction;
+        return this;
+    }
+
+    /**
+     * Set the middleware function for the command handler.
+     * @returns The command handler.
+     */
+    public setMiddleware (middlewareFunction: (ctx: InteractionContext, meta: MiddlewareMeta | null) => (boolean | Promise<boolean>)): this {
+        this._middleware = middlewareFunction;
+        return this;
+    }
+
+    /**
+     * Checks if a structure is a {@link Command command}.
+     */
+    public static isCommand (structure: any): structure is Command {
+        return structure instanceof ChatCommand || structure instanceof MessageCommand || structure instanceof UserCommand;
+    }
+
+    /**
+     * Checks if a structure is a {@link Component component}.
+     */
+    public static isComponent (structure: any): structure is Component {
+        return structure instanceof Button || structure instanceof ChannelSelect || structure instanceof MentionableSelect || structure instanceof RoleSelect || structure instanceof StringSelect || structure instanceof UserSelect;
+    }
+
+    /**
+     * Checks if a structure is a {@link Modal modal}.
+     */
+    public static isModal (structure: any): structure is Modal<any> {
+        return structure instanceof Modal;
+    }
+
+    /**
+     * Checks if a structure is compatible with the command handler.
+     */
+    public static isCompatableStructure (structure: any): structure is CommandHandlerStructure {
+        return this.isCommand(structure) || this.isComponent(structure) || this.isModal(structure);
+    }
+
+    /**
+     * Pushes global {@link Command commands} to the API.
+     * @param commands Commands to load.
+     */
+    private async _pushGlobalCommands (commands: Command[]): Promise<void> {
+        if (!this.client.gateway.user?.id) throw new Error(`Unable to push global commands: application ID is undefined (client.gateway.user.id)`);
+
+        const local = commands.filter((command) => !command.getGuild()).map((command) => sanitizeCommand(command.getRaw()));
+        const published = await this.client.rest.getGlobalApplicationCommands(this.client.gateway.user.id, { with_localizations: true });
+        this.client.log(`Found ${published.length} published global commands`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        const deletedCommands = published.filter((published) => !local.find((local) => isDeepStrictEqual(local, sanitizeCommand(published))));
+        const newCommands = local.filter((local) => !published.find((published) => isDeepStrictEqual(local, sanitizeCommand(published))));
+
+        if (deletedCommands.length) this.client.log(`Delete (Global): ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+            level: `DEBUG`, system: this.system
+        });
+        if (newCommands.length) this.client.log(`New (Global): ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        if (deletedCommands.length === published.length) {
+            await this.client.rest.bulkOverwriteGlobalApplicationCommands(this.client.gateway.user.id, newCommands);
+        } else {
+            for (const command of deletedCommands) {
+                await this.client.rest.deleteGlobalApplicationCommand(this.client.gateway.user.id, command.id);
+            }
+
+            for (const command of newCommands) {
+                await this.client.rest.createGlobalApplicationCommand(this.client.gateway.user.id, command as any);
+            }
+        }
+
+        const newPublished = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(this.client.gateway.user.id, {}) : published;
+        newPublished.forEach((command) => {
+            const foundLocal = commands.find((local) => !local.getGuild() && local.getRaw().name === command.name);
+            if (foundLocal) this._boundCommands.set(command.id, foundLocal);
+        });
+
+        this.client.log(`Created ${newCommands.length} global commands and deleted ${deletedCommands.length} global commands (Application now owns ${newPublished.length} global commands)`, {
             level: `INFO`, system: this.system
         });
     }
 
     /**
-     * Set the error callback function to run when an interaction's execution fails.
-     * @param errorCallback The callback to use.
+     * Pushes guild {@link Command commands} to the API.
+     * @param commands Commands to load.
      */
-    public setError (errorCallback: CommandHandler[`runError`]): this {
-        this.runError = errorCallback;
-        return this;
-    }
+    private async _pushGuildCommands (commands: Command[]): Promise<void> {
+        if (!this.client.gateway.user?.id) throw new Error(`Unable to push guild commands: application ID is undefined (client.gateway.user.id)`);
 
-    /**
-     * Set the error callback function to run when a component's expire callback fails.
-     * @param errorCallback The callback to use.
-     */
-    public setExpireError (errorCallback: CommandHandler[`runExpireError`]): this {
-        this.runExpireError = errorCallback;
-        return this;
-    }
+        const guilds = new Set(commands.map((command) => command.getGuild()).filter((guild) => guild) as string[]);
 
-    /**
-     * Set middleware for {@link Button buttons}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link Button button} will not be executed.
-     */
-    public setButtonMiddleware (middleware: (ctx: ButtonContext) => boolean): this {
-        this._runButtonMiddleware = middleware;
-        return this;
-    }
+        for (const guild of guilds) {
+            const local = commands.filter((command) => command.getGuild() === guild).map((command) => sanitizeGuildCommand(command.getRaw()));
+            const published = await this.client.rest.getGuildApplicationCommands(this.client.gateway.user.id, guild, { with_localizations: true });
 
-    /**
-     * Set middleware for {@link ChatCommand chat command}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link ChatCommand chat command} will not be executed.
-     */
-    public setChatCommandMiddleware (middleware: (ctx: ChatCommandContext<ChatCommandProps, DiscordTypes.APIApplicationCommandBasicOption[]>) => boolean): this {
-        this._runChatCommandMiddleware = middleware;
-        return this;
-    }
+            this.client.log(`Found ${published.length} published commands in guild ${guild}`, {
+                level: `DEBUG`, system: this.system
+            });
 
-    /**
-     * Set middleware for {@link ContextMenuCommand context menu commands}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link ContextMenuCommand context menu command} will not be executed.
-     */
-    public setContextMenuCommandMiddleware (middleware: (ctx: ContextMenuCommandContext<ContextMenuCommandProps>) => boolean): this {
-        this._runContextMenuCommandMiddleware = middleware;
-        return this;
-    }
+            const deletedCommands = published.filter((published) => !local.find((local) => isDeepStrictEqual(local, sanitizeGuildCommand(published))));
+            const newCommands = local.filter((local) => !published.find((published) => isDeepStrictEqual(local, sanitizeGuildCommand(published))));
 
-    /**
-     * Set middleware for {@link Modal modals}.
-     * @param middleware The middleware callback. If it returns `false`, the {@link Modal modal} will not be executed.
-     */
-    public setModalMiddleware (middleware: (ctx: ModalContext<ModalProps, DiscordTypes.APITextInputComponent[]>) => boolean): this {
-        this._runModalMiddleware = middleware;
-        return this;
+            if (deletedCommands.length) this.client.log(`Delete (${guild}): ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+                level: `DEBUG`, system: this.system
+            });
+            if (newCommands.length) this.client.log(`New (${guild}): ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
+                level: `DEBUG`, system: this.system
+            });
+
+            if (deletedCommands.length === published.length) {
+                await this.client.rest.bulkOverwriteGuildApplicationCommands(this.client.gateway.user.id, guild, newCommands);
+            } else {
+                for (const command of deletedCommands) {
+                    await this.client.rest.deleteGuildApplicationCommand(this.client.gateway.user.id, guild, command.id);
+                }
+
+                for (const command of newCommands) {
+                    await this.client.rest.createGuildApplicationCommand(this.client.gateway.user.id, guild, command as any);
+                }
+            }
+
+            const newPublished = newCommands.length + deletedCommands.length ? await this.client.rest.getGuildApplicationCommands(this.client.gateway.user.id, guild, {}) : published;
+            newPublished.forEach((command) => {
+                const foundLocal = commands.find((local) => local.getRaw().name === command.name);
+                if (foundLocal) this._boundCommands.set(command.id, foundLocal);
+            });
+
+            this.client.log(`Created ${newCommands.length} commands and deleted ${deletedCommands.length} commands in guild ${guild} (Application now owns ${newPublished.length} commands in guild ${guild})`, {
+                level: `INFO`, system: this.system
+            });
+        }
     }
 
     /**
@@ -377,148 +342,107 @@ export class CommandHandler {
      * @param interaction The received interaction.
      */
     private async _onInteraction (interaction: DiscordTypes.APIInteraction): Promise<void> {
-        let middleware: any;
-        let run: any;
-        let ctx: any;
+        let structure: CommandHandlerStructure | undefined;
+        let context: InteractionContext | undefined;
 
         switch (interaction.type) {
             case DiscordTypes.InteractionType.ApplicationCommand: {
-                const command = this.commands.get(interaction.data.id);
-                if (command) {
-                    if (command.props.type === DiscordTypes.ApplicationCommandType.ChatInput) {
-                        middleware = this._runChatCommandMiddleware;
-                        run = command.runExecute;
-                        ctx = new ChatCommandContext(interaction as any, command as any, this);
-                    } else {
-                        middleware = this._runContextMenuCommandMiddleware;
-                        run = command.runExecute;
-                        ctx = new ContextMenuCommandContext(interaction as any, command as any, this);
+                structure = this._boundCommands.get(interaction.data.id);
+
+                switch (interaction.data.type) {
+                    case DiscordTypes.ApplicationCommandType.ChatInput: {
+                        if (structure) context = new ChatCommandContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandType.Message: {
+                        if (structure) context = new MessageCommandContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandType.User: {
+                        if (structure) context = new UserCommandContext(interaction as any, this);
+                        break;
                     }
                 }
-
                 break;
             }
-
             case DiscordTypes.InteractionType.MessageComponent: {
-                if (interaction.data.component_type === DiscordTypes.ComponentType.Button) {
-                    const button = this.buttons.get(interaction.data.custom_id);
-                    if (button) {
-                        middleware = this._runButtonMiddleware;
-                        run = button.runExecute;
-                        ctx = new ButtonContext(interaction, button, this);
+                structure = Array.from(this._boundComponents).find((component) => component.getCustomId() === interaction.data.custom_id && component.getType() === interaction.data.component_type);
 
-                        this._setButtonExpireTimeout(button);
+                switch (interaction.data.component_type) {
+                    case DiscordTypes.ComponentType.Button: {
+                        if (structure) context = new ButtonContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ComponentType.ChannelSelect: {
+                        if (structure) context = new ChannelSelectContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ComponentType.MentionableSelect: {
+                        if (structure) context = new MentionableSelectContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ComponentType.RoleSelect: {
+                        if (structure) context = new RoleSelectContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ComponentType.StringSelect: {
+                        if (structure) context = new StringSelectContext(interaction as any, this);
+                        break;
+                    }
+                    case DiscordTypes.ComponentType.UserSelect: {
+                        if (structure) context = new UserSelectContext(interaction as any, this);
+                        break;
                     }
                 }
-
                 break;
             }
-
             case DiscordTypes.InteractionType.ModalSubmit: {
-                const modal = this.modals.get(interaction.data.custom_id);
-                if (modal) {
-                    middleware = this._runModalMiddleware;
-                    run = modal.runExecute;
-                    ctx = new ModalContext(interaction, modal, this);
-                }
-
+                structure = Array.from(this._boundModals).find((modal) => modal.getCustomId() === interaction.data.custom_id);
+                if (structure) context = new ModalContext(interaction, this);
                 break;
             }
         }
 
-        if (typeof middleware === `function` && typeof run === `function` && ctx) {
-            this.client.log(`Running interaction ${interaction.id}`, {
-                level: `DEBUG`, system: this.system
-            });
+        if (!structure || !context) return;
 
+        if (CommandHandler.isComponent(structure) || CommandHandler.isModal(structure)) {
+            const expire = Array.from(this._boundExpires).find((expire) => expire.structures.find((s) => s === structure));
+            if (expire) expire.resetTimer();
+        }
+
+        this.client.log(`Running interaction ${interaction.id}`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        try {
+            const middlewareCall = this._middleware(context, structure.getMiddlewareMeta());
+            let middlewareResult;
+            if (middlewareCall instanceof Promise) {
+                const reject = await middlewareCall.catch((error: Error) => error);
+                if (reject instanceof Error) throw reject;
+                else middlewareResult = reject;
+            } else {
+                middlewareResult = middlewareCall;
+            }
+            if (middlewareResult === false) return;
+
+            const call = structure.getExecute()(context as any);
+            if (call instanceof Promise) {
+                const reject = await call.then(() => {}).catch((error: Error) => error);
+                if (reject instanceof Error) throw reject;
+            }
+        } catch (error: any) {
             try {
-                const middlewareCall = middleware(ctx);
-                let middlewareResult;
-                if (middlewareCall instanceof Promise) {
-                    const reject = await middlewareCall.catch((error: Error) => error);
-                    if (reject instanceof Error) throw reject;
-                    else middlewareResult = reject;
-                } else {
-                    middlewareResult = middlewareCall;
-                }
-                if (middlewareResult === false) return;
-
-                const call = run(ctx);
+                const call = this._error(context, error instanceof Error ? error : new Error(error));
                 if (call instanceof Promise) {
                     const reject = await call.then(() => {}).catch((error: Error) => error);
                     if (reject instanceof Error) throw reject;
                 }
-            } catch (error: any) {
-                try {
-                    const call = this.runError(ctx, error instanceof Error ? error : new Error(error), true);
-                    if (call instanceof Promise) {
-                        const reject = await call.then(() => {}).catch((error: Error) => error);
-                        if (reject instanceof Error) throw reject;
-                    }
-                } catch (eError: any) {
-                    this.client.log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
-                        level: `ERROR`, system: this.system
-                    });
-                }
+            } catch (eError: any) {
+                this.client.log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
+                    level: `ERROR`, system: this.system
+                });
             }
         }
-    }
-
-    /**
-     * Set the expire timeout for a button.
-     * @param button The button to set the timeout for.
-     */
-    public _setButtonExpireTimeout (button: Button): void {
-        if (button.expireTimeout) clearTimeout(button.expireTimeout);
-        if (button.expireTime === null) return;
-
-        button.expireTimeout = setTimeout(async () => {
-            const raw = button.getRaw();
-            const ctx = new ButtonExpireContext((raw as any).custom_id, raw.type, button, this);
-
-            try {
-                if (typeof button.runExecuteExpire === `function`) {
-                    const call = button.runExecuteExpire!(ctx);
-
-                    if (call instanceof Promise) {
-                        const result = await call.then((res) => Boolean(res)).catch((error: Error) => error);
-                        if (result instanceof Error) throw result;
-
-                        if (result) {
-                            this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                                level: `DEBUG`, system: this.system
-                            });
-                            this.buttons.delete((raw as any).custom_id);
-                        } else {
-                            this._setButtonExpireTimeout(button);
-                        }
-                    } else if (call) {
-                        this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                            level: `DEBUG`, system: this.system
-                        });
-                        this.buttons.delete((raw as any).custom_id);
-                    } else {
-                        this._setButtonExpireTimeout(button);
-                    }
-                } else {
-                    this.client.log(`Component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}) expired`, {
-                        level: `DEBUG`, system: this.system
-                    });
-                    this.buttons.delete((raw as any).custom_id);
-                }
-            } catch (error: any) {
-                try {
-                    const call = this.runExpireError(ctx, error instanceof Error ? error : new Error(error), true);
-                    if (call instanceof Promise) {
-                        const reject = await call.then(() => {}).catch((error: Error) => error);
-                        if (reject instanceof Error) throw reject;
-                    }
-                } catch (eError: any) {
-                    this.client.log(`Unable to run expire callback for component "${ctx.component.customId}" (${DiscordTypes.ComponentType[ctx.component.type]}): ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
-                        level: `ERROR`, system: this.system
-                    });
-                }
-            }
-        }, button.expireTime);
     }
 }

@@ -1,5 +1,6 @@
-import { Button } from '../structures/Button';
-import { Embed } from '../structures/Embed';
+import { Component } from '../structures/CommandHandler';
+import { Button } from '../structures/components/Button';
+import { Embed } from '../structures/extras/Embed';
 
 import { to2dArray } from '@br88c/node-utils';
 import { APIInteractionResponseCallbackData, ComponentType } from 'discord-api-types/v10';
@@ -12,7 +13,7 @@ export type FactoryMessage = string | Embed | APIInteractionResponseCallbackData
 /**
  * A component used by the message factory.
  */
-export type FactoryComponent = Button;
+export type FactoryComponent = Button | Component;
 
 /**
  * Multiple components.
