@@ -1,5 +1,7 @@
 import { BaseComponent, BaseComponentContext, BaseComponentContextCallback } from './base/BaseComponent';
 
+import { CommandHandler } from '../CommandHandler';
+
 import * as DiscordTypes from 'discord-api-types/v10';
 
 /**
