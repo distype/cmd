@@ -53,7 +53,7 @@ export class ChatCommand<GuildOnly extends boolean = false, Options extends Reco
      * @param localization Description localization.
      * @returns The command.
      */
-    public setDescription (description: string, localization: DiscordTypes.LocalizationMap): this {
+    public setDescription (description: string, localization?: DiscordTypes.LocalizationMap): this {
         this._raw.description = description;
         this._raw.description_localizations = localization;
         return this;

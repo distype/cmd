@@ -188,7 +188,7 @@ export abstract class BaseCommandContext<GuildOnly extends boolean> extends Inte
      * Respond with a modal.
      * @param modal The modal to respond with.
      */
-    public async showModal (modal: Modal): Promise<void> {
+    public async showModal (modal: Modal<any>): Promise<void> {
         await this.client.rest.createInteractionResponse(this.interaction.id, this.interaction.token, {
             type: DiscordTypes.InteractionResponseType.Modal,
             data: modal.getRaw()
