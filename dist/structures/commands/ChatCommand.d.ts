@@ -46,7 +46,7 @@ export declare class ChatCommand<GuildOnly extends boolean = false, Options exte
      * @param localization Description localization.
      * @returns The command.
      */
-    setDescription(description: string, localization: DiscordTypes.LocalizationMap): this;
+    setDescription(description: string, localization?: DiscordTypes.LocalizationMap): this;
     /**
      * Add a string option.
      * @param required If the option is required.

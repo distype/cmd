@@ -133,5 +133,5 @@ export declare abstract class BaseCommandContext<GuildOnly extends boolean> exte
      * Respond with a modal.
      * @param modal The modal to respond with.
      */
-    showModal(modal: Modal): Promise<void>;
+    showModal(modal: Modal<any>): Promise<void>;
 }
