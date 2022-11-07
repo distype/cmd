@@ -139,7 +139,7 @@ class BaseCommand {
      * @returns The converted command.
      */
     getRaw() {
-        if (this._raw.name)
+        if (!this._raw.name)
             throw new Error(`Command name must be defined`);
         return this._guild !== null ? (0, sanitizeCommand_1.sanitizeGuildCommand)(this._raw) : (0, sanitizeCommand_1.sanitizeCommand)(this._raw);
     }
