@@ -136,7 +136,7 @@ export abstract class BaseCommand<Raw extends DiscordTypes.RESTPostAPIApplicatio
      * @returns The converted command.
      */
     public getRaw (): SanitizedCommand {
-        if (this._raw.name) throw new Error(`Command name must be defined`);
+        if (!this._raw.name) throw new Error(`Command name must be defined`);
         return this._guild !== null ? sanitizeGuildCommand(this._raw as any) : sanitizeCommand(this._raw as any);
     }
 }
