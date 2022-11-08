@@ -1,10 +1,4 @@
 import { Component } from '../structures/CommandHandler';
-import { Button } from '../structures/components/Button';
-import { ChannelSelect } from '../structures/components/ChannelSelect';
-import { MentionableSelect } from '../structures/components/MentionableSelect';
-import { RoleSelect } from '../structures/components/RoleSelect';
-import { StringSelect } from '../structures/components/StringSelect';
-import { UserSelect } from '../structures/components/UserSelect';
 import { Embed } from '../structures/extras/Embed';
 
 import { to2dArray } from '@br88c/node-utils';
@@ -16,15 +10,10 @@ import { APIInteractionResponseCallbackData, ComponentType } from 'discord-api-t
 export type FactoryMessage = string | Embed | APIInteractionResponseCallbackData;
 
 /**
- * Components compatible with the message factory.
- */
-export type FactoryComponent = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
-
-/**
  * Multiple components.
  * A single component will be sent as the component alone, a component array will be sent as a component row, a 2d component array will be sent as multiple component rows.
  */
-export type FactoryComponents = FactoryComponent | FactoryComponent[] | FactoryComponent[][]
+export type FactoryComponents = Component | Component[] | Component[][]
 
 /**
  * Converts a message sent through a command to a Discord API compatible object.
@@ -44,8 +33,8 @@ export function messageFactory (message: FactoryMessage, components?: FactoryCom
         if (!Array.isArray(components)) {
             componentMap = [[components]];
         } else if (!Array.isArray(components[0])) {
-            const buttons = (components as Component[]).filter((component) => component instanceof Button);
-            const selects = (components as Component[]).filter((component) => !(component instanceof Button));
+            const buttons = (components as Component[]).filter((component) => component.getRaw().type === ComponentType.Button);
+            const selects = (components as Component[]).filter((component) => component.getRaw().type !== ComponentType.Button);
             componentMap = to2dArray(buttons, 5).concat(...selects.map((select) => [select]));
         } else {
             componentMap = components as Component[][];
