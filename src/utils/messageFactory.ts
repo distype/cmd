@@ -35,7 +35,7 @@ export function messageFactory (message: FactoryMessage, components?: FactoryCom
         } else if (!Array.isArray(components[0])) {
             const buttons = (components as Component[]).filter((component) => component.getRaw().type === ComponentType.Button);
             const selects = (components as Component[]).filter((component) => component.getRaw().type !== ComponentType.Button);
-            componentMap = to2dArray(buttons, 5).concat(...selects.map((select) => [select]));
+            componentMap = to2dArray(buttons, 5).concat(selects.map((select) => [select]));
         } else {
             componentMap = components as Component[][];
         }
