@@ -60,6 +60,7 @@ export {
 
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
 export {
+    FactoryComponent,
     FactoryComponents,
     FactoryMessage,
     messageFactory
