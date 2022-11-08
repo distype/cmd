@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageFactory = void 0;
-const Button_1 = require("../structures/components/Button");
 const Embed_1 = require("../structures/extras/Embed");
 const node_utils_1 = require("@br88c/node-utils");
 const v10_1 = require("discord-api-types/v10");
@@ -25,8 +24,8 @@ function messageFactory(message, components) {
             componentMap = [[components]];
         }
         else if (!Array.isArray(components[0])) {
-            const buttons = components.filter((component) => component instanceof Button_1.Button);
-            const selects = components.filter((component) => !(component instanceof Button_1.Button));
+            const buttons = components.filter((component) => component.getRaw().type === v10_1.ComponentType.Button);
+            const selects = components.filter((component) => component.getRaw().type !== v10_1.ComponentType.Button);
             componentMap = (0, node_utils_1.to2dArray)(buttons, 5).concat(...selects.map((select) => [select]));
         }
         else {
