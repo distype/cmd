@@ -40,7 +40,7 @@ export class BaseSelect<T extends DiscordTypes.APISelectMenuComponent[`type`]> e
      * @returns The component.
      */
     public setMaxValues (maxValues: number): this {
-        this._raw.min_values = maxValues;
+        this._raw.max_values = maxValues;
         return this;
     }
 }
