@@ -15,5 +15,5 @@ export { Embed } from './structures/extras/Embed';
 export { Expire } from './structures/extras/Expire';
 export { Modal, ModalContext, ModalTextFieldStyle } from './structures/modals/Modal';
 export { cleanseMarkdown } from './utils/cleanseMarkdown';
-export { FactoryComponents, FactoryMessage, messageFactory } from './utils/messageFactory';
+export { FactoryComponent, FactoryComponents, FactoryMessage, messageFactory } from './utils/messageFactory';
 export { sanitizeCommand } from './utils/sanitizeCommand';
