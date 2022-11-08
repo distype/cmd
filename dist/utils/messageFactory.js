@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageFactory = void 0;
+const Button_1 = require("../structures/components/Button");
 const Embed_1 = require("../structures/extras/Embed");
 const node_utils_1 = require("@br88c/node-utils");
 const v10_1 = require("discord-api-types/v10");
-const Button_1 = require("../structures/components/Button");
 /**
  * Converts a message sent through a command to a Discord API compatible object.
  * @param message The message to convert.
