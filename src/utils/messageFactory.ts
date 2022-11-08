@@ -18,7 +18,7 @@ export type FactoryMessage = string | Embed | APIInteractionResponseCallbackData
 /**
  * Components compatible with the message factory.
  */
-export type FactoryComponent = Button | ChannelSelect | MentionableSelect |RoleSelect | StringSelect<any> | UserSelect;
+export type FactoryComponent = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
 
 /**
  * Multiple components.
