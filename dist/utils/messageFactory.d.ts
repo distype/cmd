@@ -1,5 +1,4 @@
 import { Component } from '../structures/CommandHandler';
-import { Button } from '../structures/components/Button';
 import { Embed } from '../structures/extras/Embed';
 import { APIInteractionResponseCallbackData } from 'discord-api-types/v10';
 /**
@@ -7,14 +6,10 @@ import { APIInteractionResponseCallbackData } from 'discord-api-types/v10';
  */
 export declare type FactoryMessage = string | Embed | APIInteractionResponseCallbackData;
 /**
- * A component used by the message factory.
- */
-export declare type FactoryComponent = Button | Component;
-/**
  * Multiple components.
  * A single component will be sent as the component alone, a component array will be sent as a component row, a 2d component array will be sent as multiple component rows.
  */
-export declare type FactoryComponents = FactoryComponent | FactoryComponent[] | FactoryComponent[][];
+export declare type FactoryComponents = Component | Component[] | Component[][];
 /**
  * Converts a message sent through a command to a Discord API compatible object.
  * @param message The message to convert.

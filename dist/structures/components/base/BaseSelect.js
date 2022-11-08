@@ -32,7 +32,7 @@ class BaseSelect extends BaseComponent_1.BaseComponent {
      * @returns The component.
      */
     setMaxValues(maxValues) {
-        this._raw.min_values = maxValues;
+        this._raw.max_values = maxValues;
         return this;
     }
 }
