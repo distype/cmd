@@ -26,7 +26,7 @@ function messageFactory(message, components) {
         else if (!Array.isArray(components[0])) {
             const buttons = components.filter((component) => component.getRaw().type === v10_1.ComponentType.Button);
             const selects = components.filter((component) => component.getRaw().type !== v10_1.ComponentType.Button);
-            componentMap = (0, node_utils_1.to2dArray)(buttons, 5).concat(...selects.map((select) => [select]));
+            componentMap = (0, node_utils_1.to2dArray)(buttons, 5).concat(selects.map((select) => [select]));
         }
         else {
             componentMap = components;
