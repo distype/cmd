@@ -54,8 +54,15 @@ export function sanitizeGuildCommand (command: RemoveDeprecated<DiscordTypes.RES
  */
 function traverseCommand (command: any): void {
     traverseObject(command, (obj) => {
-        if (typeof obj.autocomplete === `boolean` && !obj.autocomplete) delete obj.autocomplete;
-        if (typeof obj.required === `boolean` && !obj.required) delete obj.required;
+        if (obj.options) {
+            obj.options = obj.options.map((option: any) => ({
+                ...option,
+                autocomplete: option.autocomplete ?? false,
+                description_localizations: obj.description_localizations ?? {},
+                name_localizations: obj.name_localizations ?? {},
+                required: option.required ?? false
+            }));
+        }
 
         Object.keys(obj).forEach((key) => {
             if (obj[key] === undefined) delete obj[key];
