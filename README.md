@@ -3,8 +3,7 @@
     <h1>@distype/cmd</h1>
     <p>
         <a href="https://www.npmjs.com/package/@distype/cmd"><img src="https://img.shields.io/npm/v/@distype/cmd.svg?color=5162F&style=for-the-badge&logo=npm"></a>
-        <a href="https://github.com/distype/cmd/actions/workflows/build.yml"><img src="https://img.shields.io/github/workflow/status/distype/cmd/Build?style=for-the-badge&logo=github"><a>
-        <a href="https://github.com/distype/cmd/actions/workflows/tests.yml"><img src="https://img.shields.io/github/workflow/status/distype/cmd/Tests?label=tests&style=for-the-badge&logo=github"><a>
+        <a href="https://github.com/distype/cmd/actions/workflows/tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/distype/cmd/tests.yml?style=for-the-badge&logo=github&label=Tests"><a>
         <a href="https://discord.gg/E2JsYPPJYN"><img src="https://img.shields.io/discord/773939670505619486?color=5162F1&style=for-the-badge&logo=discord&logoColor=white"></a>
     </p>
 </div>
