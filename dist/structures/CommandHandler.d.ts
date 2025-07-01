@@ -1,29 +1,29 @@
-import { InteractionContext } from './InteractionContext';
-import { ChatCommand } from './commands/ChatCommand';
-import { MessageCommand } from './commands/MessageCommand';
-import { UserCommand } from './commands/UserCommand';
-import { Button } from './components/Button';
-import { ChannelSelect } from './components/ChannelSelect';
-import { MentionableSelect } from './components/MentionableSelect';
-import { RoleSelect } from './components/RoleSelect';
-import { StringSelect } from './components/StringSelect';
-import { UserSelect } from './components/UserSelect';
-import { Expire } from './extras/Expire';
-import { Modal } from './modals/Modal';
-import type { MiddlewareMeta } from '../middleware';
-import { Client } from 'distype';
+import { InteractionContext } from "./InteractionContext";
+import { ChatCommand } from "./commands/ChatCommand";
+import { MessageCommand } from "./commands/MessageCommand";
+import { UserCommand } from "./commands/UserCommand";
+import { Button } from "./components/Button";
+import { ChannelSelect } from "./components/ChannelSelect";
+import { MentionableSelect } from "./components/MentionableSelect";
+import { RoleSelect } from "./components/RoleSelect";
+import { StringSelect } from "./components/StringSelect";
+import { UserSelect } from "./components/UserSelect";
+import { Expire } from "./extras/Expire";
+import { Modal } from "./modals/Modal";
+import type { MiddlewareMeta } from "../middleware";
+import { Client } from "distype";
 /**
  * A command.
  */
-export declare type Command = ChatCommand<any, any> | MessageCommand<any> | UserCommand<any>;
+export type Command = ChatCommand<any, any> | MessageCommand<any> | UserCommand<any>;
 /**
  * A component.
  */
-export declare type Component = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
+export type Component = Button | ChannelSelect | MentionableSelect | RoleSelect | StringSelect<any> | UserSelect;
 /**
  * A structure compatible with the {@link CommandHandler command handler}.
  */
-export declare type CommandHandlerStructure = Command | Component | Modal<any>;
+export type CommandHandlerStructure = Command | Component | Modal<any>;
 /**
  * The command handler.
  */
@@ -101,12 +101,12 @@ export declare class CommandHandler {
      * Set the error function for the command handler.
      * @returns The command handler.
      */
-    setError(errorFunction: (ctx: InteractionContext, error: Error) => (void | Promise<void>)): this;
+    setError(errorFunction: (ctx: InteractionContext, error: Error) => void | Promise<void>): this;
     /**
      * Set the middleware function for the command handler.
      * @returns The command handler.
      */
-    setMiddleware(middlewareFunction: (ctx: InteractionContext, meta: MiddlewareMeta | null) => (boolean | Promise<boolean>)): this;
+    setMiddleware(middlewareFunction: (ctx: InteractionContext, meta: MiddlewareMeta | null) => boolean | Promise<boolean>): this;
     /**
      * Checks if a structure is a {@link Command command}.
      */

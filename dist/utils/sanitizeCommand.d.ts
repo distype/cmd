@@ -1,10 +1,9 @@
-import * as DiscordTypes from 'discord-api-types/v10';
-export declare type RemoveDeprecated<T> = Omit<T, `default_permission`>;
-export declare type SanitizedCommand = Required<Omit<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, `default_permission` | `dm_permission`>> & {
+import * as DiscordTypes from "discord-api-types/v10";
+export type RemoveDeprecated<T> = Omit<T, `default_permission` | `dm_permission` | `handler`>;
+export type SanitizedCommand = Required<RemoveDeprecated<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>> & {
     description: string;
-    dm_permission?: boolean;
 };
-export declare type SanitizedGuildCommand = Required<Omit<DiscordTypes.RESTPostAPIApplicationGuildCommandsJSONBody, `default_permission`>> & {
+export type SanitizedGuildCommand = Required<RemoveDeprecated<DiscordTypes.RESTPostAPIApplicationGuildCommandsJSONBody>> & {
     description: string;
 };
 /**
@@ -13,11 +12,11 @@ export declare type SanitizedGuildCommand = Required<Omit<DiscordTypes.RESTPostA
  * @returns The sanitized command.
  * @internal
  */
-export declare function sanitizeCommand(command: RemoveDeprecated<DiscordTypes.RESTPostAPIApplicationCommandsJSONBody>): SanitizedCommand;
+export declare function sanitizeCommand(command: DiscordTypes.APIApplicationCommand): SanitizedCommand;
 /**
  * Sanitizes a raw guild command.
  * @param command The command to sanitize.
  * @returns The sanitized command.
  * @internal
  */
-export declare function sanitizeGuildCommand(command: RemoveDeprecated<DiscordTypes.RESTPostAPIApplicationGuildCommandsJSONBody>): SanitizedGuildCommand;
+export declare function sanitizeGuildCommand(command: Omit<DiscordTypes.APIApplicationCommand, "dm_permission">): SanitizedGuildCommand;

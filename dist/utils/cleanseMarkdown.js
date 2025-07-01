@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanseMarkdown = void 0;
+exports.cleanseMarkdown = cleanseMarkdown;
 /**
  * Cleanses a string from markdown formatting, adding back slashes to do so.
  * @param str The string to cleanse.
@@ -14,4 +14,3 @@ function cleanseMarkdown(str) {
         .replaceAll(`_`, `\\_`)
         .replaceAll(`|`, `\\|`);
 }
-exports.cleanseMarkdown = cleanseMarkdown;

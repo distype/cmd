@@ -57,7 +57,8 @@ class Embed {
      * @param thumbnail The thumbnail to use. Can be either a string (adapted to `{ url: thumbnail }`), or the thumbnail object.
      */
     setThumbnail(thumbnail) {
-        this._raw.thumbnail = typeof thumbnail === `string` ? { url: thumbnail } : thumbnail;
+        this._raw.thumbnail =
+            typeof thumbnail === `string` ? { url: thumbnail } : thumbnail;
         return this;
     }
     /**
@@ -99,7 +100,10 @@ class Embed {
      * @param time The time to use. Can be a unix millisecond timestamp as a number, and ISO8601 string, or a date.
      */
     setTimestamp(time = new Date()) {
-        this._raw.timestamp = typeof time === `string` ? time : (time instanceof Date ? time : new Date(time)).toISOString();
+        this._raw.timestamp =
+            typeof time === `string`
+                ? time
+                : (time instanceof Date ? time : new Date(time)).toISOString();
         return this;
     }
     /**
@@ -112,7 +116,17 @@ class Embed {
      * The number of characters in the embed that have properties in [Discord's maximum embed lengths](https://discord.com/developers/docs/resources/channel#embed-limits) list.
      */
     getSize() {
-        return [this._raw.title, this._raw.description, this._raw.footer?.text, this._raw.author?.name, ...[this._raw.fields?.reduce((p, c) => `${p}${c.name}${c.value}`, ``) ?? []]].map((v) => v?.length ?? 0).reduce((p, c) => p + c, 0);
+        return [
+            this._raw.title,
+            this._raw.description,
+            this._raw.footer?.text,
+            this._raw.author?.name,
+            ...[
+                this._raw.fields?.reduce((p, c) => `${p}${c.name}${c.value}`, ``) ?? [],
+            ],
+        ]
+            .map((v) => v?.length ?? 0)
+            .reduce((p, c) => p + c, 0);
     }
 }
 exports.Embed = Embed;

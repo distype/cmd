@@ -1,7 +1,7 @@
-import { BaseComponentContext, BaseComponentContextCallback } from './base/BaseComponent';
-import { BaseSelect, SelectInteraction } from './base/BaseSelect';
-import { CommandHandler } from '../CommandHandler';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { BaseComponentContext, BaseComponentContextCallback } from "./base/BaseComponent";
+import { BaseSelect, SelectInteraction } from "./base/BaseSelect";
+import { CommandHandler } from "../CommandHandler";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * The user select menu builder.
  *

@@ -1,13 +1,13 @@
-import { CommandHandler } from '../../CommandHandler';
-import { InteractionContext } from '../../InteractionContext';
-import { FactoryComponents, FactoryMessage } from '../../../utils/messageFactory';
-import type { MiddlewareMeta } from '../../../middleware';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { CommandHandler } from "../../CommandHandler";
+import { InteractionContext } from "../../InteractionContext";
+import { FactoryComponents, FactoryMessage } from "../../../utils/messageFactory";
+import type { MiddlewareMeta } from "../../../middleware";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * Base component context callback.
  * @internal
  */
-export declare type BaseComponentContextCallback<T> = (ctx: T) => (void | Promise<void>);
+export type BaseComponentContextCallback<T> = (ctx: T) => void | Promise<void>;
 /**
  * The base component builder.
  * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)

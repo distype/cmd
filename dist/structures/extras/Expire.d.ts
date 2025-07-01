@@ -1,5 +1,5 @@
-import { CommandHandler, Component } from '../CommandHandler';
-import { Modal } from '../modals/Modal';
+import { CommandHandler, Component } from "../CommandHandler";
+import { Modal } from "../modals/Modal";
 /**
  * Expire helper for {@link Component components} and {@link Modal modals}.
  */
@@ -30,7 +30,7 @@ export declare class Expire {
      * @param time The time in milliseconds for the structures to expire.
      * @param onExpire A function to be called when the structures expire.
      */
-    constructor(structures: (Component | Modal<any>) | (Array<Component | Modal<any>>), time: number, onExpire?: () => void | Promise<void>);
+    constructor(structures: (Component | Modal<any>) | Array<Component | Modal<any>>, time: number, onExpire?: () => void | Promise<void>);
     /**
      * Clears the timer (bound structures wont expire).
      */

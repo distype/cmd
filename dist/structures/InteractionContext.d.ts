@@ -1,7 +1,7 @@
-import { CommandHandler } from './CommandHandler';
-import { FactoryComponents, FactoryMessage } from '../utils/messageFactory';
-import * as DiscordTypes from 'discord-api-types/v10';
-import { Client, Snowflake } from 'distype';
+import { CommandHandler } from "./CommandHandler";
+import { FactoryComponents, FactoryMessage } from "../utils/messageFactory";
+import * as DiscordTypes from "discord-api-types/v10";
+import { Client, Snowflake } from "distype";
 /**
  * Interaction context.
  */

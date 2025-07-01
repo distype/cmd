@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModalContext = exports.Modal = exports.ModalTextFieldStyle = void 0;
 const InteractionContext_1 = require("../InteractionContext");
@@ -33,7 +43,7 @@ var ModalTextFieldStyle;
 (function (ModalTextFieldStyle) {
     ModalTextFieldStyle[ModalTextFieldStyle["SHORT"] = 1] = "SHORT";
     ModalTextFieldStyle[ModalTextFieldStyle["PARAGRAPH"] = 2] = "PARAGRAPH";
-})(ModalTextFieldStyle = exports.ModalTextFieldStyle || (exports.ModalTextFieldStyle = {}));
+})(ModalTextFieldStyle || (exports.ModalTextFieldStyle = ModalTextFieldStyle = {}));
 /**
  * A modal builder.
  *
@@ -102,9 +112,9 @@ class Modal {
                     style: style,
                     min_length: options?.minLength,
                     max_length: options?.maxLength,
-                    placeholder: options?.placeholder
-                }
-            ]
+                    placeholder: options?.placeholder,
+                },
+            ],
         });
         return this;
     }
@@ -207,7 +217,11 @@ class ModalContext extends InteractionContext_1.InteractionContext {
     constructor(interaction, commandHandler) {
         super(interaction, commandHandler);
         this.modal = { id: interaction.data.custom_id };
-        this.fields = (interaction.data.components?.map((component) => component.components).flat() ?? []).reduce((p, c) => Object.assign(p, { [c.custom_id]: c.value?.length ? c.value : undefined }), {});
+        this.fields = (interaction.data.components
+            ?.map((component) => component.components)
+            .flat() ?? []).reduce((p, c) => Object.assign(p, {
+            [c.custom_id]: c.value?.length ? c.value : undefined,
+        }), {});
     }
 }
 exports.ModalContext = ModalContext;

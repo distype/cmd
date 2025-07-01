@@ -1,15 +1,15 @@
-import { Modal } from '../../modals/Modal';
-import { CommandHandler } from '../../CommandHandler';
-import { InteractionContext } from '../../InteractionContext';
-import type { MiddlewareMeta } from '../../../middleware';
-import { RemoveDeprecated, SanitizedCommand } from '../../../utils/sanitizeCommand';
-import * as DiscordTypes from 'discord-api-types/v10';
-import { PermissionsUtils, Snowflake } from 'distype';
+import { Modal } from "../../modals/Modal";
+import { CommandHandler } from "../../CommandHandler";
+import { InteractionContext } from "../../InteractionContext";
+import type { MiddlewareMeta } from "../../../middleware";
+import { RemoveDeprecated, SanitizedCommand } from "../../../utils/sanitizeCommand";
+import * as DiscordTypes from "discord-api-types/v10";
+import { PermissionsUtils, Snowflake } from "distype";
 /**
  * Base command context callback.
  * @internal
  */
-export declare type BaseCommandContextCallback<T> = (ctx: T) => (void | Promise<void>);
+export type BaseCommandContextCallback<T> = (ctx: T) => void | Promise<void>;
 /**
  * The base command builder.
  * @internal
@@ -58,12 +58,11 @@ export declare abstract class BaseCommand<Raw extends DiscordTypes.RESTPostAPIAp
      */
     setGuild(id: Snowflake): BaseCommand<Raw>;
     /**
-     * Set if the command should be locked to just guilds (`dm_permission`).
+     * Set if the command should be locked to just guilds.
      * Ignored if the command has a set guild.
-     * @param guildOnly If the command should be guild only.
      * @returns The command.
      */
-    setGuildOnly<T extends boolean>(guildOnly: T): BaseCommand<Raw>;
+    setGuildOnly(): BaseCommand<Raw>;
     /**
      * Get the guild the command belongs to.
      * @returns The guild's ID, or `null` if the command is global.

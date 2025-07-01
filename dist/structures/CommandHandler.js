@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandHandler = void 0;
 const ChatCommand_1 = require("./commands/ChatCommand");
@@ -35,8 +45,8 @@ const StringSelect_1 = require("./components/StringSelect");
 const UserSelect_1 = require("./components/UserSelect");
 const Modal_1 = require("./modals/Modal");
 const sanitizeCommand_1 = require("../utils/sanitizeCommand");
-const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const distype_1 = require("distype");
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
 const node_util_1 = require("node:util");
@@ -56,7 +66,7 @@ class CommandHandler {
      * Bound commands.
      * Key is their ID.
      */
-    _boundCommands = new node_utils_1.ExtendedMap();
+    _boundCommands = new distype_1.ExtendedMap();
     /**
      * Bound components.
      */
@@ -85,7 +95,8 @@ class CommandHandler {
         this.client = client;
         this.client.gateway.on(`INTERACTION_CREATE`, ({ d }) => this._onInteraction(d));
         this.client.log(`Initialized command handler`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
     /**
@@ -97,7 +108,9 @@ class CommandHandler {
     async extractFromDirectories(...directories) {
         const structures = [];
         for (const directory of directories) {
-            const path = (0, node_path_1.isAbsolute)(directory) ? directory : (0, node_path_1.resolve)(process.cwd(), directory);
+            const path = (0, node_path_1.isAbsolute)(directory)
+                ? directory
+                : (0, node_path_1.resolve)(process.cwd(), directory);
             const files = await (0, promises_1.readdir)(path, { withFileTypes: true });
             for (const file in files) {
                 if (files[file].isDirectory()) {
@@ -107,7 +120,7 @@ class CommandHandler {
                 if (!files[file].name.endsWith(`.js`))
                     continue;
                 delete require.cache[require.resolve((0, node_path_1.resolve)(path, files[file].name))];
-                const imported = await Promise.resolve().then(() => __importStar(require((0, node_path_1.resolve)(path, files[file].name))));
+                const imported = await Promise.resolve(`${(0, node_path_1.resolve)(path, files[file].name)}`).then(s => __importStar(require(s)));
                 const structure = imported.default ?? imported;
                 if (CommandHandler.isCompatableStructure(structure))
                     structures.push(structure);
@@ -123,7 +136,8 @@ class CommandHandler {
     async loadDirectories(...directories) {
         const structures = await this.extractFromDirectories(...directories);
         const commands = structures.filter((structure) => CommandHandler.isCommand(structure));
-        const customIds = structures.filter((structure) => CommandHandler.isComponent(structure) || CommandHandler.isModal(structure));
+        const customIds = structures.filter((structure) => CommandHandler.isComponent(structure) ||
+            CommandHandler.isModal(structure));
         await this.pushCommands(...commands);
         this.bind(...customIds);
     }
@@ -134,7 +148,8 @@ class CommandHandler {
      */
     async pushCommands(...commands) {
         this.client.log(`Pushing ${commands.length} commands`, {
-            level: `INFO`, system: this.system
+            level: `INFO`,
+            system: this.system,
         });
         await this._pushGlobalCommands(commands);
         await this._pushGuildCommands(commands);
@@ -202,13 +217,20 @@ class CommandHandler {
      * Checks if a structure is a {@link Command command}.
      */
     static isCommand(structure) {
-        return structure instanceof ChatCommand_1.ChatCommand || structure instanceof MessageCommand_1.MessageCommand || structure instanceof UserCommand_1.UserCommand;
+        return (structure instanceof ChatCommand_1.ChatCommand ||
+            structure instanceof MessageCommand_1.MessageCommand ||
+            structure instanceof UserCommand_1.UserCommand);
     }
     /**
      * Checks if a structure is a {@link Component component}.
      */
     static isComponent(structure) {
-        return structure instanceof Button_1.Button || structure instanceof ChannelSelect_1.ChannelSelect || structure instanceof MentionableSelect_1.MentionableSelect || structure instanceof RoleSelect_1.RoleSelect || structure instanceof StringSelect_1.StringSelect || structure instanceof UserSelect_1.UserSelect;
+        return (structure instanceof Button_1.Button ||
+            structure instanceof ChannelSelect_1.ChannelSelect ||
+            structure instanceof MentionableSelect_1.MentionableSelect ||
+            structure instanceof RoleSelect_1.RoleSelect ||
+            structure instanceof StringSelect_1.StringSelect ||
+            structure instanceof UserSelect_1.UserSelect);
     }
     /**
      * Checks if a structure is a {@link Modal modal}.
@@ -220,7 +242,9 @@ class CommandHandler {
      * Checks if a structure is compatible with the command handler.
      */
     static isCompatableStructure(structure) {
-        return this.isCommand(structure) || this.isComponent(structure) || this.isModal(structure);
+        return (this.isCommand(structure) ||
+            this.isComponent(structure) ||
+            this.isModal(structure));
     }
     /**
      * Pushes global {@link Command commands} to the API.
@@ -229,20 +253,25 @@ class CommandHandler {
     async _pushGlobalCommands(commands) {
         if (!this.client.gateway.user?.id)
             throw new Error(`Unable to push global commands: application ID is undefined (client.gateway.user.id)`);
-        const local = commands.filter((command) => !command.getGuild()).map((command) => (0, sanitizeCommand_1.sanitizeCommand)(command.getRaw()));
+        const local = commands
+            .filter((command) => !command.getGuild())
+            .map((command) => (0, sanitizeCommand_1.sanitizeCommand)(command.getRaw()));
         const published = await this.client.rest.getGlobalApplicationCommands(this.client.gateway.user.id, { with_localizations: true });
         this.client.log(`Found ${published.length} published global commands`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
         const deletedCommands = published.filter((published) => !local.find((local) => (0, node_util_1.isDeepStrictEqual)(local, (0, sanitizeCommand_1.sanitizeCommand)(published))));
         const newCommands = local.filter((local) => !published.find((published) => (0, node_util_1.isDeepStrictEqual)(local, (0, sanitizeCommand_1.sanitizeCommand)(published))));
         if (deletedCommands.length)
             this.client.log(`Delete (Global): ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
         if (newCommands.length)
             this.client.log(`New (Global): ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
         if (deletedCommands.length === published.length) {
             await this.client.rest.bulkOverwriteGlobalApplicationCommands(this.client.gateway.user.id, newCommands);
@@ -255,14 +284,17 @@ class CommandHandler {
                 await this.client.rest.createGlobalApplicationCommand(this.client.gateway.user.id, command);
             }
         }
-        const newPublished = newCommands.length + deletedCommands.length ? await this.client.rest.getGlobalApplicationCommands(this.client.gateway.user.id, {}) : published;
+        const newPublished = newCommands.length + deletedCommands.length
+            ? await this.client.rest.getGlobalApplicationCommands(this.client.gateway.user.id, {})
+            : published;
         newPublished.forEach((command) => {
             const foundLocal = commands.find((local) => !local.getGuild() && local.getRaw().name === command.name);
             if (foundLocal)
                 this._boundCommands.set(command.id, foundLocal);
         });
         this.client.log(`Created ${newCommands.length} global commands and deleted ${deletedCommands.length} global commands (Application now owns ${newPublished.length} global commands)`, {
-            level: `INFO`, system: this.system
+            level: `INFO`,
+            system: this.system,
         });
     }
     /**
@@ -272,22 +304,29 @@ class CommandHandler {
     async _pushGuildCommands(commands) {
         if (!this.client.gateway.user?.id)
             throw new Error(`Unable to push guild commands: application ID is undefined (client.gateway.user.id)`);
-        const guilds = new Set(commands.map((command) => command.getGuild()).filter((guild) => guild));
+        const guilds = new Set(commands
+            .map((command) => command.getGuild())
+            .filter((guild) => guild));
         for (const guild of guilds) {
-            const local = commands.filter((command) => command.getGuild() === guild).map((command) => (0, sanitizeCommand_1.sanitizeGuildCommand)(command.getRaw()));
+            const local = commands
+                .filter((command) => command.getGuild() === guild)
+                .map((command) => (0, sanitizeCommand_1.sanitizeGuildCommand)(command.getRaw()));
             const published = await this.client.rest.getGuildApplicationCommands(this.client.gateway.user.id, guild, { with_localizations: true });
             this.client.log(`Found ${published.length} published commands in guild ${guild}`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
             const deletedCommands = published.filter((published) => !local.find((local) => (0, node_util_1.isDeepStrictEqual)(local, (0, sanitizeCommand_1.sanitizeGuildCommand)(published))));
             const newCommands = local.filter((local) => !published.find((published) => (0, node_util_1.isDeepStrictEqual)(local, (0, sanitizeCommand_1.sanitizeGuildCommand)(published))));
             if (deletedCommands.length)
                 this.client.log(`Delete (${guild}): ${deletedCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
             if (newCommands.length)
                 this.client.log(`New (${guild}): ${newCommands.map((command) => `"${command.name}"`).join(`, `)}`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
             if (deletedCommands.length === published.length) {
                 await this.client.rest.bulkOverwriteGuildApplicationCommands(this.client.gateway.user.id, guild, newCommands);
@@ -300,14 +339,17 @@ class CommandHandler {
                     await this.client.rest.createGuildApplicationCommand(this.client.gateway.user.id, guild, command);
                 }
             }
-            const newPublished = newCommands.length + deletedCommands.length ? await this.client.rest.getGuildApplicationCommands(this.client.gateway.user.id, guild, {}) : published;
+            const newPublished = newCommands.length + deletedCommands.length
+                ? await this.client.rest.getGuildApplicationCommands(this.client.gateway.user.id, guild, {})
+                : published;
             newPublished.forEach((command) => {
                 const foundLocal = commands.find((local) => local.getRaw().name === command.name);
                 if (foundLocal)
                     this._boundCommands.set(command.id, foundLocal);
             });
             this.client.log(`Created ${newCommands.length} commands and deleted ${deletedCommands.length} commands in guild ${guild} (Application now owns ${newPublished.length} commands in guild ${guild})`, {
-                level: `INFO`, system: this.system
+                level: `INFO`,
+                system: this.system,
             });
         }
     }
@@ -341,7 +383,8 @@ class CommandHandler {
                 break;
             }
             case DiscordTypes.InteractionType.MessageComponent: {
-                structure = Array.from(this._boundComponents).find((component) => component.getCustomId() === interaction.data.custom_id && component.getType() === interaction.data.component_type);
+                structure = Array.from(this._boundComponents).find((component) => component.getCustomId() === interaction.data.custom_id &&
+                    component.getType() === interaction.data.component_type);
                 switch (interaction.data.component_type) {
                     case DiscordTypes.ComponentType.Button: {
                         if (structure)
@@ -385,13 +428,15 @@ class CommandHandler {
         }
         if (!structure || !context)
             return;
-        if (CommandHandler.isComponent(structure) || CommandHandler.isModal(structure)) {
+        if (CommandHandler.isComponent(structure) ||
+            CommandHandler.isModal(structure)) {
             const expire = Array.from(this._boundExpires).find((expire) => expire.structures.find((s) => s === structure));
             if (expire)
                 expire.resetTimer();
         }
         this.client.log(`Running interaction ${interaction.id}`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
         try {
             const middlewareCall = this._middleware(context, structure.getMiddlewareMeta());
@@ -419,14 +464,17 @@ class CommandHandler {
             try {
                 const call = this._error(context, error instanceof Error ? error : new Error(error));
                 if (call instanceof Promise) {
-                    const reject = await call.then(() => { }).catch((error) => error);
+                    const reject = await call
+                        .then(() => { })
+                        .catch((error) => error);
                     if (reject instanceof Error)
                         throw reject;
                 }
             }
             catch (eError) {
-                this.client.log(`Unable to run error callback on interaction ${interaction.id}: ${(eError?.message ?? eError) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.system
+                this.client.log(`Unable to run error callback on interaction ${interaction.id}: ${eError?.message ?? eError ?? `Unknown reason`}`, {
+                    level: `ERROR`,
+                    system: this.system,
                 });
             }
         }

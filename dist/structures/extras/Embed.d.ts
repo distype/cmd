@@ -1,4 +1,4 @@
-import * as DiscordTypes from 'discord-api-types/v10';
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * A message embed; specifically, a rich embed.
  *

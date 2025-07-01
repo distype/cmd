@@ -1,16 +1,16 @@
-import { BaseCommand, BaseCommandContext, BaseCommandContextCallback } from './base/BaseCommand';
-import { CommandHandler } from '../CommandHandler';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { BaseCommand, BaseCommandContext, BaseCommandContextCallback } from "./base/BaseCommand";
+import { CommandHandler } from "../CommandHandler";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * Add an option to a command.
  */
-declare type AddOption<T, R extends boolean, K extends string, GuildOnly extends boolean, Options extends Record<string, any>> = ChatCommand<GuildOnly, Options & {
+type AddOption<T, R extends boolean, K extends string, GuildOnly extends boolean, Options extends Record<string, any>> = ChatCommand<GuildOnly, Options & {
     [key in K]: R extends true ? T : T | undefined;
 }>;
 /**
  * Base options for chat command options.
  */
-declare type ChatCommandBaseOptionOptions = {
+type ChatCommandBaseOptionOptions = {
     description_localizations?: DiscordTypes.LocalizationMap;
     name_localizations?: DiscordTypes.LocalizationMap;
 };
@@ -32,7 +32,7 @@ declare type ChatCommandBaseOptionOptions = {
  */
 export declare class ChatCommand<GuildOnly extends boolean = false, Options extends Record<string, any> = Record<string, never>> extends BaseCommand<DiscordTypes.RESTPostAPIChatInputApplicationCommandsJSONBody> {
     setGuild: (id: string) => ChatCommand<true, Options>;
-    setGuildOnly: <T extends boolean>(guildOnly: T) => ChatCommand<T, Options>;
+    setGuildOnly: () => ChatCommand<true, Options>;
     setExecute: (executeCallback: BaseCommandContextCallback<ChatCommandContext<GuildOnly, Options>>) => this;
     getExecute: () => BaseCommandContextCallback<ChatCommandContext<GuildOnly, Options>>;
     protected _execute: BaseCommandContextCallback<ChatCommandContext<GuildOnly, Options>>;

@@ -1,10 +1,10 @@
-import { BaseComponent } from './BaseComponent';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { BaseComponent } from "./BaseComponent";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * Select interaction data.
  * @internal
  */
-export declare type SelectInteraction<T extends DiscordTypes.APISelectMenuComponent[`type`]> = DiscordTypes.APIBaseInteraction<DiscordTypes.InteractionType.MessageComponent, Extract<DiscordTypes.APIMessageSelectMenuInteractionData, {
+export type SelectInteraction<T extends DiscordTypes.APISelectMenuComponent[`type`]> = DiscordTypes.APIBaseInteraction<DiscordTypes.InteractionType.MessageComponent, Extract<DiscordTypes.APIMessageSelectMenuInteractionData, {
     component_type: T;
 }>> & Required<Pick<DiscordTypes.APIBaseInteraction<DiscordTypes.InteractionType.MessageComponent, Extract<DiscordTypes.APIMessageSelectMenuInteractionData, {
     component_type: T;

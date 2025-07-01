@@ -1,6 +1,6 @@
-import { BaseComponent, BaseComponentContext, BaseComponentContextCallback } from './base/BaseComponent';
-import { CommandHandler } from '../CommandHandler';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { BaseComponent, BaseComponentContext, BaseComponentContextCallback } from "./base/BaseComponent";
+import { CommandHandler } from "../CommandHandler";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * A button's style.
  */

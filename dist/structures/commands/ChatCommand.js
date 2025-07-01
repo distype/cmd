@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatCommandContext = exports.ChatCommand = void 0;
 const BaseCommand_1 = require("./base/BaseCommand");
@@ -75,7 +85,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.String,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -94,7 +104,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Integer,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -113,7 +123,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Boolean,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -132,7 +142,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.User,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -151,7 +161,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Channel,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -170,7 +180,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Role,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -189,7 +199,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Mentionable,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -208,7 +218,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Number,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -227,7 +237,7 @@ class ChatCommand extends BaseCommand_1.BaseCommand {
             name,
             type: DiscordTypes.ApplicationCommandOptionType.Attachment,
             required,
-            ...options
+            ...options,
         });
         return this;
     }
@@ -248,39 +258,40 @@ class ChatCommandContext extends BaseCommand_1.BaseCommandContext {
      */
     constructor(interaction, commandHandler) {
         super(interaction, commandHandler);
-        this.options = interaction.data?.options?.reduce((p, c) => {
-            let newParam;
-            switch (c.type) {
-                case DiscordTypes.ApplicationCommandOptionType.User: {
-                    newParam = {
-                        user: interaction.data.resolved?.users?.[c.value],
-                        member: interaction.data.resolved?.members?.[c.value]
-                    };
-                    break;
-                }
-                case DiscordTypes.ApplicationCommandOptionType.Channel: {
-                    newParam = interaction.data.resolved?.channels?.[c.value];
-                    break;
-                }
-                case DiscordTypes.ApplicationCommandOptionType.Role: {
-                    newParam = interaction.data.resolved?.roles?.[c.value];
-                    break;
-                }
-                case DiscordTypes.ApplicationCommandOptionType.Mentionable: {
-                    newParam = interaction.data.resolved?.roles?.[c.value]
-                        ?? {
-                            user: interaction.data.resolved?.users?.[c.value], member: interaction.data.resolved?.members?.[c.value]
+        this.options =
+            interaction.data?.options?.reduce((p, c) => {
+                let newParam;
+                switch (c.type) {
+                    case DiscordTypes.ApplicationCommandOptionType.User: {
+                        newParam = {
+                            user: interaction.data.resolved?.users?.[c.value],
+                            member: interaction.data.resolved?.members?.[c.value],
                         };
-                    break;
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandOptionType.Channel: {
+                        newParam = interaction.data.resolved?.channels?.[c.value];
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandOptionType.Role: {
+                        newParam = interaction.data.resolved?.roles?.[c.value];
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandOptionType.Mentionable: {
+                        newParam = interaction.data.resolved?.roles?.[c.value] ?? {
+                            user: interaction.data.resolved?.users?.[c.value],
+                            member: interaction.data.resolved?.members?.[c.value],
+                        };
+                        break;
+                    }
+                    case DiscordTypes.ApplicationCommandOptionType.Attachment: {
+                        newParam = interaction.data.resolved?.attachments?.[c.value];
+                        break;
+                    }
                 }
-                case DiscordTypes.ApplicationCommandOptionType.Attachment: {
-                    newParam = interaction.data.resolved?.attachments?.[c.value];
-                    break;
-                }
-            }
-            newParam ??= c.value;
-            return Object.assign(p, { [c.name]: newParam });
-        }, {}) ?? {};
+                newParam ??= c.value;
+                return Object.assign(p, { [c.name]: newParam });
+            }, {}) ?? {};
     }
 }
 exports.ChatCommandContext = ChatCommandContext;

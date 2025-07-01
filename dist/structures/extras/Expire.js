@@ -32,7 +32,7 @@ class Expire {
      * @param onExpire A function to be called when the structures expire.
      */
     constructor(structures, time, onExpire) {
-        this.structures = (Array.isArray(structures) ? structures : [structures]);
+        this.structures = Array.isArray(structures) ? structures : [structures];
         this._timeoutTime = time;
         this._onExpire = async () => {
             try {
@@ -44,8 +44,9 @@ class Expire {
                 }
             }
             catch (error) {
-                this.commandHandler?.client.log(`Unable to run expire unbind callback: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.commandHandler.system
+                this.commandHandler?.client.log(`Unable to run expire unbind callback: ${error?.message ?? error ?? `Unknown reason`}`, {
+                    level: `ERROR`,
+                    system: this.commandHandler.system,
                 });
             }
         };

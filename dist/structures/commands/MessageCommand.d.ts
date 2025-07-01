@@ -1,7 +1,7 @@
-import { BaseCommand, BaseCommandContext, BaseCommandContextCallback } from './base/BaseCommand';
-import { CommandHandler } from '../CommandHandler';
-import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'distype';
+import { BaseCommand, BaseCommandContext, BaseCommandContextCallback } from "./base/BaseCommand";
+import { CommandHandler } from "../CommandHandler";
+import * as DiscordTypes from "discord-api-types/v10";
+import { Snowflake } from "distype";
 /**
  * The message command builder.
  *
@@ -17,7 +17,7 @@ import { Snowflake } from 'distype';
  */
 export declare class MessageCommand<GuildOnly extends boolean = false> extends BaseCommand<DiscordTypes.RESTPostAPIContextMenuApplicationCommandsJSONBody> {
     setGuild: (id: string) => MessageCommand<true>;
-    setGuildOnly: <T extends boolean>(guildOnly: T) => MessageCommand<T>;
+    setGuildOnly: () => MessageCommand<true>;
     setExecute: (executeCallback: BaseCommandContextCallback<MessageCommandContext<GuildOnly>>) => this;
     getExecute: () => BaseCommandContextCallback<MessageCommandContext<GuildOnly>>;
     protected _execute: BaseCommandContextCallback<MessageCommandContext<GuildOnly>>;

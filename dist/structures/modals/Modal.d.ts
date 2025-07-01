@@ -1,11 +1,11 @@
-import { CommandHandler } from '../CommandHandler';
-import { InteractionContext } from '../InteractionContext';
-import type { MiddlewareMeta } from '../../middleware';
-import * as DiscordTypes from 'discord-api-types/v10';
+import { CommandHandler } from "../CommandHandler";
+import { InteractionContext } from "../InteractionContext";
+import type { MiddlewareMeta } from "../../middleware";
+import * as DiscordTypes from "discord-api-types/v10";
 /**
  * Add a field to a modal.
  */
-declare type AddField<T, R extends boolean, K extends string, Fields extends Record<string, any>> = Modal<Fields & {
+type AddField<T, R extends boolean, K extends string, Fields extends Record<string, any>> = Modal<Fields & {
     [key in K]: R extends true ? T : T | undefined;
 }>;
 /**
@@ -85,12 +85,12 @@ export declare class Modal<Fields extends Record<string, any> = Record<string, n
      * @param executeCallback The callback to execute when an interaction is received.
      * @returns The component.
      */
-    setExecute(executeCallback: (ctx: ModalContext<Fields>) => (void | Promise<void>)): this;
+    setExecute(executeCallback: (ctx: ModalContext<Fields>) => void | Promise<void>): this;
     /**
      * Gets the component's execute method.
      * @returns The execute method.
      */
-    getExecute(): (ctx: ModalContext<Fields>) => (void | Promise<void>);
+    getExecute(): (ctx: ModalContext<Fields>) => void | Promise<void>;
     /**
      * Converts the modal to a Discord API compatible object.
      * @returns The converted modal.

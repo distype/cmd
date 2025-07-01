@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.messageFactory = void 0;
+exports.messageFactory = messageFactory;
 const Embed_1 = require("../structures/extras/Embed");
-const node_utils_1 = require("@br88c/node-utils");
 const v10_1 = require("discord-api-types/v10");
 /**
  * Converts a message sent through a command to a Discord API compatible object.
@@ -26,20 +25,25 @@ function messageFactory(message, components) {
         else if (!Array.isArray(components[0])) {
             const buttons = components.filter((component) => component.getRaw().type === v10_1.ComponentType.Button);
             const selects = components.filter((component) => component.getRaw().type !== v10_1.ComponentType.Button);
-            componentMap = (0, node_utils_1.to2dArray)(buttons, 5).concat(selects.map((select) => [select]));
+            componentMap = buttons
+                .reduce((p, c) => p[p.length - 1].length === 5
+                ? p.concat([[c]])
+                : p.map((v, i) => (i !== p.length - 1 ? v : [...v, c])), [[]])
+                .filter((row) => row.length);
         }
         else {
             componentMap = components;
         }
-        res.components = componentMap.filter((row) => row.length).map((row) => ({
+        res.components = componentMap
+            .filter((row) => row.length)
+            .map((row) => ({
             type: v10_1.ComponentType.ActionRow,
-            components: row.map((component) => component.getRaw())
+            components: row.map((component) => component.getRaw()),
         }));
     }
     return {
         embeds: [],
         components: [],
-        ...res
+        ...res,
     };
 }
-exports.messageFactory = messageFactory;
