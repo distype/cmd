@@ -64,5 +64,5 @@ npm install @distype/cmd
 
 ### Prerequisites
 
-- **[Node.js >=16.13.0](https://nodejs.org/)**
-- **[NPM >=8.1.0](https://www.npmjs.com/)**
+- **[Node.js >=24.3.0](https://nodejs.org/)**
+- **[NPM >=11.4.2](https://www.npmjs.com/)**
