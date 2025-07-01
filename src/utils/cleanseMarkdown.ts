@@ -3,11 +3,11 @@
  * @param str The string to cleanse.
  * @returns The cleansed string.
  */
-export function cleanseMarkdown (str: string): string {
-    return str
-        .replaceAll(`\``, `\\\``)
-        .replaceAll(`~`, `\\~`)
-        .replaceAll(`*`, `\\*`)
-        .replaceAll(`_`, `\\_`)
-        .replaceAll(`|`, `\\|`);
+export function cleanseMarkdown(str: string): string {
+  return str
+    .replaceAll(`\``, `\\\``)
+    .replaceAll(`~`, `\\~`)
+    .replaceAll(`*`, `\\*`)
+    .replaceAll(`_`, `\\_`)
+    .replaceAll(`|`, `\\|`);
 }
